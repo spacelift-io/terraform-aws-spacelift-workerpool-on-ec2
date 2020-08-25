@@ -1,0 +1,62 @@
+variable "ami_id" {
+  type        = string
+  description = "ID of the Spacelift AMI"
+  default     = "ami-09c3c03b344b3e2c2"
+}
+
+variable "configuration" {
+  type        = string
+  description = <<EOF
+  User configuration. This allows you to decide how you want to pass your token
+  and private key to the environment - be that directly, or using SSM Parameter
+  Store, Vault etc. Ultimately, here you need to export SPACELIFT_TOKEN and
+  SPACELIFT_POOL_PRIVATE_KEY to the environment.
+  EOF
+}
+
+variable "ec2_instance_type" {
+  type        = string
+  description = "EC2 instance type for the workers"
+  default     = "t3.micro"
+}
+
+variable "max_size" {
+  type        = number
+  description = "Maximum number of workers to spin up"
+  default     = 10
+}
+
+variable "region" {
+  type        = string
+  description = "AWS region to put the resources in"
+}
+
+variable "security_groups" {
+  type        = list(string)
+  description = "List of security groups to use"
+}
+
+variable "tags" {
+  type        = list
+  description = "List of tags to set on the resources"
+  default     = []
+}
+
+variable "vpc_id" {
+  type        = string
+  description = "ID of the VPC to put the resources in"
+}
+
+variable "vpc_subnets" {
+  type        = list(string)
+  description = "List of VPC subnets to use"
+}
+
+variable "worker_pool_id" {
+  type        = string
+  description = "ID of the the worker pool"
+}
+
+locals {
+  namespace = "sp5ft-${var.worker_pool_id}"
+}
