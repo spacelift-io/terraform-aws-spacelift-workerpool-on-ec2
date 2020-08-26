@@ -10,7 +10,7 @@ set -e
 
   user_data_tail = <<EOF
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
-curl https://downloads.spacelift.io/spacelift-launcher --output /usr/bin/spacelift-launcher 2>/var/log/spacelift/error.log
+curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>/var/log/spacelift/error.log
 
 echo "Making the Spacelift launcher executable" >> /var/log/spacelift/info.log
 chmod 755 /usr/bin/spacelift-launcher 2>/var/log/spacelift/error.log
