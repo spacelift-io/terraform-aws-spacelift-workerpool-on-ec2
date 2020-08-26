@@ -12,8 +12,6 @@ curl https://downloads.spacelift.io/spacelift-launcher --output /usr/bin/spaceli
 echo "Making the Spacelift launcher executable" >> /var/log/spacelift/info.log
 chmod 755 /usr/bin/spacelift-launcher 2>/var/log/spacelift/error.log
 
-export LAUNCHER_WORKER_NETWORK=spacelift 
-
 echo "Retrieving EC2 instance ID" >> /var/log/spacelift/info.log
 export SPACELIFT_METADATA_instance_id=$(ec2-metadata --instance-id | cut -d ' ' -f2)
 
