@@ -26,11 +26,6 @@ variable "max_size" {
   default     = 10
 }
 
-variable "region" {
-  type        = string
-  description = "AWS region to put the resources in"
-}
-
 variable "security_groups" {
   type        = list(string)
   description = "List of security groups to use"
@@ -40,11 +35,6 @@ variable "tags" {
   type        = list
   description = "List of tags to set on the resources"
   default     = []
-}
-
-variable "vpc_id" {
-  type        = string
-  description = "ID of the VPC to put the resources in"
 }
 
 variable "vpc_subnets" {
