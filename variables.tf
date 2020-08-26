@@ -14,6 +14,12 @@ variable "configuration" {
   EOF
 }
 
+variable "domain_name" {
+  type        = string
+  description = "Top-level domain name to use for pulling the launcher binary"
+  default     = "spacelift.io"
+}
+
 variable "ec2_instance_type" {
   type        = string
   description = "EC2 instance type for the workers"
