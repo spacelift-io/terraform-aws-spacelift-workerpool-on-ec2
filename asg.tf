@@ -1,7 +1,10 @@
+data "aws_region" "this" {}
+
 locals {
   user_data_head = <<EOF
 #!/bin/bash
 
+spacelift () {(
 set -e
   EOF
 
@@ -16,10 +19,14 @@ echo "Retrieving EC2 instance ID" >> /var/log/spacelift/info.log
 export SPACELIFT_METADATA_instance_id=$(ec2-metadata --instance-id | cut -d ' ' -f2)
 
 echo "Retrieving EC2 ASG ID" >> /var/log/spacelift/info.log
-export SPACELIFT_METADATA_asg_id=$(aws autoscaling --region=${var.region} describe-auto-scaling-instances --instance-ids $SPACELIFT_METADATA_instance_id | jq -r '.AutoScalingInstances[0].AutoScalingGroupName')
+export SPACELIFT_METADATA_asg_id=$(aws autoscaling --region=${data.aws_region.this.name} describe-auto-scaling-instances --instance-ids $SPACELIFT_METADATA_instance_id | jq -r '.AutoScalingInstances[0].AutoScalingGroupName')
 
 echo "Starting the Spacelift binary" >> /var/log/spacelift/info.log
 /usr/bin/spacelift-launcher 1>/var/log/spacelift/info.log 2>/var/log/spacelift/error.log
+)}
+
+spacelift
+poweroff
   EOF
 }
 
@@ -33,8 +40,7 @@ module "asg" {
   image_id             = var.ami_id
   instance_type        = var.ec2_instance_type
   security_groups      = var.security_groups
-  iam_instance_profile = aws_iam_instance_profile.instances.arn
-  target_group_arns    = module.alb.target_group_arns
+  iam_instance_profile = aws_iam_instance_profile.this.arn
 
   ebs_block_device = [
     {
@@ -59,7 +65,7 @@ module "asg" {
   vpc_zone_identifier       = var.vpc_subnets
 
   health_check_grace_period = 30
-  health_check_type         = "ELB"
+  health_check_type         = "EC2"
   default_cooldown          = 10
 
   min_size = 0
