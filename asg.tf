@@ -34,7 +34,6 @@ module "asg" {
   instance_type        = var.ec2_instance_type
   security_groups      = var.security_groups
   iam_instance_profile = aws_iam_instance_profile.instances.arn
-  target_group_arns    = module.alb.target_group_arns
 
   ebs_block_device = [
     {
