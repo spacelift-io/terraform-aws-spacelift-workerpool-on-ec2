@@ -10,10 +10,10 @@ set -e
 
   user_data_tail = <<EOF
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
-curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>/var/log/spacelift/error.log
+curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
 echo "Making the Spacelift launcher executable" >> /var/log/spacelift/info.log
-chmod 755 /usr/bin/spacelift-launcher 2>/var/log/spacelift/error.log
+chmod 755 /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
 echo "Retrieving EC2 instance ID" >> /var/log/spacelift/info.log
 export SPACELIFT_METADATA_instance_id=$(ec2-metadata --instance-id | cut -d ' ' -f2)
@@ -22,7 +22,7 @@ echo "Retrieving EC2 ASG ID" >> /var/log/spacelift/info.log
 export SPACELIFT_METADATA_asg_id=$(aws autoscaling --region=${data.aws_region.this.name} describe-auto-scaling-instances --instance-ids $SPACELIFT_METADATA_instance_id | jq -r '.AutoScalingInstances[0].AutoScalingGroupName')
 
 echo "Starting the Spacelift binary" >> /var/log/spacelift/info.log
-/usr/bin/spacelift-launcher 1>/var/log/spacelift/info.log 2>/var/log/spacelift/error.log
+/usr/bin/spacelift-launcher 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
 )}
 
 spacelift
