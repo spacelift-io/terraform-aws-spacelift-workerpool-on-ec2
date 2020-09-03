@@ -44,18 +44,9 @@ module "asg" {
   security_groups      = var.security_groups
   iam_instance_profile = aws_iam_instance_profile.this.arn
 
-  ebs_block_device = [
-    {
-      device_name           = "/dev/xvdz"
-      volume_type           = "gp2"
-      volume_size           = "10"
-      delete_on_termination = true
-    }
-  ]
-
   root_block_device = [
     {
-      volume_size = "10"
+      volume_size = "40"
       volume_type = "gp2"
     },
   ]
