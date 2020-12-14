@@ -1,0 +1,6 @@
+version: 1
+module_version: 1.0.0
+
+tests:
+  - name: Set up in the default VPC
+    project_root: examples/default-vpc
