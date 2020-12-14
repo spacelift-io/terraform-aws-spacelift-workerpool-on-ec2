@@ -5,6 +5,10 @@ terraform {
   }
 }
 
+provider "aws" {
+  region = "eu-west-1"
+}
+
 data "aws_security_group" "this" {
   name = "default"
 }
