@@ -1,6 +1,9 @@
 version: 1
 module_version: 1.0.0
 
+test_defaults:
+  before_init: ["ls -la"]
+
 tests:
   - name: Set up in the default VPC
     project_root: examples/default-vpc
