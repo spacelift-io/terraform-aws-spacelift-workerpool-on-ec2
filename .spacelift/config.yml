@@ -1,5 +1,5 @@
 version: 1
-module_version: 1.0.0
+module_version: 1.0.1
 
 test_defaults:
   before_init: ["ls -la"]
