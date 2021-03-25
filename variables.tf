@@ -43,6 +43,12 @@ variable "tags" {
   default     = []
 }
 
+variable "volume_size" {
+  type        = number
+  default     = 40
+  description = "Size of instance EBS volume"
+}
+
 variable "vpc_subnets" {
   type        = list(string)
   description = "List of VPC subnets to use"
