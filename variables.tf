@@ -44,7 +44,11 @@ variable "security_groups" {
 }
 
 variable "tags" {
-  type        = list
+  type = list(object({
+    key                 = string
+    value               = string
+    propagate_at_launch = bool
+  }))
   description = "List of tags to set on the resources"
   default     = []
 }
