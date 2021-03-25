@@ -26,6 +26,12 @@ variable "ec2_instance_type" {
   default     = "t3.micro"
 }
 
+variable "min_size" {
+  type        = number
+  description = "Minimum numbers of workers to spin up"
+  default     = 0
+}
+
 variable "max_size" {
   type        = number
   description = "Maximum number of workers to spin up"
