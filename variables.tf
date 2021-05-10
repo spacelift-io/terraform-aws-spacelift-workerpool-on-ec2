@@ -4,6 +4,15 @@ variable "ami_id" {
   default     = "ami-09c3c03b344b3e2c2"
 }
 
+variable "assume_role_in_docker" {
+  type        = bool
+  description = <<EOF
+  Indicates whether the role can be assumed by jobs running in Docker
+  containers. This adds an extra allowed hop to IMDSv2 PUT response limit.
+  EOF
+  default     = true
+}
+
 variable "configuration" {
   type        = string
   description = <<EOF
@@ -38,7 +47,7 @@ variable "security_groups" {
 }
 
 variable "tags" {
-  type        = list
+  type        = list(any)
   description = "List of tags to set on the resources"
   default     = []
 }
