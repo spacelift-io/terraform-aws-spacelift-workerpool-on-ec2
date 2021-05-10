@@ -26,6 +26,12 @@ variable "ec2_instance_type" {
   default     = "t3.micro"
 }
 
+variable "min_size" {
+  type        = number
+  description = "Minimum numbers of workers to spin up"
+  default     = 0
+}
+
 variable "max_size" {
   type        = number
   description = "Maximum number of workers to spin up"
@@ -38,9 +44,19 @@ variable "security_groups" {
 }
 
 variable "tags" {
-  type        = list
+  type = list(object({
+    key                 = string
+    value               = string
+    propagate_at_launch = bool
+  }))
   description = "List of tags to set on the resources"
   default     = []
+}
+
+variable "volume_size" {
+  type        = number
+  default     = 40
+  description = "Size of instance EBS volume"
 }
 
 variable "vpc_subnets" {

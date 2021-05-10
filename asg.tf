@@ -46,7 +46,7 @@ module "asg" {
 
   root_block_device = [
     {
-      volume_size = "40"
+      volume_size = var.volume_size
       volume_type = "gp2"
     },
   ]
@@ -61,7 +61,7 @@ module "asg" {
   health_check_type         = "EC2"
   default_cooldown          = 10
 
-  min_size = 0
+  min_size = var.min_size
   max_size = var.max_size
 
   # Do not manage desired capacity!
