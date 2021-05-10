@@ -34,15 +34,15 @@ poweroff
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   name    = local.namespace
   lc_name = local.namespace
 
-  image_id             = var.ami_id
-  instance_type        = var.ec2_instance_type
-  security_groups      = var.security_groups
-  iam_instance_profile = aws_iam_instance_profile.this.arn
+  image_id                 = var.ami_id
+  instance_type            = var.ec2_instance_type
+  security_groups          = var.security_groups
+  iam_instance_profile_arn = aws_iam_instance_profile.this.arn
 
   root_block_device = [
     {
@@ -52,7 +52,6 @@ module "asg" {
   ]
 
   # Auto scaling group
-  asg_name                  = local.namespace
   wait_for_capacity_timeout = 0
   termination_policies      = ["OldestLaunchConfiguration"]
   vpc_zone_identifier       = var.vpc_subnets
@@ -75,6 +74,12 @@ module "asg" {
       local.user_data_tail,
     ])
   )
+
+  metadata_options = {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = var.assume_role_in_docker ? 2 : 1
+  }
 
   tags = concat(var.tags, [
     {

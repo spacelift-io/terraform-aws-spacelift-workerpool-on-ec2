@@ -9,12 +9,13 @@ provider "aws" {
   region = "eu-west-1"
 }
 
-data "aws_security_group" "this" {
-  name = "default"
-}
-
 data "aws_vpc" "this" {
   default = true
+}
+
+data "aws_security_group" "this" {
+  name   = "default"
+  vpc_id = data.aws_vpc.this.id
 }
 
 data "aws_subnet_ids" "this" {
