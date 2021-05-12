@@ -9,6 +9,9 @@ set -e
   EOF
 
   user_data_tail = <<EOF
+echo "Updating packages (security)" >> /var/log/spacelift/info.log
+yum update-minimal --security -y 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
+
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
 curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
