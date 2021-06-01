@@ -16,7 +16,7 @@ echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
 curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
 echo "Importing public GPG key" >> /var/log/spacelift/info.log
-curl -sS https://keys.openpgp.org/vks/v1/by-fingerprint/175FD97AD2358EFE02832978E302FB5AA29D88F7 | gpg --import 2>>/var/log/spacelift/error.log
+curl https://keys.openpgp.org/vks/v1/by-fingerprint/175FD97AD2358EFE02832978E302FB5AA29D88F7 | gpg --import 2>>/var/log/spacelift/error.log
 
 echo "Downloading Spacelift launcher checksum file and signature" >> /var/log/spacelift/info.log
 curl https://downloads.${var.domain_name}/spacelift-launcher_SHA256SUMS --output spacelift-launcher_SHA256SUMS 2>>/var/log/spacelift/error.log
@@ -34,11 +34,11 @@ fi
 
 CHECKSUM=$(cut -f 1 -d ' ' spacelift-launcher_SHA256SUMS)
 rm spacelift-launcher_SHA256SUMS
-RELEASE_SHA=$(shasum -a 256 /usr/bin/spacelift-launcher | cut -f 1 -d ' ')
+LAUNCHER_SHA=$(shasum -a 256 /usr/bin/spacelift-launcher | cut -f 1 -d ' ')
 
 echo "Verifying launcher binary..." >> /var/log/spacelift/info.log
-if [[ "$CHECKSUM" == "$RELEASE_SHA" ]]; then
-  echo "OK!" >> /var/log/spacelift/info.log
+if [[ "$CHECKSUM" == "$LAUNCHER_SHA" ]]; then
+  echo "OK\!" >> /var/log/spacelift/info.log
 else
   echo "Checksum and launcher binary hash did not match" >> /var/log/spacelift/error.log
   return 1
