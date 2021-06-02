@@ -27,13 +27,13 @@ gpg --verify spacelift-launcher_SHA256SUMS.sig 1>>/var/log/spacelift/info.log 2>
 
 retStatus=$?
 if [ $retStatus -eq 0 ]; then
-    echo "OK!" >> /var/log/spacelift/info.log
+    echo "OK\!" >> /var/log/spacelift/info.log
 else
     return $retStatus
 fi
 
 CHECKSUM=$(cut -f 1 -d ' ' spacelift-launcher_SHA256SUMS)
-rm spacelift-launcher_SHA256SUMS
+rm spacelift-launcher_SHA256SUMS spacelift-launcher_SHA256SUMS.sig
 LAUNCHER_SHA=$(shasum -a 256 /usr/bin/spacelift-launcher | cut -f 1 -d ' ')
 
 echo "Verifying launcher binary..." >> /var/log/spacelift/info.log
