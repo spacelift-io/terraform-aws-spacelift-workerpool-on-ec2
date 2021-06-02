@@ -34,7 +34,7 @@ fi
 
 CHECKSUM=$(cut -f 1 -d ' ' spacelift-launcher_SHA256SUMS)
 rm spacelift-launcher_SHA256SUMS spacelift-launcher_SHA256SUMS.sig
-LAUNCHER_SHA=$(shasum -a 256 /usr/bin/spacelift-launcher | cut -f 1 -d ' ')
+LAUNCHER_SHA=$(sha256sum /usr/bin/spacelift-launcher | cut -f 1 -d ' ')
 
 echo "Verifying launcher binary..." >> /var/log/spacelift/info.log
 if [[ "$CHECKSUM" == "$LAUNCHER_SHA" ]]; then
