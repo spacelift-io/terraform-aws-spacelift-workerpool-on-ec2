@@ -6,7 +6,7 @@ Terraform module deploying a Spacelift worker pool on AWS EC2 using an autoscali
 
 ```terraform
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=71733248ac1a509ec408b89d31828a9cef15ce3f"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=e954914020a5e1a561038cba27bb9d06438deba6"
 
   configuration = <<-EOT
     export SPACELIFT_TOKEN="${var.worker_pool_config}"
