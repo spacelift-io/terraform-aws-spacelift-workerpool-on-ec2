@@ -1,7 +1,7 @@
 variable "ami_id" {
   type        = string
   description = "ID of the Spacelift AMI"
-  default     = "ami-09c3c03b344b3e2c2"
+  default     = "ami-0e3b6f010d24a7e3f"
 }
 
 variable "configuration" {
