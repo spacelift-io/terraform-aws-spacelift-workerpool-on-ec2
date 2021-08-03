@@ -1,5 +1,5 @@
 version: 1
-module_version: 1.0.6
+module_version: 1.0.7
 
 tests:
   - name: Set up in the default VPC
