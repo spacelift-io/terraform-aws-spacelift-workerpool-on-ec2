@@ -86,8 +86,11 @@ module "asg" {
   # Auto scaling group
   asg_name                  = local.namespace
   wait_for_capacity_timeout = 0
-  termination_policies      = ["OldestLaunchConfiguration"]
-  vpc_zone_identifier       = var.vpc_subnets
+  termination_policies = [
+    "OldestLaunchConfiguration", # First look at the oldest launch configuration.
+    "OldestInstance",            # When that has not changed, kill oldest instances first.
+  ]
+  vpc_zone_identifier = var.vpc_subnets
 
   health_check_grace_period = 30
   health_check_type         = "EC2"
