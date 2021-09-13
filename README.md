@@ -20,3 +20,9 @@ module "my_workerpool" {
   vpc_subnets       = var.worker_pool_subnets
 }
 ```
+
+## Default AMI
+
+The default AMI used by this module comes from the [spacelift-worker-image](https://github.com/spacelift-io/spacelift-worker-image)
+repository. You can find the full list of AMIs on the [releases](https://github.com/spacelift-io/spacelift-worker-image/releases)
+page.
