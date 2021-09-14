@@ -9,11 +9,11 @@ output "instances_role_name" {
 }
 
 output "autoscaling_group_arn" {
-  value       = module.asg.this_autoscaling_group_arn
+  value       = module.asg.autoscaling_group_arn
   description = "ARN of the auto scaling group"
 }
 
 output "launch_configuration_id" {
-  value       = module.asg.this_launch_configuration_id
+  value       = module.asg.launch_configuration_id
   description = "ID of the launch configuration"
 }
