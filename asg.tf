@@ -92,6 +92,10 @@ module "asg" {
     "OldestLaunchConfiguration", # First look at the oldest launch configuration.
     "OldestInstance",            # When that has not changed, kill oldest instances first.
   ]
+  enabled_metrics = [
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+  ]
   vpc_zone_identifier = var.vpc_subnets
 
   health_check_grace_period = 30
