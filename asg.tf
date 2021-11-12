@@ -71,10 +71,11 @@ module "asg" {
   use_lc    = true
   create_lc = true
 
+  iam_instance_profile_name = aws_iam_instance_profile.this.arn
   image_id                  = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
   instance_type             = var.ec2_instance_type
+  placement_tenancy         = "default"
   security_groups           = var.security_groups
-  iam_instance_profile_name = aws_iam_instance_profile.this.name
 
   root_block_device = [
     {
