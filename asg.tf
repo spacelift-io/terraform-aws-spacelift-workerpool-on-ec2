@@ -66,29 +66,35 @@ poweroff
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   name    = local.namespace
   lc_name = local.namespace
 
-  image_id             = var.ami_id
-  instance_type        = var.ec2_instance_type
-  security_groups      = var.security_groups
-  iam_instance_profile = aws_iam_instance_profile.this.arn
+  use_lc    = true
+  create_lc = true
+
+  image_id                  = var.ami_id
+  instance_type             = var.ec2_instance_type
+  security_groups           = var.security_groups
+  iam_instance_profile_name = aws_iam_instance_profile.this.name
 
   root_block_device = [
     {
       volume_size = var.volume_size
-      volume_type = "gp2"
+      volume_type = "gp3"
     },
   ]
 
   # Auto scaling group
-  asg_name                  = local.namespace
   wait_for_capacity_timeout = 0
   termination_policies = [
     "OldestLaunchConfiguration", # First look at the oldest launch configuration.
     "OldestInstance",            # When that has not changed, kill oldest instances first.
+  ]
+  enabled_metrics = [
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
   ]
   vpc_zone_identifier = var.vpc_subnets
 
