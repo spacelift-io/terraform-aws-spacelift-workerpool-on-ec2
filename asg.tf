@@ -120,11 +120,6 @@ module "asg" {
     ])
   )
 
-  tags = concat(var.tags, [
-    {
-      key                 = "WorkerPoolID"
-      value               = var.worker_pool_id
-      propagate_at_launch = true
-    }
-  ])
+  tags        = var.tags
+  tags_as_map = { "WorkerPoolID" : var.worker_pool_id }
 }
