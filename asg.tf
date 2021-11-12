@@ -85,14 +85,13 @@ module "asg" {
 
   # Auto scaling group
   wait_for_capacity_timeout = 0
+
   termination_policies = [
     "OldestLaunchConfiguration", # First look at the oldest launch configuration.
     "OldestInstance",            # When that has not changed, kill oldest instances first.
   ]
-  enabled_metrics = [
-    "GroupDesiredCapacity",
-    "GroupInServiceInstances",
-  ]
+
+  enabled_metrics     = var.enabled_metrics
   vpc_zone_identifier = var.vpc_subnets
 
   health_check_grace_period = 30

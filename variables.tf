@@ -38,6 +38,21 @@ variable "ec2_instance_type" {
   default     = "t3.micro"
 }
 
+variable "enabled_metrics" {
+  type        = list(string)
+  description = "List of CloudWatch metrics enabled on the ASG"
+  default = [
+    "GroupDesiredCapacity",
+    "GroupInServiceInstances",
+    "GroupMaxSize",
+    "GroupMinSize",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupTerminatingInstances",
+    "GroupTotalInstances",
+  ]
+}
+
 variable "min_size" {
   type        = number
   description = "Minimum numbers of workers to spin up"
