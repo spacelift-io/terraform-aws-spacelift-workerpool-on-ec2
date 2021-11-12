@@ -9,9 +9,6 @@ set -e
   EOF
 
   user_data_tail = <<EOF
-echo "Updating packages (security)" >> /var/log/spacelift/info.log
-yum update-minimal --security -y 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
-
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
 curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
@@ -74,7 +71,7 @@ module "asg" {
   use_lc    = true
   create_lc = true
 
-  image_id                  = var.ami_id
+  image_id                  = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
   instance_type             = var.ec2_instance_type
   security_groups           = var.security_groups
   iam_instance_profile_name = aws_iam_instance_profile.this.name
@@ -107,6 +104,12 @@ module "asg" {
 
   # Do not manage desired capacity!
   desired_capacity = null
+
+  metadata_options = {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = var.disable_container_credentials ? 1 : 2
+  }
 
   # User data
   user_data = base64encode(

@@ -1,7 +1,7 @@
 variable "ami_id" {
   type        = string
   description = "ID of the Spacelift AMI"
-  default     = "ami-0e3b6f010d24a7e3f"
+  default     = ""
 }
 
 variable "configuration" {
@@ -12,6 +12,18 @@ variable "configuration" {
   Store, Vault etc. Ultimately, here you need to export SPACELIFT_TOKEN and
   SPACELIFT_POOL_PRIVATE_KEY to the environment.
   EOF
+}
+
+variable "disable_container_credentials" {
+  type        = bool
+  description = <<EOF
+  If true, the run container will not be able to access the instance profile
+  credentials by talking to the EC2 metadata endpoint. This is done by setting
+  the number of hops in IMDSv2 to 1. Since the Docker container goes through an
+  extra NAT step, this still allows the launcher to talk to the endpoint, but
+  prevents the container from doing so.
+  EOF
+  default     = false
 }
 
 variable "domain_name" {
