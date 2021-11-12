@@ -80,6 +80,12 @@ variable "tags" {
   default     = []
 }
 
+variable "volume_encryption" {
+  type        = bool
+  default     = false
+  description = "Whether to encrypt the EBS volume"
+}
+
 variable "volume_size" {
   type        = number
   default     = 40

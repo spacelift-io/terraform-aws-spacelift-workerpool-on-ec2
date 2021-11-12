@@ -79,7 +79,7 @@ module "asg" {
 
   root_block_device = [
     {
-      encrypted   = true
+      encrypted   = var.volume_encryption
       volume_size = var.volume_size
       volume_type = "gp3"
     },
