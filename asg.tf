@@ -9,9 +9,6 @@ set -e
   EOF
 
   user_data_tail = <<EOF
-echo "Updating packages (security)" >> /var/log/spacelift/info.log
-yum update-minimal --security -y 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
-
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
 curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
@@ -66,30 +63,37 @@ poweroff
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 3.0"
+  version = "~> 4.0"
 
   name    = local.namespace
   lc_name = local.namespace
 
-  image_id             = var.ami_id
-  instance_type        = var.ec2_instance_type
-  security_groups      = var.security_groups
-  iam_instance_profile = aws_iam_instance_profile.this.arn
+  use_lc    = true
+  create_lc = true
+
+  iam_instance_profile_name = aws_iam_instance_profile.this.arn
+  image_id                  = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
+  instance_type             = var.ec2_instance_type
+  placement_tenancy         = "default"
+  security_groups           = var.security_groups
 
   root_block_device = [
     {
+      encrypted   = var.volume_encryption
       volume_size = var.volume_size
-      volume_type = "gp2"
+      volume_type = "gp3"
     },
   ]
 
   # Auto scaling group
-  asg_name                  = local.namespace
   wait_for_capacity_timeout = 0
+
   termination_policies = [
     "OldestLaunchConfiguration", # First look at the oldest launch configuration.
     "OldestInstance",            # When that has not changed, kill oldest instances first.
   ]
+
+  enabled_metrics     = var.enabled_metrics
   vpc_zone_identifier = var.vpc_subnets
 
   health_check_grace_period = 30
@@ -102,6 +106,12 @@ module "asg" {
   # Do not manage desired capacity!
   desired_capacity = null
 
+  metadata_options = {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = var.disable_container_credentials ? 1 : 2
+  }
+
   # User data
   user_data = base64encode(
     join("\n", [
@@ -111,11 +121,6 @@ module "asg" {
     ])
   )
 
-  tags = concat(var.tags, [
-    {
-      key                 = "WorkerPoolID"
-      value               = var.worker_pool_id
-      propagate_at_launch = true
-    }
-  ])
+  tags        = var.tags
+  tags_as_map = { "WorkerPoolID" : var.worker_pool_id }
 }
