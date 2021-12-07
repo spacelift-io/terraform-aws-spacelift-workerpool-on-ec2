@@ -7,10 +7,10 @@ variable "ami_id" {
 variable "configuration" {
   type        = string
   description = <<EOF
-  User configuration. This allows you to decide how you want to pass your token
-  and private key to the environment - be that directly, or using SSM Parameter
-  Store, Vault etc. Ultimately, here you need to export SPACELIFT_TOKEN and
-  SPACELIFT_POOL_PRIVATE_KEY to the environment.
+  User configuration shell script. Ultimately, here you need to export
+  SPACELIFT_TOKEN and SPACELIFT_POOL_PRIVATE_KEY to the environment.
+
+  You can load these values directly, or use SSM Parameter Store, Vault etc.
   EOF
 }
 
