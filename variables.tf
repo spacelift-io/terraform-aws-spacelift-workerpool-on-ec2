@@ -105,3 +105,11 @@ variable "worker_pool_id" {
 locals {
   namespace = "sp5ft-${var.worker_pool_id}"
 }
+
+variable "instance_refresh" {
+  type        = bool
+  default     = false
+  description = <<-EOF
+    Whether to replace all instances when updating launch configuration.
+  EOF
+}

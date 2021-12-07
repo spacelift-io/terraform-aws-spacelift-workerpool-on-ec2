@@ -121,6 +121,15 @@ module "asg" {
     ])
   )
 
+  # Refresh all instances whenever the launch configuration changes (eg, changes
+  # to security groups, user data, etc).
+  instance_refresh = var.instance_refresh ? {
+    strategy = "Rolling"
+    preferences = {
+      min_healthy_percentage = 0
+    }
+  } : null
+
   tags        = var.tags
   tags_as_map = { "WorkerPoolID" : var.worker_pool_id }
 }
