@@ -110,6 +110,9 @@ variable "instance_refresh" {
   type        = bool
   default     = false
   description = <<-EOF
-    Whether to replace all instances when updating launch configuration.
+    Whether to replace all instances in the group when updating launch
+    configuration.
+    WARNING: Instance refresh can interrupt running Spacelift jobs and
+    temporarily reduce your worker pool size.
   EOF
 }
