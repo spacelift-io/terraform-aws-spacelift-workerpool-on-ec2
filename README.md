@@ -5,6 +5,15 @@ Terraform module deploying a Spacelift worker pool on AWS EC2 using an autoscali
 ## Usage
 
 ```terraform
+terraform {
+  required_providers {
+    google = {
+      source  = "hashicorp/aws"
+      version = "~> 4.6.0"
+    }
+  }
+}
+
 module "my_workerpool" {
   source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=e954914020a5e1a561038cba27bb9d06438deba6"
 
