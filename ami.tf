@@ -4,6 +4,11 @@ data "aws_ami" "this" {
   owners      = ["643313122712"]
 
   filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
     name   = "root-device-type"
     values = ["ebs"]
   }
