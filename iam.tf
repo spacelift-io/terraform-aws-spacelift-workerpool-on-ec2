@@ -17,7 +17,6 @@ resource "aws_iam_role_policy_attachment" "this" {
     "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess",
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess",
   ])
 
   role       = aws_iam_role.this.name
