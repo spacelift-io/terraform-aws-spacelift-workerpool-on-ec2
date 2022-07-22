@@ -10,6 +10,15 @@ set -e
 
 ${TF_CONFIGURATION}
 
+cw_config_ver=${TF_CW_CONFIG_VER}
+if [[ $cw_config_ver != 0 ]];then
+  echo "Configuring CloudWatch Agent with config version ${cw_config_ver}"
+  cw_config_source=/tmp/amazon-cloudwatch-agent-v${cw_config_ver}.json
+  cw_config_dest=/opt/aws/amazon-cloudwatch-agent/bin/config.json
+  cp "${cw_config_source}" ${cw_config_dest}
+  /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -s -c file:${cw_config_dest}
+fi
+
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
 curl https://downloads.${TF_DOMAIN_NAME}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 

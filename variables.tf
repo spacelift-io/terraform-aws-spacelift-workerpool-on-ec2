@@ -102,6 +102,18 @@ variable "worker_pool_id" {
   description = "ID of the the worker pool"
 }
 
+variable "cloudwatch_agent_config_version" {
+  type        = string
+  default     = "2"
+  description = <<-EOF
+    Version of the CloudWatch Agent configuration to use. This is used by the
+    official spacelift-worker-image AMI, as defined here:
+    https://github.com/spacelift-io/spacelift-worker-image
+    If you aren't using the official AMI, specify "0" for this variable and the
+    AMI-specific logic will not be inserted.
+  EOF
+}
+
 locals {
   namespace = "sp5ft-${var.worker_pool_id}"
 }

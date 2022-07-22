@@ -118,6 +118,7 @@ module "asg" {
       TF_DOMAIN_NAME   = var.domain_name
       TF_CONFIGURATION = var.configuration
       TF_REGION        = data.aws_region.this.name
+      TF_CW_CONFIG_VER = var.cloudwatch_agent_config_version
     })
   )
 
