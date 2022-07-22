@@ -114,11 +114,11 @@ module "asg" {
 
   # User data
   user_data = base64encode(
-    join("\n", [
-      local.user_data_head,
-      var.configuration,
-      local.user_data_tail,
-    ])
+    templatefile("${path.module}/user-data.sh", {
+      TF_DOMAIN_NAME   = var.domain_name
+      TF_CONFIGURATION = var.configuration
+      TF_REGION        = data.aws_region.this.name
+    })
   )
 
   tags        = var.tags
