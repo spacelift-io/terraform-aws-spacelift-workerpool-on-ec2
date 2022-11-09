@@ -63,7 +63,7 @@ poweroff
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 4.0"
+  version = "4.11.0"
 
   name    = local.namespace
   lc_name = local.namespace
