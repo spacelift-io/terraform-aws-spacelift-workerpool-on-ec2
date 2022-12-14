@@ -80,6 +80,12 @@ variable "tags" {
   default     = []
 }
 
+variable "additional_tags" {
+  type        = map(string)
+  description = "Additional tags to set on the resources"
+  default     = {}
+}
+
 variable "volume_encryption" {
   type        = bool
   default     = false

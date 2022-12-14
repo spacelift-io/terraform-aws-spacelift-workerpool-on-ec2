@@ -63,34 +63,35 @@ poweroff
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 4.0"
+  version = "~> 6.0"
 
-  name    = local.namespace
-  lc_name = local.namespace
+  name = local.namespace
 
-  use_lc    = true
-  create_lc = true
+  iam_instance_profile_arn = aws_iam_instance_profile.this.arn
+  image_id                 = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
+  instance_type            = var.ec2_instance_type
+  security_groups          = var.security_groups
 
-  iam_instance_profile_name = aws_iam_instance_profile.this.arn
-  image_id                  = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
-  instance_type             = var.ec2_instance_type
-  placement_tenancy         = "default"
-  security_groups           = var.security_groups
-
-  root_block_device = [
+  block_device_mappings = [
     {
-      encrypted   = var.volume_encryption
-      volume_size = var.volume_size
-      volume_type = "gp3"
-    },
+      # Root volume
+      device_name = "/dev/xvda"
+      no_device   = 0
+      ebs = {
+        delete_on_termination = true
+        encrypted             = var.volume_encryption
+        volume_size           = var.volume_size
+        volume_type           = "gp3"
+      }
+    }
   ]
 
   # Auto scaling group
   wait_for_capacity_timeout = 0
 
   termination_policies = [
-    "OldestLaunchConfiguration", # First look at the oldest launch configuration.
-    "OldestInstance",            # When that has not changed, kill oldest instances first.
+    "OldestLaunchTemplate", # First look at the oldest launch template.
+    "OldestInstance",       # When that has not changed, kill oldest instances first.
   ]
 
   enabled_metrics     = var.enabled_metrics
@@ -121,6 +122,9 @@ module "asg" {
     ])
   )
 
-  tags        = var.tags
-  tags_as_map = { "WorkerPoolID" : var.worker_pool_id }
+  tags = merge(var.additional_tags,
+    {
+      "WorkerPoolID" : var.worker_pool_id
+    }
+  )
 }
