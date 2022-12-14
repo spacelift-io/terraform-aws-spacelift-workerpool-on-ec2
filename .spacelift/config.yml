@@ -2,5 +2,5 @@ version: 1
 module_version: 1.2.0
 
 tests:
-  - name: Set up in the default VPC
-    project_root: examples/default-vpc
+  - name: Set up in a seperate VPC
+    project_root: examples/separate-vpc
