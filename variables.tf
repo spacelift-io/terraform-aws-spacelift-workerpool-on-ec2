@@ -70,14 +70,10 @@ variable "security_groups" {
   description = "List of security groups to use"
 }
 
-variable "tags" {
-  type = list(object({
-    key                 = string
-    value               = string
-    propagate_at_launch = bool
-  }))
-  description = "List of tags to set on the resources"
-  default     = []
+variable "additional_tags" {
+  type        = map(string)
+  description = "Additional tags to set on the resources"
+  default     = {}
 }
 
 variable "volume_encryption" {
