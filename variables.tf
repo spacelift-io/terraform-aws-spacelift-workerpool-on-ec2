@@ -1,6 +1,6 @@
 variable "ami_id" {
   type        = string
-  description = "ID of the Spacelift AMI"
+  description = "ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used."
   default     = ""
 }
 
