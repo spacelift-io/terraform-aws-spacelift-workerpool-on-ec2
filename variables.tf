@@ -34,7 +34,7 @@ variable "domain_name" {
 
 variable "ec2_instance_type" {
   type        = string
-  description = "EC2 instance type for the workers"
+  description = "EC2 instance type for the workers. If an arm64-based AMI is used, this must be an arm64-based instance type."
   default     = "t3.micro"
 }
 
@@ -95,7 +95,7 @@ variable "vpc_subnets" {
 
 variable "worker_pool_id" {
   type        = string
-  description = "ID of the the worker pool"
+  description = "ID of the the worker pool. It is used for the naming convention of the resources."
 }
 
 locals {

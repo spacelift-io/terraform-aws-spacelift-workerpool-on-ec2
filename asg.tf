@@ -9,15 +9,27 @@ set -e
   EOF
 
   user_data_tail = <<EOF
+currentArch=$(uname -m)
+
+if [[ "$currentArch" != "x86_64" && "$currentArch" != "aarch64" ]]; then
+  echo "Unsupported architecture: $currentArch" >> /var/log/spacelift/error.log
+  return 1
+fi
+
+baseURL="https://downloads.${var.domain_name}/spacelift-launcher"
+binaryURL=$(printf "%s-%s" "$baseURL" "$currentArch")
+shaSumURL=$(printf "%s-%s_%s" "$baseURL" "$currentArch" "SHA256SUMS")
+shaSumSigURL=$(printf "%s-%s_%s" "$baseURL" "$currentArch" "SHA256SUMS.sig")
+
 echo "Downloading Spacelift launcher" >> /var/log/spacelift/info.log
-curl https://downloads.${var.domain_name}/spacelift-launcher --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
+curl "$binaryURL" --output /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
 
 echo "Importing public GPG key" >> /var/log/spacelift/info.log
 curl https://keys.openpgp.org/vks/v1/by-fingerprint/175FD97AD2358EFE02832978E302FB5AA29D88F7 | gpg --import 2>>/var/log/spacelift/error.log
 
 echo "Downloading Spacelift launcher checksum file and signature" >> /var/log/spacelift/info.log
-curl https://downloads.${var.domain_name}/spacelift-launcher_SHA256SUMS --output spacelift-launcher_SHA256SUMS 2>>/var/log/spacelift/error.log
-curl https://downloads.${var.domain_name}/spacelift-launcher_SHA256SUMS.sig --output spacelift-launcher_SHA256SUMS.sig 2>>/var/log/spacelift/error.log
+curl "$shaSumURL" --output spacelift-launcher_SHA256SUMS 2>>/var/log/spacelift/error.log
+curl "$shaSumSigURL" --output spacelift-launcher_SHA256SUMS.sig 2>>/var/log/spacelift/error.log
 
 echo "Verifying checksum signature..." >> /var/log/spacelift/info.log
 gpg --verify spacelift-launcher_SHA256SUMS.sig 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log

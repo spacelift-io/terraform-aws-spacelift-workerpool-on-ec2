@@ -1,6 +1,6 @@
 data "aws_ami" "this" {
   most_recent = true
-  name_regex  = "^spacelift-\\d{10}$"
+  name_regex  = "^spacelift-\\d{10}-x86_64$"
   owners      = ["643313122712"]
 
   filter {
@@ -11,5 +11,10 @@ data "aws_ami" "this" {
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
+  }
+
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
