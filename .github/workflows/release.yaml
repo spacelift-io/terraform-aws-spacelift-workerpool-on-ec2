@@ -1,0 +1,50 @@
+name: Create tag and release 🚀
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+        with:
+          fetch-depth: 0
+      
+      - name: Get version number from .spacelift/config.yml
+        run: |
+          VERSION=$(docker run --rm -i -v "${PWD}":/workdir mikefarah/yq '.module_version' < ./.spacelift/config.yml)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+
+      - name: Create & push tag if not exists
+        run: |
+          git config --local user.email "cicd@spacelift.io"
+          git config --local user.name "Spacelift CI/CD"
+          
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists"
+            echo "CREATE_RELEASE=false" >> $GITHUB_ENV
+          else
+            echo "Creating tag v${VERSION}"
+            git tag -a "v${VERSION}" -m "v${VERSION}"
+            git push origin "v${VERSION}"
+            echo "CREATE_RELEASE=true" >> $GITHUB_ENV
+          fi
+
+      - name: Create release if not exists
+        if: env.CREATE_RELEASE == 'true'
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "v${{ env.VERSION }}"
+          generateReleaseNotes: true
+          allowUpdates: true
+          draft: false
+          prerelease: false
+
+      
