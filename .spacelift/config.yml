@@ -7,3 +7,6 @@ tests:
 
   - name: ARM64-based workerpool
     project_root: examples/arm64
+
+  - name: Custom IAM Role
+    project_root: examples/custom-iam-role

@@ -53,6 +53,18 @@ variable "enabled_metrics" {
   ]
 }
 
+variable "create_iam_role" {
+  default     = true
+  description = "Determines whether an IAM role is created or to use an existing IAM role"
+  type        = bool
+}
+
+variable "iam_role_arn" {
+  default     = null
+  description = "ARN of an existing IAM to use. Used `when create_iam_role` = `false`"
+  type        = string
+}
+
 variable "min_size" {
   type        = number
   description = "Minimum numbers of workers to spin up"
