@@ -9,7 +9,7 @@ The most important is that you should provide `SPACELIFT_TOKEN` and `SPACELIFT_P
 ```terraform
 terraform {
   required_providers {
-    google = {
+    aws = {
       source  = "hashicorp/aws"
       version = "~> 4.48.0"
     }
