@@ -110,6 +110,12 @@ variable "worker_pool_id" {
   description = "ID of the the worker pool. It is used for the naming convention of the resources."
 }
 
+variable "enable_monitoring" {
+  description = "Enables/disables detailed monitoring"
+  type        = bool
+  default     = true
+}
+
 locals {
   namespace = "sp5ft-${var.worker_pool_id}"
 }

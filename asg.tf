@@ -83,6 +83,7 @@ module "asg" {
   image_id                 = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
   instance_type            = var.ec2_instance_type
   security_groups          = var.security_groups
+  enable_monitoring        = var.enable_monitoring
 
   block_device_mappings = [
     {
