@@ -77,6 +77,12 @@ variable "max_size" {
   default     = 10
 }
 
+variable "poweroff_delay" {
+  type        = number
+  description = "Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped"
+  default     = 15
+}
+
 variable "security_groups" {
   type        = list(string)
   description = "List of security groups to use"

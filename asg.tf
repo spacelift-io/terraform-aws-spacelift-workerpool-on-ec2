@@ -68,8 +68,8 @@ echo "Starting the Spacelift binary" >> /var/log/spacelift/info.log
 )}
 
 spacelift
-echo "Powering off in 15 seconds" >> /var/log/spacelift/error.log
-sleep 15
+echo "Powering off in ${var.poweroff_delay} seconds" >> /var/log/spacelift/error.log
+sleep ${var.poweroff_delay}
 poweroff
   EOF
 }
