@@ -85,6 +85,7 @@ module "asg" {
   instance_type            = var.ec2_instance_type
   security_groups          = var.security_groups
   enable_monitoring        = var.enable_monitoring
+  instance_refresh         = var.instance_refresh
 
   block_device_mappings = [
     {
