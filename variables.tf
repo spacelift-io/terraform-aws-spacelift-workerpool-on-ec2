@@ -122,6 +122,12 @@ variable "enable_monitoring" {
   default     = true
 }
 
+variable "instance_refresh" {
+  description = "If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated based on instance refresh configration."
+  type        = any
+  default     = {}
+}
+
 locals {
   namespace = "sp5ft-${var.worker_pool_id}"
 }
