@@ -2,6 +2,8 @@
 
 Terraform module deploying a Spacelift worker pool on AWS EC2 using an autoscaling group.
 
+This module also deploys a Lambda function to check Spacelift and make scale in or scale out decisions. The function will check the queues in according Worker Pool and based on that increase or decrease the number of the workers.
+
 ## Usage
 
 The most important is that you should provide `SPACELIFT_TOKEN` and `SPACELIFT_POOL_PRIVATE_KEY` environmental variables in the `configuration` variable to the module. More information can be found in the [docs](https://docs.spacelift.io/concepts/worker-pools).
@@ -31,6 +33,8 @@ module "my_workerpool" {
   vpc_subnets       = var.worker_pool_subnets
 }
 ```
+
+You also need to update [variables](variables.tf) for the Lambda function to set the required `SPACELIFT_API_KEY_ID`, `SPACELIFT_API_KEY_ENDPOINT` and `SPACELIFT_WORKER_POOL_ID` parameters.
 
 ## Default AMI
 
