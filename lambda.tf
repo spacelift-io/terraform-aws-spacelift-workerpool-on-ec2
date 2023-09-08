@@ -1,20 +1,24 @@
 locals {
-  code_version = var.autoscaler_version
-  package_path = var.local_path
+  code_version  = var.autoscaler_version
   function_name = "ec2-autoscaler-${var.worker_pool_id}"
 }
 
-data "external" "package" {
-  program = [
-    "${path.module}/download.sh",
-    local.code_version,
-    local.package_path,
-  ]
+resource "null_resource" "download" {
+  provisioner "local-exec" {
+    command = "${path.module}/download.sh ${local.code_version}"
+  }
+}
+
+data "archive_file" "binary" {
+  type        = "zip"
+  source_file = "${var.local_path}ec2-workerpool-autoscaler_v${var.autoscaler_version}"
+  output_path = "ec2-workerpool-autoscaler_v${var.autoscaler_version}.zip"
+  depends_on  = [ null_resource.download ]
 }
 
 resource "aws_lambda_function" "autoscaler" {
-  filename         = local.package_path
-  source_code_hash = data.external.package.result.source_code_hash
+  filename         = data.archive_file.binary.output_path
+  source_code_hash = data.archive_file.binary.output_base64sha256
   function_name    = local.function_name
   role             = aws_iam_role.lambda.arn
   handler          = "ec2-workerpool-autoscaler_v${var.autoscaler_version}"
@@ -36,7 +40,7 @@ resource "aws_lambda_function" "autoscaler" {
     mode = "Active"
   }
 
-  depends_on = [ module.asg ]
+  depends_on = [ module.asg, null_resource.download ]
 }
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
