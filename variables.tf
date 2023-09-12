@@ -135,7 +135,7 @@ locals {
 variable "autoscaler_version" {
   type        = string
   description = "Version of the autoscaler to deploy"
-  default     = "0.1.0"
+  default     = "latest"
 }
 
 variable "spacelift_api_key_id" {
@@ -149,7 +149,7 @@ variable "spacelift_api_key_secret" {
   description = "Secret corresponding to the Spacelift API key to use"
 }
 
-variable "spacelift_url" {
+variable "spacelift_api_key_endpoint" {
   type        = string
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
 }
@@ -157,4 +157,5 @@ variable "spacelift_url" {
 variable "local_path" {
   type        = string
   description = "Local path for the binary download"
+  default     = "/tmp"
 }

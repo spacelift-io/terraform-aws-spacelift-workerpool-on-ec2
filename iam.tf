@@ -34,7 +34,7 @@ resource "aws_iam_instance_profile" "this" {
   role = var.create_iam_role ? aws_iam_role.this[0].name : var.iam_role_arn
 }
 
-data "aws_iam_policy_document" "lambda_policy" {
+data "aws_iam_policy_document" "autoscaler" {
   # Allow the Lambda to write CloudWatch Logs.
   statement {
     effect = "Allow"
@@ -64,15 +64,10 @@ data "aws_iam_policy_document" "lambda_policy" {
     actions = [
       "autoscaling:DetachInstances",
       "autoscaling:SetDesiredCapacity",
+      "autoscaling:DescribeAutoScalingGroups",
     ]
 
     resources = [module.asg.autoscaling_group_arn]
-  }
-
-  statement {
-    effect    = "Allow"
-    actions   = ["autoscaling:DescribeAutoScalingGroups"]
-    resources = ["*"]
   }
 
   # Allow the Lambda to DescribeInstances and TerminateInstances on the EC2 instances.
@@ -94,7 +89,7 @@ data "aws_iam_policy_document" "lambda_policy" {
   }
 }
 
-resource "aws_iam_role" "lambda" {
+resource "aws_iam_role" "autoscaler" {
   name               = "ec2-autoscaler-${var.worker_pool_id}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -111,7 +106,7 @@ resource "aws_iam_role" "lambda" {
 
   inline_policy {
     name   = "ec2-autoscaler-${var.worker_pool_id}"
-    policy = data.aws_iam_policy_document.lambda_policy.json
+    policy = data.aws_iam_policy_document.autoscaler.json
   }
 
   depends_on = [ module.asg ]
