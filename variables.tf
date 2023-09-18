@@ -135,7 +135,7 @@ locals {
 variable "autoscaler_version" {
   type        = string
   description = "Version of the autoscaler to deploy"
-  default     = "latest"
+  default     = "0.1.0"
 }
 
 variable "spacelift_api_key_id" {
