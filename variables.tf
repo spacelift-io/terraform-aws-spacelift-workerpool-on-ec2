@@ -160,5 +160,5 @@ variable "spacelift_api_key_endpoint" {
 variable "local_path" {
   type        = string
   description = "Local path for the binary download"
-  default     = "/mnt/workspace/source/lambda/"
+  default     = "/lambda/"
 }
