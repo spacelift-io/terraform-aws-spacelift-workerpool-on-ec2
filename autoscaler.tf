@@ -10,7 +10,7 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 
 resource "null_resource" "download" {
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${var.autoscaler_version}"
+    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.local_path}"
   }
 }
 
