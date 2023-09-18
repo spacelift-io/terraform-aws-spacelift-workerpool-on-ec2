@@ -16,7 +16,7 @@ resource "null_resource" "download" {
 
 data "archive_file" "binary" {
   type        = "zip"
-  source_file = "${var.local_path}ec2-workerpool-autoscaler_v${var.autoscaler_version}"
+  source_file = "${var.local_path}/ec2-workerpool-autoscaler_v${var.autoscaler_version}"
   output_path = "ec2-workerpool-autoscaler_v${var.autoscaler_version}.zip"
   depends_on  = [ null_resource.download ]
 }
