@@ -135,30 +135,36 @@ locals {
 variable "autoscaler_version" {
   type        = string
   description = "Version of the autoscaler to deploy"
-  default     = "0.1.0"
+  default     = "latest"
 }
 
 variable "spacelift_api_key_id" {
   type        = string
   description = "ID of the Spacelift API key to use"
-  default     = "0VOYU49U485BMZZVAWXU59VOW2"
+  default     = ""
 }
 
 variable "spacelift_api_key_secret" {
   type        = string
   sensitive   = true
   description = "Secret corresponding to the Spacelift API key to use"
-  default     = "f7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+  default     = ""
 }
 
 variable "spacelift_api_key_endpoint" {
   type        = string
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
-  default     = "https://example.app.spacelift.io"
+  default     = ""
 }
 
 variable "local_path" {
   type        = string
   description = "Local path for the binary download"
-  default     = "/mnt/workspace/source/examples"
+  default     = "/tmp"
+}
+
+variable "schedule_expression" {
+  type        = string
+  description = "The scheduling expression"
+  default     = "rate(1 minute)"
 }

@@ -16,8 +16,8 @@ resource "null_resource" "download" {
 
 data "archive_file" "binary" {
   type        = "zip"
-  source_file = "${var.local_path}/ec2-workerpool-autoscaler_v${var.autoscaler_version}"
-  output_path = "ec2-workerpool-autoscaler_v${var.autoscaler_version}.zip"
+  source_file = "${var.local_path}/bootstrap"
+  output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
   depends_on  = [ null_resource.download ]
 }
 
@@ -26,8 +26,8 @@ resource "aws_lambda_function" "autoscaler" {
   source_code_hash = data.archive_file.binary.output_base64sha256
   function_name    = local.function_name
   role             = aws_iam_role.autoscaler.arn
-  handler          = "ec2-workerpool-autoscaler_v${var.autoscaler_version}"
-  runtime          = "go1.x"
+  handler          = "bootstrap"
+  runtime          = "provided.al2"
 
   environment {
     variables = {
@@ -50,7 +50,7 @@ resource "aws_lambda_function" "autoscaler" {
 resource "aws_cloudwatch_event_rule" "scheduling" {
   name                = "spacelift-${var.worker_pool_id}-scheduling"
   description         = "Spacelift autoscaler scheduling for worker pool ${var.worker_pool_id}"
-  schedule_expression = "rate(1 minute)"
+  schedule_expression = var.schedule_expression
 }
 
 resource "aws_cloudwatch_event_target" "scheduling" {
