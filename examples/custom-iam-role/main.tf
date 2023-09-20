@@ -65,4 +65,8 @@ module "this" {
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
   worker_pool_id  = random_pet.this.id
+  spacelift_api_key_id = var.spacelift_api_key_id
+  spacelift_api_key_secret = var.spacelift_api_key_secret
+  spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
+  local_path = var.local_path
 }
