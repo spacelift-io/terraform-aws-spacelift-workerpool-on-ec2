@@ -141,26 +141,22 @@ variable "autoscaler_version" {
 variable "spacelift_api_key_id" {
   type        = string
   description = "ID of the Spacelift API key to use"
-  default     = ""
 }
 
 variable "spacelift_api_key_secret" {
   type        = string
   sensitive   = true
   description = "Secret corresponding to the Spacelift API key to use"
-  default     = ""
 }
 
 variable "spacelift_api_key_endpoint" {
   type        = string
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
-  default     = ""
 }
 
 variable "local_path" {
   type        = string
   description = "Local path for the binary download"
-  default     = "/tmp"
 }
 
 variable "schedule_expression" {
