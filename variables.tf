@@ -135,7 +135,7 @@ locals {
 variable "autoscaler_version" {
   type        = string
   description = "Version of the autoscaler to deploy"
-  default     = "latest"
+  default     = "v0.2.0"
 }
 
 variable "spacelift_api_key_id" {
@@ -157,6 +157,7 @@ variable "spacelift_api_key_endpoint" {
 variable "local_path" {
   type        = string
   description = "Local path for the binary download"
+  default     = "/tmp"
 }
 
 variable "schedule_expression" {

@@ -46,5 +46,4 @@ module "this" {
   spacelift_api_key_id = var.spacelift_api_key_id
   spacelift_api_key_secret = var.spacelift_api_key_secret
   spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
-  local_path = var.local_path
 }

@@ -13,8 +13,3 @@ variable "spacelift_api_key_endpoint" {
   type        = string
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
 }
-
-variable "local_path" {
-  type        = string
-  description = "Local path for the binary download"
-}
