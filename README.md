@@ -34,7 +34,7 @@ module "my_workerpool" {
 }
 ```
 
-You also need to update [variables](variables.tf) for the Lambda function to set the required `SPACELIFT_API_KEY_ID`, `SPACELIFT_API_KEY_ENDPOINT` and `SPACELIFT_WORKER_POOL_ID` parameters.
+You also need to add the required values for `spacelift_api_key_endpoint`, `spacelift_api_key_id`, `spacelift_api_key_secret` and `worker_pool_id` to the module block for the Lambda Autoscaler function to set the required `SPACELIFT_API_KEY_ENDPOINT`, `SPACELIFT_API_KEY_ID`, `SPACELIFT_API_KEY_SECRET_NAME` and `SPACELIFT_WORKER_POOL_ID` parameters.
 
 ## Default AMI
 
@@ -110,6 +110,7 @@ $ make docs
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used. | `string` | `""` | no |
 | <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"v0.2.0"` | no |
 | <a name="input_configuration"></a> [configuration](#input\_configuration) | User configuration. This allows you to decide how you want to pass your token<br>  and private key to the environment - be that directly, or using SSM Parameter<br>  Store, Vault etc. Ultimately, here you need to export SPACELIFT\_TOKEN and<br>  SPACELIFT\_POOL\_PRIVATE\_KEY to the environment. | `string` | n/a | yes |
+| <a name="input_create_autoscaler_function"></a> [create\_autoscaler\_function](#input\_create\_autoscaler\_function) | Determines whether to create the Lambda Autoscaler function and dependent resources or not | `bool` | `true` | no |
 | <a name="input_create_iam_role"></a> [create\_iam\_role](#input\_create\_iam\_role) | Determines whether an IAM role is created or to use an existing IAM role | `bool` | `true` | no |
 | <a name="input_disable_container_credentials"></a> [disable\_container\_credentials](#input\_disable\_container\_credentials) | If true, the run container will not be able to access the instance profile<br>  credentials by talking to the EC2 metadata endpoint. This is done by setting<br>  the number of hops in IMDSv2 to 1. Since the Docker container goes through an<br>  extra NAT step, this still allows the launcher to talk to the endpoint, but<br>  prevents the container from doing so. | `bool` | `false` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Top-level domain name to use for pulling the launcher binary | `string` | `"spacelift.io"` | no |

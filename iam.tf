@@ -35,6 +35,7 @@ resource "aws_iam_instance_profile" "this" {
 }
 
 data "aws_iam_policy_document" "autoscaler" {
+  count = var.create_autoscaler_function ? 1 : 0
   # Allow the Lambda to write CloudWatch Logs.
   statement {
     effect = "Allow"
@@ -90,16 +91,17 @@ data "aws_iam_policy_document" "autoscaler" {
 }
 
 resource "aws_iam_role" "autoscaler" {
-  name               = "ec2-autoscaler-${var.worker_pool_id}"
+  count = var.create_autoscaler_function ? 1 : 0
+  name  = "ec2-autoscaler-${var.worker_pool_id}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "lambda.amazonaws.com"
-      },
-      "Action": "sts:AssumeRole"
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "lambda.amazonaws.com"
+        },
+        "Action" : "sts:AssumeRole"
       },
     ]
   })
@@ -109,5 +111,5 @@ resource "aws_iam_role" "autoscaler" {
     policy = data.aws_iam_policy_document.autoscaler.json
   }
 
-  depends_on = [ module.asg ]
+  depends_on = [module.asg]
 }
