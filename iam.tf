@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "autoscaler" {
       "logs:PutLogEvents",
     ]
 
-    resources = ["${aws_cloudwatch_log_group.log_group.arn}:*"]
+    resources = ["${aws_cloudwatch_log_group.log_group[cound.index].arn}:*"]
   }
 
   # Allow the Lambda to put X-Ray traces.
@@ -86,7 +86,7 @@ data "aws_iam_policy_document" "autoscaler" {
   statement {
     effect    = "Allow"
     actions   = ["ssm:GetParameter"]
-    resources = [aws_ssm_parameter.spacelift_api_key_secret.arn]
+    resources = [aws_ssm_parameter.spacelift_api_key_secret[count.index].arn]
   }
 }
 
