@@ -60,8 +60,8 @@ resource "aws_cloudwatch_event_rule" "scheduling" {
 
 resource "aws_cloudwatch_event_target" "scheduling" {
   count = var.create_autoscaler_function ? 1 : 0
-  rule  = aws_cloudwatch_event_rule[count.index].scheduling.name
-  arn   = aws_lambda_function.autoscaler.arn
+  rule  = aws_cloudwatch_event_rule.scheduling[count.index].name
+  arn   = aws_lambda_function.autoscaler[count.index].arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
