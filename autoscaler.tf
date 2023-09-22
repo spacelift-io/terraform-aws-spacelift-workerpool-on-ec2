@@ -26,10 +26,10 @@ data "archive_file" "binary" {
 
 resource "aws_lambda_function" "autoscaler" {
   count            = var.create_autoscaler_function ? 1 : 0
-  filename         = data.archive_file.binary.output_path
-  source_code_hash = data.archive_file.binary.output_base64sha256
+  filename         = data.archive_file.binary[cound.index].output_path
+  source_code_hash = data.archive_file.binary[count.index].output_base64sha256
   function_name    = local.function_name
-  role             = aws_iam_role.autoscaler.arn
+  role             = aws_iam_role.autoscaler[count.index].arn
   handler          = "bootstrap"
   runtime          = "provided.al2"
 
@@ -38,7 +38,7 @@ resource "aws_lambda_function" "autoscaler" {
       AUTOSCALING_GROUP_ARN         = module.asg.autoscaling_group_arn
       AUTOSCALING_REGION            = data.aws_region.this.name
       SPACELIFT_API_KEY_ID          = var.spacelift_api_key_id
-      SPACELIFT_API_KEY_SECRET_NAME = aws_ssm_parameter.spacelift_api_key_secret.name
+      SPACELIFT_API_KEY_SECRET_NAME = aws_ssm_parameter.spacelift_api_key_secret[count.index].name
       SPACELIFT_API_KEY_ENDPOINT    = var.spacelift_api_key_endpoint
       SPACELIFT_WORKER_POOL_ID      = var.worker_pool_id
     }
@@ -60,7 +60,7 @@ resource "aws_cloudwatch_event_rule" "scheduling" {
 
 resource "aws_cloudwatch_event_target" "scheduling" {
   count = var.create_autoscaler_function ? 1 : 0
-  rule  = aws_cloudwatch_event_rule.scheduling.name
+  rule  = aws_cloudwatch_event_rule[count.index].scheduling.name
   arn   = aws_lambda_function.autoscaler.arn
 }
 
@@ -68,9 +68,9 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
   count         = var.create_autoscaler_function ? 1 : 0
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.autoscaler.function_name
+  function_name = aws_lambda_function.autoscaler[count.index].function_name
   principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.scheduling.arn
+  source_arn    = aws_cloudwatch_event_rule.scheduling[count.index].arn
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
