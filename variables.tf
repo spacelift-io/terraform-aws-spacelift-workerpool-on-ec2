@@ -131,3 +131,43 @@ variable "instance_refresh" {
 locals {
   namespace = "sp5ft-${var.worker_pool_id}"
 }
+
+variable "enable_autoscaling" {
+  default     = true
+  description = "Determines whether to create the Lambda Autoscaler function and dependent resources or not"
+  type        = bool
+}
+
+variable "autoscaler_version" {
+  type        = string
+  description = "Version of the autoscaler to deploy"
+  default     = "v0.2.0"
+}
+
+variable "spacelift_api_key_id" {
+  type        = string
+  description = "ID of the Spacelift API key to use"
+}
+
+variable "spacelift_api_key_secret" {
+  type        = string
+  sensitive   = true
+  description = "Secret corresponding to the Spacelift API key to use"
+}
+
+variable "spacelift_api_key_endpoint" {
+  type        = string
+  description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
+}
+
+variable "local_path" {
+  type        = string
+  description = "Local path for the binary download"
+  default     = "/tmp"
+}
+
+variable "schedule_expression" {
+  type        = string
+  description = "The scheduling expression"
+  default     = "rate(1 minute)"
+}

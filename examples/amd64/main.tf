@@ -36,11 +36,14 @@ resource "random_pet" "this" {}
 module "this" {
   source = "../../"
 
-  configuration   = <<-EOT
+  configuration              = <<-EOT
     export SPACELIFT_TOKEN="<token-here>"
     export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
   EOT
-  security_groups = [data.aws_security_group.this.id]
-  vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_pet.this.id
+  security_groups            = [data.aws_security_group.this.id]
+  spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
+  spacelift_api_key_id       = var.spacelift_api_key_id
+  spacelift_api_key_secret   = var.spacelift_api_key_secret
+  vpc_subnets                = data.aws_subnets.this.ids
+  worker_pool_id             = random_pet.this.id
 }
