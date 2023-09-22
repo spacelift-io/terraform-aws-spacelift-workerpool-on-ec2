@@ -108,7 +108,7 @@ resource "aws_iam_role" "autoscaler" {
 
   inline_policy {
     name   = "ec2-autoscaler-${var.worker_pool_id}"
-    policy = data.aws_iam_policy_document.autoscaler.json
+    policy = data.aws_iam_policy_document.autoscaler[count.index].json
   }
 
   depends_on = [module.asg]
