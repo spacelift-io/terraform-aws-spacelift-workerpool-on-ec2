@@ -44,7 +44,7 @@ data "aws_iam_policy_document" "autoscaler" {
       "logs:PutLogEvents",
     ]
 
-    resources = ["${aws_cloudwatch_log_group.log_group[cound.index].arn}:*"]
+    resources = ["${aws_cloudwatch_log_group.log_group[count.index].arn}:*"]
   }
 
   # Allow the Lambda to put X-Ray traces.
