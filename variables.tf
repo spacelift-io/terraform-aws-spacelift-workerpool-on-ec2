@@ -132,7 +132,7 @@ locals {
   namespace = "sp5ft-${var.worker_pool_id}"
 }
 
-variable "create_autoscaler_function" {
+variable "enable_autoscaling" {
   default     = true
   description = "Determines whether to create the Lambda Autoscaler function and dependent resources or not"
   type        = bool

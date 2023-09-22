@@ -3,21 +3,21 @@ locals {
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
-  count = var.create_autoscaler_function ? 1 : 0
+  count = var.enable_autoscaling ? 1 : 0
   name  = "/ec2-autoscaler/spacelift-api-secret-${var.worker_pool_id}"
   type  = "SecureString"
   value = var.spacelift_api_key_secret
 }
 
 resource "null_resource" "download" {
-  count = var.create_autoscaler_function ? 1 : 0
+  count = var.enable_autoscaling ? 1 : 0
   provisioner "local-exec" {
     command = "${path.module}/download.sh ${var.autoscaler_version} ${var.local_path}"
   }
 }
 
 data "archive_file" "binary" {
-  count       = var.create_autoscaler_function ? 1 : 0
+  count       = var.enable_autoscaling ? 1 : 0
   type        = "zip"
   source_file = "${var.local_path}/bootstrap"
   output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
@@ -25,7 +25,7 @@ data "archive_file" "binary" {
 }
 
 resource "aws_lambda_function" "autoscaler" {
-  count            = var.create_autoscaler_function ? 1 : 0
+  count            = var.enable_autoscaling ? 1 : 0
   filename         = data.archive_file.binary[count.index].output_path
   source_code_hash = data.archive_file.binary[count.index].output_base64sha256
   function_name    = local.function_name
@@ -52,20 +52,20 @@ resource "aws_lambda_function" "autoscaler" {
 }
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
-  count               = var.create_autoscaler_function ? 1 : 0
+  count               = var.enable_autoscaling ? 1 : 0
   name                = "spacelift-${var.worker_pool_id}-scheduling"
   description         = "Spacelift autoscaler scheduling for worker pool ${var.worker_pool_id}"
   schedule_expression = var.schedule_expression
 }
 
 resource "aws_cloudwatch_event_target" "scheduling" {
-  count = var.create_autoscaler_function ? 1 : 0
+  count = var.enable_autoscaling ? 1 : 0
   rule  = aws_cloudwatch_event_rule.scheduling[count.index].name
   arn   = aws_lambda_function.autoscaler[count.index].arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
-  count         = var.create_autoscaler_function ? 1 : 0
+  count         = var.enable_autoscaling ? 1 : 0
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.autoscaler[count.index].function_name
@@ -74,7 +74,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
-  count             = var.create_autoscaler_function ? 1 : 0
+  count             = var.enable_autoscaling ? 1 : 0
   name              = "/aws/lambda/${local.function_name}"
   retention_in_days = 7
 }
