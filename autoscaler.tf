@@ -26,7 +26,7 @@ data "archive_file" "binary" {
 
 resource "aws_lambda_function" "autoscaler" {
   count            = var.create_autoscaler_function ? 1 : 0
-  filename         = data.archive_file.binary[cound.index].output_path
+  filename         = data.archive_file.binary[count.index].output_path
   source_code_hash = data.archive_file.binary[count.index].output_base64sha256
   function_name    = local.function_name
   role             = aws_iam_role.autoscaler[count.index].arn
