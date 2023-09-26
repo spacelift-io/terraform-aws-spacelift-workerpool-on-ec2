@@ -160,12 +160,6 @@ variable "spacelift_api_key_endpoint" {
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
 }
 
-#variable "local_path" {
-#  type        = string
-#  description = "Local path for the binary download"
-#  default     = "/tmp"
-#}
-
 variable "schedule_expression" {
   type        = string
   description = "The scheduling expression"
