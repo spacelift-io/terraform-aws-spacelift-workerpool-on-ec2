@@ -19,7 +19,7 @@ resource "null_resource" "download" {
 data "archive_file" "binary" {
   count       = var.enable_autoscaling ? 1 : 0
   type        = "zip"
-  source_file = "${path.module}/lambda/bootstrap"
+  source_file = "lambda/bootstrap"
   output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
   depends_on  = [null_resource.download]
 }
