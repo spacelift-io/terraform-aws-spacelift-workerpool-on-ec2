@@ -68,7 +68,7 @@ data "aws_iam_policy_document" "autoscaler" {
       "autoscaling:DescribeAutoScalingGroups",
     ]
 
-    resources = [module.asg.autoscaling_group_arn]
+    resources = ["*"]
   }
 
   # Allow the Lambda to DescribeInstances and TerminateInstances on the EC2 instances.
