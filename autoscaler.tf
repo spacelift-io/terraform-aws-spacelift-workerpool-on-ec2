@@ -1,10 +1,10 @@
 locals {
-  function_name = "ec2-autoscaler-${var.worker_pool_id}"
+  function_name = "${local.namespace}-ec2-autoscaler"
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
   count = var.enable_autoscaling ? 1 : 0
-  name  = "/ec2-autoscaler/spacelift-api-secret-${var.worker_pool_id}"
+  name  = "/${local.function_name}/spacelift-api-secret-${var.worker_pool_id}"
   type  = "SecureString"
   value = var.spacelift_api_key_secret
 }
@@ -53,7 +53,7 @@ resource "aws_lambda_function" "autoscaler" {
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
   count               = var.enable_autoscaling ? 1 : 0
-  name                = "spacelift-${var.worker_pool_id}-scheduling"
+  name                = local.function_name
   description         = "Spacelift autoscaler scheduling for worker pool ${var.worker_pool_id}"
   schedule_expression = var.schedule_expression
 }
