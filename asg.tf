@@ -78,7 +78,7 @@ module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "~> 6.0"
 
-  name = local.namespace
+  name = local.base_name
 
   iam_instance_profile_arn = aws_iam_instance_profile.this.arn
   image_id                 = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id

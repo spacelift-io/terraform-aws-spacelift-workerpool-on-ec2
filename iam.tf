@@ -14,7 +14,7 @@ locals {
 
 resource "aws_iam_role" "this" {
   count = var.create_iam_role ? 1 : 0
-  name  = local.namespace
+  name  = local.base_name
   path  = "/"
 
   assume_role_policy = jsonencode({
@@ -44,7 +44,7 @@ resource "aws_iam_role_policy_attachment" "this" {
 resource "aws_iam_instance_profile" "this" {
   depends_on = [aws_iam_role_policy_attachment.this]
 
-  name = local.namespace
+  name = local.base_name
   role = var.create_iam_role ? aws_iam_role.this[0].name : var.custom_iam_role_name
 }
 
