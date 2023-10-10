@@ -9,8 +9,12 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
   value = var.spacelift_api_key_secret
 }
 
-resource "null_resource" "download" {
+resource "terraform_data" "download" {
   count = var.enable_autoscaling ? 1 : 0
+  triggers_replace = {
+    # Always re-download the archive file
+    now = timestamp()
+  }
   provisioner "local-exec" {
     command = "${path.module}/download.sh ${var.autoscaler_version}"
   }
@@ -21,7 +25,7 @@ data "archive_file" "binary" {
   type        = "zip"
   source_file = "lambda/bootstrap"
   output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
-  depends_on  = [null_resource.download]
+  depends_on  = [terraform_data.download]
 }
 
 resource "aws_lambda_function" "autoscaler" {
@@ -47,8 +51,6 @@ resource "aws_lambda_function" "autoscaler" {
   tracing_config {
     mode = "Active"
   }
-
-  depends_on = [module.asg, null_resource.download]
 }
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
