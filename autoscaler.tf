@@ -25,7 +25,7 @@ data "archive_file" "binary" {
   type        = "zip"
   source_file = "lambda/bootstrap"
   output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
-  depends_on  = [terraform_data.download]
+  depends_on  = [null_resource.download]
 }
 
 resource "aws_lambda_function" "autoscaler" {
