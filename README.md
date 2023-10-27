@@ -1,5 +1,5 @@
 # Terraform AWS Spacelift Workerpool On EC2
-
+KOCHAM MARCINA
 Terraform module deploying a Spacelift worker pool on AWS EC2 using an autoscaling group.
 
 This module can optionally deploy a Lambda function to auto-scale the worker pool. The function adds or removes workers depending on the worker pool queue length.
