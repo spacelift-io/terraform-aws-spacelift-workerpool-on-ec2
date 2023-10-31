@@ -122,7 +122,7 @@ $ make docs
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | Maximum number of workers to spin up | `number` | `10` | no |
 | <a name="input_min_size"></a> [min\_size](#input\_min\_size) | Minimum numbers of workers to spin up | `number` | `0` | no |
 | <a name="input_poweroff_delay"></a> [poweroff\_delay](#input\_poweroff\_delay) | Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped | `number` | `15` | no |
-| <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | The scheduling expression | `string` | `"rate(1 minute)"` | no |
+| <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | Autoscaler scheduling expression | `string` | `"rate(1 minute)"` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | List of security groups to use | `list(string)` | n/a | yes |
 | <a name="input_spacelift_api_key_endpoint"></a> [spacelift\_api\_key\_endpoint](#input\_spacelift\_api\_key\_endpoint) | Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io | `string` | `null` | no |
 | <a name="input_spacelift_api_key_id"></a> [spacelift\_api\_key\_id](#input\_spacelift\_api\_key\_id) | ID of the Spacelift API key to use | `string` | `null` | no |
