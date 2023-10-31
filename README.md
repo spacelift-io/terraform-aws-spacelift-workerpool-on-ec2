@@ -109,6 +109,7 @@ $ make docs
 | <a name="input_additional_tags"></a> [additional\_tags](#input\_additional\_tags) | Additional tags to set on the resources | `map(string)` | `{}` | no |
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used. | `string` | `""` | no |
 | <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"v0.2.0"` | no |
+| <a name="input_base_name"></a> [base\_name](#input\_base\_name) | Base name for resources. If unset, it defaults to `sp5ft-${var.worker_pool_id}`. | `string` | `null` | no |
 | <a name="input_configuration"></a> [configuration](#input\_configuration) | User configuration. This allows you to decide how you want to pass your token<br>  and private key to the environment - be that directly, or using SSM Parameter<br>  Store, Vault etc. Ultimately, here you need to export SPACELIFT\_TOKEN and<br>  SPACELIFT\_POOL\_PRIVATE\_KEY to the environment. | `string` | n/a | yes |
 | <a name="input_create_iam_role"></a> [create\_iam\_role](#input\_create\_iam\_role) | Determines whether an IAM role is created or to use an existing IAM role | `bool` | `true` | no |
 | <a name="input_custom_iam_role_name"></a> [custom\_iam\_role\_name](#input\_custom\_iam\_role\_name) | Name of an existing IAM to use. Used `when create_iam_role` = `false` | `string` | `""` | no |
