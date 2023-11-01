@@ -1,5 +1,9 @@
+locals {
+  create_iam_role = length(var.custom_iam_role_name) == 0 ? true : false
+}
+
 resource "aws_iam_role" "this" {
-  count = var.create_iam_role ? 1 : 0
+  count = local.create_iam_role ? 1 : 0
   name  = local.namespace
   path  = "/"
 
@@ -14,7 +18,7 @@ resource "aws_iam_role" "this" {
 }
 
 locals {
-  iam_managed_policies = var.create_iam_role ? [
+  iam_managed_policies = local.create_iam_role ? [
     "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess",
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
@@ -31,7 +35,7 @@ resource "aws_iam_instance_profile" "this" {
   depends_on = [aws_iam_role_policy_attachment.this]
 
   name = local.namespace
-  role = var.create_iam_role ? aws_iam_role.this[0].name : var.iam_role_arn
+  role = local.create_iam_role ? aws_iam_role.this[0].name : var.custom_iam_role_name
 }
 
 data "aws_iam_policy_document" "autoscaler" {

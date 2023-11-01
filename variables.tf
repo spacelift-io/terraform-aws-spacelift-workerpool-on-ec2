@@ -53,16 +53,10 @@ variable "enabled_metrics" {
   ]
 }
 
-variable "create_iam_role" {
-  default     = true
-  description = "Determines whether an IAM role is created or to use an existing IAM role"
-  type        = bool
-}
-
-variable "iam_role_arn" {
-  default     = null
-  description = "ARN of an existing IAM to use. Used `when create_iam_role` = `false`"
+variable "custom_iam_role_name" {
+  description = "Name of an existing IAM to use. If not set, module will create its own IAM role"
   type        = string
+  default     = ""
 }
 
 variable "min_size" {
