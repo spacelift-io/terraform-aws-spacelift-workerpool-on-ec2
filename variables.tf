@@ -162,3 +162,9 @@ variable "schedule_expression" {
   description = "The scheduling expression"
   default     = "rate(1 minute)"
 }
+
+variable "volume_encryption_kms_key_id" {
+  description = "KMS key ID to use for encrypting the EBS volume"
+  type        = string
+  default     = null
+}
