@@ -159,7 +159,7 @@ variable "spacelift_api_key_endpoint" {
 
 variable "schedule_expression" {
   type        = string
-  description = "The scheduling expression"
+  description = "Autoscaler scheduling expression"
   default     = "rate(1 minute)"
 }
 
