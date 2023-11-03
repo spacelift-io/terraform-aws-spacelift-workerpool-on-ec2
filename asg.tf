@@ -95,6 +95,7 @@ module "asg" {
       ebs = {
         delete_on_termination = true
         encrypted             = var.volume_encryption
+        kms_key_id            = var.volume_encryption ? var.volume_encryption_kms_key_id : null
         volume_size           = var.volume_size
         volume_type           = "gp3"
       }
