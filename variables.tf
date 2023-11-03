@@ -1,3 +1,9 @@
+variable "adamc_test" {
+  type        = string
+  description = "AC test var."
+  default     = ""
+}
+
 variable "ami_id" {
   type        = string
   description = "ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used."
