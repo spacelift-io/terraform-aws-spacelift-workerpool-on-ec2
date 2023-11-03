@@ -68,4 +68,5 @@ module "this" {
   spacelift_api_key_secret   = var.spacelift_api_key_secret
   vpc_subnets                = data.aws_subnets.this.ids
   worker_pool_id             = random_pet.this.id
+  create_iam_role            = false
 }
