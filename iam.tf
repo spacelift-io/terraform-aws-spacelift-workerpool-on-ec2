@@ -2,7 +2,7 @@ locals {
   # Validation hack until https://github.com/hashicorp/terraform/issues/25609 is resolved
   #! IMPORTANT! This check works only for known during 'terraform plan' values of `var.custom_iam_role_name`.
   #! If IAM role name is not known during 'terraform plan', the check will be skipped and
-  #! error message will pop up only after `terraform apply`in the next 'terraform plan'.
+  #! error message will pop up only after `terraform apply ' in the next 'terraform plan'.
   validate_condition = (!var.create_iam_role && length(var.custom_iam_role_name) == 0) || (var.create_iam_role && length(var.custom_iam_role_name) > 0)
   validate_message = "The 'create_iam_role' has been set to '${var.create_iam_role}', when 'custom_iam_role_name' set to '${var.custom_iam_role_name}', which are mutually exclusive. To create a new IAM role inside module, set 'create_iam_role' to 'true' and 'custom_iam_role_name' to ''. To use a custom IAM role, set 'create_iam_role' to 'false' and 'custom_iam_role_name' to the name of the custom IAM role."
   validate_check = regex(
