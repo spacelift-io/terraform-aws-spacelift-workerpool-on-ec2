@@ -53,16 +53,16 @@ variable "enabled_metrics" {
   ]
 }
 
-variable "create_iam_role" {
-  default     = true
-  description = "Determines whether an IAM role is created or to use an existing IAM role"
-  type        = bool
+variable "custom_iam_role_name" {
+  description = "Name of an existing IAM to use. Used `when create_iam_role` = `false`"
+  type        = string
+  default     = ""
 }
 
-variable "iam_role_arn" {
-  default     = null
-  description = "ARN of an existing IAM to use. Used `when create_iam_role` = `false`"
-  type        = string
+variable "create_iam_role" {
+  description = "Determines whether an IAM role is created or to use an existing IAM role"
+  type        = bool
+  default     = true
 }
 
 variable "min_size" {
