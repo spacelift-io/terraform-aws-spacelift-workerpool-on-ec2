@@ -61,6 +61,7 @@ module "this" {
     export SPACELIFT_TOKEN="<token-here>"
     export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
   EOT
+  create_iam_role            = false
   custom_iam_role_name       = aws_iam_role.this.name
   security_groups            = [data.aws_security_group.this.id]
   spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
