@@ -151,6 +151,12 @@ variable "autoscaler_version" {
   default     = "v0.2.0"
 }
 
+variable "autoscaler_architecture" {
+  type        = string
+  description = "Instruction set architecture of the autoscaler to use"
+  default     = "amd64"
+}
+
 variable "spacelift_api_key_id" {
   type        = string
   description = "ID of the Spacelift API key to use"
