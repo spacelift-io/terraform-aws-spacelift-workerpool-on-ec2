@@ -12,7 +12,7 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 resource "null_resource" "download" {
   count = var.enable_autoscaling ? 1 : 0
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${var.autoscaler_version}"
+    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
   }
 }
 
@@ -32,6 +32,7 @@ resource "aws_lambda_function" "autoscaler" {
   role             = aws_iam_role.autoscaler[count.index].arn
   handler          = "bootstrap"
   runtime          = "provided.al2"
+  architectures    = [var.autoscaler_architecture == "amd64" ? "x86_64" : var.autoscaler_architecture]
 
   environment {
     variables = {
