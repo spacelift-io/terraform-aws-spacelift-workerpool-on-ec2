@@ -12,14 +12,14 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 resource "null_resource" "download" {
   count = var.enable_autoscaling ? 1 : 0
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
+    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture} ${var.worker_pool_id}"
   }
 }
 
 data "archive_file" "binary" {
   count       = var.enable_autoscaling ? 1 : 0
   type        = "zip"
-  source_file = "lambda/bootstrap"
+  source_file = "${var.worker_pool_id}/bootstrap"
   output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
   depends_on  = [null_resource.download]
 }
