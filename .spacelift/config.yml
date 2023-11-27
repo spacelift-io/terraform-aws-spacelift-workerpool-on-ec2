@@ -1,5 +1,5 @@
 version: 1
-module_version: 1.8.1
+module_version: 2.2.0
 tests:
   - name: AMD64-based workerpool
     project_root: examples/amd64
@@ -7,6 +7,7 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8EEH5GTBM1QMAS"
 
   - name: ARM64-based workerpool
     project_root: examples/arm64
@@ -14,6 +15,7 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAS"
 
   - name: Custom IAM Role
     project_root: examples/custom-iam-role
@@ -21,3 +23,4 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAS"

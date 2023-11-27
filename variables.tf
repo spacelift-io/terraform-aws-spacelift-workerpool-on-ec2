@@ -113,7 +113,18 @@ variable "vpc_subnets" {
 
 variable "worker_pool_id" {
   type        = string
-  description = "ID of the the worker pool. It is used for the naming convention of the resources."
+  description = "ID (ULID) of the the worker pool."
+  validation {
+    condition     = can(regex("^[0-9A-HJKMNP-TV-Z]+$", var.worker_pool_id))
+    error_message = "The worker pool ID must be a valid ULID (eg 01HCC6QZ932J7WDF4FTVM9QMEP)."
+  }
+}
+
+variable "base_name" {
+  type        = string
+  description = "Base name for resources. If unset, it defaults to `sp5ft-$${var.worker_pool_id}`."
+  nullable    = true
+  default     = null
 }
 
 variable "enable_monitoring" {
@@ -128,10 +139,6 @@ variable "instance_refresh" {
   default     = {}
 }
 
-locals {
-  namespace = "sp5ft-${var.worker_pool_id}"
-}
-
 variable "enable_autoscaling" {
   default     = true
   description = "Determines whether to create the Lambda Autoscaler function and dependent resources or not"
@@ -142,6 +149,12 @@ variable "autoscaler_version" {
   type        = string
   description = "Version of the autoscaler to deploy"
   default     = "v0.2.0"
+}
+
+variable "autoscaler_architecture" {
+  type        = string
+  description = "Instruction set architecture of the autoscaler to use"
+  default     = "amd64"
 }
 
 variable "spacelift_api_key_id" {
