@@ -36,6 +36,8 @@ module "my_workerpool" {
 
 You also need to add the required values for `spacelift_api_key_endpoint`, `spacelift_api_key_id`, `spacelift_api_key_secret` and `worker_pool_id` to the module block for the Lambda Autoscaler function to set the required `SPACELIFT_API_KEY_ENDPOINT`, `SPACELIFT_API_KEY_ID`, `SPACELIFT_API_KEY_SECRET_NAME` and `SPACELIFT_WORKER_POOL_ID` parameters.
 
+You can also set the optional `autoscaling_max_create` and `autoscaling_max_terminate` values in the module block for Lambda Autoscaler function to set the optional `AUTOSCALING_MAX_CREATE` and `AUTOSCALING_MAX_KILL` parameters. These parameters default to 1.
+
 ## Default AMI
 
 The default AMI used by this module comes from the [spacelift-worker-image](https://github.com/spacelift-io/spacelift-worker-image)
