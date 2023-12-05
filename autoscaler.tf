@@ -11,6 +11,10 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 
 resource "null_resource" "download" {
   count = var.enable_autoscaling ? 1 : 0
+  triggers = {
+    # Always re-download the archive file
+    now = timestamp()
+  }
   provisioner "local-exec" {
     command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
   }
@@ -50,8 +54,6 @@ resource "aws_lambda_function" "autoscaler" {
   tracing_config {
     mode = "Active"
   }
-
-  depends_on = [module.asg, null_resource.download]
 }
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
