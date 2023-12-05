@@ -19,7 +19,7 @@ terraform {
 }
 
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.2.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.3.0"
 
   configuration = <<-EOT
     export SPACELIFT_TOKEN="${var.worker_pool_config}"
@@ -35,6 +35,8 @@ module "my_workerpool" {
 ```
 
 You also need to add the required values for `spacelift_api_key_endpoint`, `spacelift_api_key_id`, `spacelift_api_key_secret` and `worker_pool_id` to the module block for the Lambda Autoscaler function to set the required `SPACELIFT_API_KEY_ENDPOINT`, `SPACELIFT_API_KEY_ID`, `SPACELIFT_API_KEY_SECRET_NAME` and `SPACELIFT_WORKER_POOL_ID` parameters.
+
+You can also set the optional `autoscaling_max_create` and `autoscaling_max_terminate` values in the module block for Lambda Autoscaler function to set the optional `AUTOSCALING_MAX_CREATE` and `AUTOSCALING_MAX_KILL` parameters. These parameters default to 1. These parameters set the maximum number of instances the utility is allowed to create or terminate in a single run.
 
 ## Default AMI
 
@@ -110,6 +112,8 @@ $ make docs
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used. | `string` | `""` | no |
 | <a name="input_autoscaler_architecture"></a> [autoscaler\_architecture](#input\_autoscaler\_architecture) | Instruction set architecture of the autoscaler to use | `string` | `"amd64"` | no |
 | <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"v0.2.0"` | no |
+| <a name="input_autoscaling_max_create"></a> [autoscaling\_max\_create](#input\_autoscaling\_max\_create) | The maximum number of instances the utility is allowed to create in a single run | `number` | `1` | no |
+| <a name="input_autoscaling_max_terminate"></a> [autoscaling\_max\_terminate](#input\_autoscaling\_max\_terminate) | The maximum number of instances the utility is allowed to terminate in a single run | `number` | `1` | no |
 | <a name="input_base_name"></a> [base\_name](#input\_base\_name) | Base name for resources. If unset, it defaults to `sp5ft-${var.worker_pool_id}`. | `string` | `null` | no |
 | <a name="input_configuration"></a> [configuration](#input\_configuration) | User configuration. This allows you to decide how you want to pass your token<br>  and private key to the environment - be that directly, or using SSM Parameter<br>  Store, Vault etc. Ultimately, here you need to export SPACELIFT\_TOKEN and<br>  SPACELIFT\_POOL\_PRIVATE\_KEY to the environment. | `string` | n/a | yes |
 | <a name="input_create_iam_role"></a> [create\_iam\_role](#input\_create\_iam\_role) | Determines whether an IAM role is created or to use an existing IAM role | `bool` | `true` | no |

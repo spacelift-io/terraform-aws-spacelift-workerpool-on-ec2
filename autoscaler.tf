@@ -46,6 +46,8 @@ resource "aws_lambda_function" "autoscaler" {
       SPACELIFT_API_KEY_SECRET_NAME = aws_ssm_parameter.spacelift_api_key_secret[count.index].name
       SPACELIFT_API_KEY_ENDPOINT    = var.spacelift_api_key_endpoint
       SPACELIFT_WORKER_POOL_ID      = var.worker_pool_id
+      AUTOSCALING_MAX_CREATE        = var.autoscaling_max_create
+      AUTOSCALING_MAX_KILL          = var.autoscaling_max_terminate
     }
   }
 
