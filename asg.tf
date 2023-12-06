@@ -67,6 +67,8 @@ echo "Starting the Spacelift binary" >> /var/log/spacelift/info.log
 /usr/bin/spacelift-launcher 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
 )}
 
+# Reset the errexit option so if for some reason the `spacelift` binary steops, the poweroff should be run.
+set +e
 spacelift
 echo "Powering off in ${var.poweroff_delay} seconds" >> /var/log/spacelift/error.log
 sleep ${var.poweroff_delay}
