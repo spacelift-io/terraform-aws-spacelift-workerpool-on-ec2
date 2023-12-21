@@ -37,6 +37,7 @@ resource "aws_lambda_function" "autoscaler" {
   handler          = "bootstrap"
   runtime          = "provided.al2"
   architectures    = [var.autoscaler_architecture == "amd64" ? "x86_64" : var.autoscaler_architecture]
+  timeout          = var.autoscaling_timeout
 
   environment {
     variables = {

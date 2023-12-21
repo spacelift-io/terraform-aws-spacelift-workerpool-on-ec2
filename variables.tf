@@ -199,3 +199,9 @@ variable "autoscaling_max_terminate" {
   type        = number
   default     = 1
 }
+
+variable "autoscaling_timeout" {
+  type        = number
+  description = "Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be."
+  default     = 30
+}
