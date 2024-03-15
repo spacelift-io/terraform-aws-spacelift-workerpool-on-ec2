@@ -206,3 +206,13 @@ variable "autoscaling_timeout" {
   description = "Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be."
   default     = 30
 }
+
+variable "autoscaler_s3_package" {
+  type = object({
+    bucket         = string
+    key            = string
+    object_version = optional(string)
+  })
+  description = "Configuration to retrieve autoscaler lambda package from s3 bucket"
+  default     = null
+}

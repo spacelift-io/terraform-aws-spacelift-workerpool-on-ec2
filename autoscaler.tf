@@ -1,5 +1,6 @@
 locals {
-  function_name = "${local.base_name}-ec2-autoscaler"
+  function_name  = "${local.base_name}-ec2-autoscaler"
+  use_s3_package = var.autoscaler_s3_package != null
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
@@ -10,7 +11,7 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 }
 
 resource "null_resource" "download" {
-  count = var.enable_autoscaling ? 1 : 0
+  count = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
   triggers = {
     # Always re-download the archive file
     now = timestamp()
@@ -21,7 +22,7 @@ resource "null_resource" "download" {
 }
 
 data "archive_file" "binary" {
-  count       = var.enable_autoscaling ? 1 : 0
+  count       = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
   type        = "zip"
   source_file = "lambda/bootstrap"
   output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
@@ -29,15 +30,21 @@ data "archive_file" "binary" {
 }
 
 resource "aws_lambda_function" "autoscaler" {
-  count            = var.enable_autoscaling ? 1 : 0
-  filename         = data.archive_file.binary[count.index].output_path
-  source_code_hash = data.archive_file.binary[count.index].output_base64sha256
-  function_name    = local.function_name
-  role             = aws_iam_role.autoscaler[count.index].arn
-  handler          = "bootstrap"
-  runtime          = "provided.al2"
-  architectures    = [var.autoscaler_architecture == "amd64" ? "x86_64" : var.autoscaler_architecture]
-  timeout          = var.autoscaling_timeout
+  count = var.enable_autoscaling ? 1 : 0
+
+  filename         = !local.use_s3_package ? data.archive_file.binary[count.index].output_path : null
+  source_code_hash = !local.use_s3_package ? data.archive_file.binary[count.index].output_base64sha256 : null
+
+  s3_bucket         = local.use_s3_package ? var.autoscaler_s3_package.bucket : null
+  s3_key            = local.use_s3_package ? var.autoscaler_s3_package.key : null
+  s3_object_version = local.use_s3_package ? var.autoscaler_s3_package.object_version : null
+
+  function_name = local.function_name
+  role          = aws_iam_role.autoscaler[count.index].arn
+  handler       = "bootstrap"
+  runtime       = "provided.al2"
+  architectures = [var.autoscaler_architecture == "amd64" ? "x86_64" : var.autoscaler_architecture]
+  timeout       = var.autoscaling_timeout
 
   environment {
     variables = {
