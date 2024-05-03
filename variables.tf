@@ -94,6 +94,15 @@ variable "additional_tags" {
   default     = {}
 }
 
+variable "tag_specifications" {
+  description = "Tag specifications to set on the launch template, which will apply to the instances at launch"
+  type = list(object({
+    resource_type = string
+    tags          = optional(map(string), {})
+  }))
+  default = []
+}
+
 variable "volume_encryption" {
   type        = bool
   default     = false

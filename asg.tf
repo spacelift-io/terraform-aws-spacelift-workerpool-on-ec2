@@ -140,6 +140,8 @@ module "asg" {
     ])
   )
 
+  tag_specifications = var.tag_specifications
+
   tags = merge(var.additional_tags,
     {
       "WorkerPoolID" : var.worker_pool_id
