@@ -35,4 +35,25 @@ module "this" {
     bucket = aws_s3_bucket.autoscaler_binary.id
     key    = aws_s3_object.autoscaler_binary.id
   }
+
+  tag_specifications = [
+    {
+      resource_type = "instance"
+      tags = {
+        Name = "sp5ft-${var.worker_pool_id}"
+      }
+    },
+    {
+      resource_type = "volume"
+      tags = {
+        Name = "sp5ft-${var.worker_pool_id}"
+      }
+    },
+    {
+      resource_type = "network-interface"
+      tags = {
+        Name = "sp5ft-${var.worker_pool_id}"
+      }
+    }
+  ]
 }

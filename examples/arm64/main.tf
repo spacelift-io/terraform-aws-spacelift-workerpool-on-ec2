@@ -67,4 +67,25 @@ module "this" {
   spacelift_api_key_secret   = var.spacelift_api_key_secret
   vpc_subnets                = data.aws_subnets.this.ids
   worker_pool_id             = var.worker_pool_id
+
+  tag_specifications = [
+    {
+      resource_type = "instance"
+      tags = {
+        Name = "sp5ft-${var.worker_pool_id}"
+      }
+    },
+    {
+      resource_type = "volume"
+      tags = {
+        Name = "sp5ft-${var.worker_pool_id}"
+      }
+    },
+    {
+      resource_type = "network-interface"
+      tags = {
+        Name = "sp5ft-${var.worker_pool_id}"
+      }
+    }
+  ]
 }
