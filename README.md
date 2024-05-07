@@ -19,7 +19,7 @@ terraform {
 }
 
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.4.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.5.0"
 
   configuration = <<-EOT
     export SPACELIFT_TOKEN="${var.worker_pool_config}"
@@ -135,6 +135,7 @@ $ make docs
 | <a name="input_spacelift_api_key_endpoint"></a> [spacelift\_api\_key\_endpoint](#input\_spacelift\_api\_key\_endpoint) | Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io | `string` | `null` | no |
 | <a name="input_spacelift_api_key_id"></a> [spacelift\_api\_key\_id](#input\_spacelift\_api\_key\_id) | ID of the Spacelift API key to use | `string` | `null` | no |
 | <a name="input_spacelift_api_key_secret"></a> [spacelift\_api\_key\_secret](#input\_spacelift\_api\_key\_secret) | Secret corresponding to the Spacelift API key to use | `string` | `null` | no |
+| <a name="input_tag_specifications"></a> [tag\_specifications](#input\_tag\_specifications) | Tag specifications to set on the launch template, which will apply to the instances at launch | <pre>list(object({<br>    resource_type = string<br>    tags          = optional(map(string), {})<br>  }))</pre> | `[]` | no |
 | <a name="input_volume_encryption"></a> [volume\_encryption](#input\_volume\_encryption) | Whether to encrypt the EBS volume | `bool` | `false` | no |
 | <a name="input_volume_encryption_kms_key_id"></a> [volume\_encryption\_kms\_key\_id](#input\_volume\_encryption\_kms\_key\_id) | KMS key ID to use for encrypting the EBS volume | `string` | `null` | no |
 | <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | Size of instance EBS volume | `number` | `40` | no |
