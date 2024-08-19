@@ -8,6 +8,7 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
   name  = "/${local.function_name}/spacelift-api-secret-${var.worker_pool_id}"
   type  = "SecureString"
   value = var.spacelift_api_key_secret
+  tags  = var.additional_tags
 }
 
 resource "null_resource" "download" {
@@ -62,6 +63,7 @@ resource "aws_lambda_function" "autoscaler" {
   tracing_config {
     mode = "Active"
   }
+  tags = var.additional_tags
 }
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
@@ -69,6 +71,7 @@ resource "aws_cloudwatch_event_rule" "scheduling" {
   name                = local.function_name
   description         = "Spacelift autoscaler scheduling for worker pool ${var.worker_pool_id}"
   schedule_expression = var.schedule_expression
+  tags                = var.additional_tags
 }
 
 resource "aws_cloudwatch_event_target" "scheduling" {
@@ -90,4 +93,5 @@ resource "aws_cloudwatch_log_group" "log_group" {
   count             = var.enable_autoscaling ? 1 : 0
   name              = "/aws/lambda/${local.function_name}"
   retention_in_days = 7
+  tags              = var.additional_tags
 }
