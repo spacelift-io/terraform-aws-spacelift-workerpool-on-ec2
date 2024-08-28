@@ -133,7 +133,7 @@ module "asg" {
 
   suspended_processes = [
     # Prevents the ASG from terminating instances for rebalancing between AZs, 
-    #  which triggered right after termination of instances by lambda
+    # which triggered right after termination of instances by lambda
     "AZRebalance"
   ]
 
