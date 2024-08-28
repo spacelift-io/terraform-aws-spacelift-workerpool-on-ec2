@@ -131,11 +131,11 @@ module "asg" {
     http_put_response_hop_limit = var.disable_container_credentials ? 1 : 2
   }
 
-  suspended_processes = [
+  suspended_processes = var.enable_autoscaling ? [
     # Prevents the ASG from terminating instances for rebalancing between AZs, 
     # which triggered right after termination of instances by lambda
     "AZRebalance"
-  ]
+  ] : []
 
   # User data
   user_data = base64encode(
