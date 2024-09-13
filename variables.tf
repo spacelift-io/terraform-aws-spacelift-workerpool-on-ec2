@@ -129,6 +129,12 @@ variable "worker_pool_id" {
   }
 }
 
+variable "worker_pool_name" {
+  type        = string
+  description = "Name of the the worker pool."
+  default     = null
+}
+
 variable "base_name" {
   type        = string
   description = "Base name for resources. If unset, it defaults to `sp5ft-$${var.worker_pool_id}`."

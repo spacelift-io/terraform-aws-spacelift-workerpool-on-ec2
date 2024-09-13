@@ -150,7 +150,7 @@ module "asg" {
 
   tags = merge(var.additional_tags,
     {
-      "WorkerPoolID" : var.worker_pool_id
+      "WorkerPoolID" : local.worker_pool_id
     }
   )
 }
