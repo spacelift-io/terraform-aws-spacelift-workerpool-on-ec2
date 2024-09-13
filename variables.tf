@@ -124,7 +124,7 @@ variable "worker_pool_id" {
   type        = string
   description = "ID (ULID) of the the worker pool."
   validation {
-    condition     = can(regex("^[0-9A-HJKMNP-TV-Z]+$", var.worker_pool_id))
+    condition     = can(regex("^[0-9A-HJKMNP-TV-Z]+$", var.worker_pool_id)) || startswith(var.worker_pool_id, "public")
     error_message = "The worker pool ID must be a valid ULID (eg 01HCC6QZ932J7WDF4FTVM9QMEP)."
   }
 }
@@ -225,4 +225,3 @@ variable "autoscaler_s3_package" {
   description = "Configuration to retrieve autoscaler lambda package from s3 bucket"
   default     = null
 }
-
