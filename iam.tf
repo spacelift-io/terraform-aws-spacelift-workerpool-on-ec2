@@ -1,5 +1,5 @@
 locals {
-  # Validation hack until https://github.com/hashicorp/terraform/issues/25609 is resolved
+  # Validation hack until https://github.com/opentofu/opentofu/issues/1336 is resolved
   #! IMPORTANT! This check works only for known during 'terraform plan' values of `var.custom_iam_role_name`.
   #! If IAM role name is not known during 'terraform plan', the check will be skipped and
   #! error message will pop up only after `terraform apply ' in the next 'terraform plan'.
