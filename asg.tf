@@ -78,7 +78,7 @@ poweroff
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 6.0"
+  version = "~> 8.0"
 
   name = local.base_name
 
