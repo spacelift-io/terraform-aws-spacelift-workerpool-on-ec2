@@ -13,6 +13,11 @@ output "autoscaling_group_arn" {
   description = "ARN of the auto scaling group"
 }
 
+output "autoscaling_group_name" {
+  value       = module.asg.autoscaling_group_name
+  description = "Name of the auto scaling group"
+}
+
 output "launch_template_id" {
   value       = module.asg.launch_template_id
   description = "ID of the launch template"
