@@ -1,5 +1,5 @@
 version: 1
-module_version: 2.6.2
+module_version: 2.6.3
 tests:
   - name: AMD64-based workerpool
     project_root: examples/amd64
