@@ -122,11 +122,13 @@ resource "aws_iam_role" "autoscaler" {
     ]
   })
 
-  inline_policy {
-    name   = "ec2-autoscaler-${var.worker_pool_id}"
-    policy = data.aws_iam_policy_document.autoscaler[count.index].json
-  }
-
   depends_on = [module.asg]
   tags       = var.additional_tags
+}
+
+resource "aws_iam_role_policy" "autoscaler" {
+  count  = var.enable_autoscaling ? 1 : 0
+  name   = "ec2-autoscaler-${var.worker_pool_id}"
+  role   = aws_iam_role.autoscaler[0].name
+  policy = data.aws_iam_policy_document.autoscaler[count.index].json
 }
