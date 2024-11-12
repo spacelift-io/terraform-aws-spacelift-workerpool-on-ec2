@@ -157,7 +157,7 @@ variable "enable_autoscaling" {
 variable "autoscaler_version" {
   description = "Version of the autoscaler to deploy"
   type        = string
-  default     = "v0.3.0"
+  default     = "v1.0.1"
   nullable    = false
 }
 
