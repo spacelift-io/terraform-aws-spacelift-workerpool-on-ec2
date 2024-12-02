@@ -1,5 +1,5 @@
 locals {
-  # Validation hack until https://github.com/hashicorp/terraform/issues/25609 is resolved
+  # Validation hack until https://github.com/opentofu/opentofu/issues/1336 is resolved
   #! IMPORTANT! This check works only for known during 'terraform plan' values of `var.custom_iam_role_name`.
   #! If IAM role name is not known during 'terraform plan', the check will be skipped and
   #! error message will pop up only after `terraform apply ' in the next 'terraform plan'.
@@ -122,11 +122,13 @@ resource "aws_iam_role" "autoscaler" {
     ]
   })
 
-  inline_policy {
-    name   = "ec2-autoscaler-${var.worker_pool_id}"
-    policy = data.aws_iam_policy_document.autoscaler[count.index].json
-  }
-
   depends_on = [module.asg]
   tags       = var.additional_tags
+}
+
+resource "aws_iam_role_policy" "autoscaler" {
+  count  = var.enable_autoscaling ? 1 : 0
+  name   = "ec2-autoscaler-${var.worker_pool_id}"
+  role   = aws_iam_role.autoscaler[0].name
+  policy = data.aws_iam_policy_document.autoscaler[count.index].json
 }
