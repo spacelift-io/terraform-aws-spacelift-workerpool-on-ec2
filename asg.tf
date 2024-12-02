@@ -83,11 +83,12 @@ module "asg" {
   name = local.base_name
 
   iam_instance_profile_arn = aws_iam_instance_profile.this.arn
-  image_id                 = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
-  instance_type            = var.ec2_instance_type
-  security_groups          = var.security_groups
-  enable_monitoring        = var.enable_monitoring
-  instance_refresh         = var.instance_refresh
+  # if 'var.ami_id' is empty, get AMI from data source. data source lifecycle postcondition fails if no ami exists.
+  image_id          = coalesce(var.ami_id, try(data.aws_ami_ids.spacelift.ids[0], "ami_not_found"))
+  instance_type     = var.ec2_instance_type
+  security_groups   = var.security_groups
+  enable_monitoring = var.enable_monitoring
+  instance_refresh  = var.instance_refresh
 
   block_device_mappings = [
     {
