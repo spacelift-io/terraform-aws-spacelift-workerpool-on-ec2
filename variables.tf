@@ -226,3 +226,8 @@ variable "autoscaler_s3_package" {
   default     = null
 }
 
+variable "instance_market_options" {
+  description = "The market (purchasing) option for the instance"
+  type        = any
+  default     = {}
+}
