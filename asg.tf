@@ -88,6 +88,7 @@ module "asg" {
   security_groups          = var.security_groups
   enable_monitoring        = var.enable_monitoring
   instance_refresh         = var.instance_refresh
+  instance_market_options  = var.instance_market_options
 
   block_device_mappings = [
     {
