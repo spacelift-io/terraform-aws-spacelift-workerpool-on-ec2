@@ -1,35 +1,53 @@
-locals {
-  function_name  = "${local.base_name}-ec2-autoscaler"
-  use_s3_package = var.autoscaler_s3_package != null
+module "autoscaler" {
+  source = "github.com/spacelift-io/ec2-workerpool-autoscaler//iac"
+
+  for_each = var.enable_autoscaling ? toset(["ENABLED"]) : toset([])
+
+  autoscaling_group_arn      = var.autoscaling_group_arn
+  autoscaler_version         = var.autoscaler_version
+  spacelift_api_key_id       = var.spacelift_api_key_id
+  spacelift_api_key_secret   = var.spacelift_api_key_secret
+  spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
+  worker_pool_id             = var.worker_pool_id
+  autoscaler_architecture    = var.autoscaler_architecture
+  autoscaling_timeout        = var.autoscaling_timeout
+  autoscaling_max_create     = var.autoscaling_max_create
+  autoscaling_max_terminate  = var.autoscaling_max_terminate
+  schedule_expression        = var.schedule_expression
+  base_name                  = var.base_name
+  region                     = var.region
+  autoscaler_s3_package      = var.autoscaler_s3_package
+  subnet_ids                 = var.subnet_ids
+  security_group_ids         = var.security_group_ids
+
+  depends_on = [module.asg]
 }
 
+<<<<<<< HEAD
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
   count = var.enable_autoscaling ? 1 : 0
   name  = "/${local.function_name}/spacelift-api-secret-${var.worker_pool_id}"
   type  = "SecureString"
   value = var.spacelift_api_key_secret
   tags  = var.additional_tags
+=======
+moved {
+  from = aws_ssm_parameter.spacelift_api_key_secret[0]
+  to   = module.autoscaler["ENABLED"].aws_ssm_parameter.spacelift_api_key_secret
+>>>>>>> ccf916b (feat: uses autoscaler module instead of repeating code)
 }
 
-resource "null_resource" "download" {
-  count = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
-  triggers = {
-    # Always re-download the archive file
-    now = timestamp()
-  }
-  provisioner "local-exec" {
-    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
-  }
+moved {
+  from = null_resource.download[0]
+  to   = module.autoscaler["ENABLED"].null_resource.download
 }
 
-data "archive_file" "binary" {
-  count       = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
-  type        = "zip"
-  source_file = "lambda/bootstrap"
-  output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
-  depends_on  = [null_resource.download]
+moved {
+  from = aws_lambda_function.autoscaler[0]
+  to   = module.autoscaler["ENABLED"].aws_lambda_function.autoscaler
 }
 
+<<<<<<< HEAD
 resource "aws_lambda_function" "autoscaler" {
   count = var.enable_autoscaling ? 1 : 0
 
@@ -72,26 +90,37 @@ resource "aws_cloudwatch_event_rule" "scheduling" {
   description         = "Spacelift autoscaler scheduling for worker pool ${var.worker_pool_id}"
   schedule_expression = var.schedule_expression
   tags                = var.additional_tags
+=======
+moved {
+  from = aws_cloudwatch_event_rule.scheduling[0]
+  to   = module.autoscaler["ENABLED"].aws_cloudwatch_event_rule.scheduling
 }
 
-resource "aws_cloudwatch_event_target" "scheduling" {
-  count = var.enable_autoscaling ? 1 : 0
-  rule  = aws_cloudwatch_event_rule.scheduling[count.index].name
-  arn   = aws_lambda_function.autoscaler[count.index].arn
+moved {
+  from = aws_cloudwatch_event_target.scheduling[0]
+  to   = module.autoscaler["ENABLED"].aws_cloudwatch_event_target.scheduling
+>>>>>>> ccf916b (feat: uses autoscaler module instead of repeating code)
 }
 
-resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
-  count         = var.enable_autoscaling ? 1 : 0
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.autoscaler[count.index].function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.scheduling[count.index].arn
+moved {
+  from = aws_lambda_permission.allow_cloudwatch_to_call_lambda[0]
+  to   = module.autoscaler["ENABLED"].aws_lambda_permission.allow_cloudwatch_to_call_lambda
 }
 
+moved {
+  from = aws_cloudwatch_log_group.log_group[0]
+  to   = module.autoscaler["ENABLED"].aws_cloudwatch_log_group.log_group
+}
+
+<<<<<<< HEAD
 resource "aws_cloudwatch_log_group" "log_group" {
   count             = var.enable_autoscaling ? 1 : 0
   name              = "/aws/lambda/${local.function_name}"
   retention_in_days = 7
   tags              = var.additional_tags
+=======
+moved {
+  from = aws_iam_role.autoscaler[0]
+  to   = module.autoscaler["ENABLED"].aws_iam_role.autoscaler
+>>>>>>> ccf916b (feat: uses autoscaler module instead of repeating code)
 }

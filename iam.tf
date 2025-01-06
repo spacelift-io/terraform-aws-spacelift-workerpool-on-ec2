@@ -50,6 +50,7 @@ resource "aws_iam_instance_profile" "this" {
   tags = var.additional_tags
 }
 
+<<<<<<< HEAD
 data "aws_iam_policy_document" "autoscaler" {
   count = var.enable_autoscaling ? 1 : 0
   # Allow the Lambda to write CloudWatch Logs.
@@ -132,3 +133,5 @@ resource "aws_iam_role_policy" "autoscaler" {
   role   = aws_iam_role.autoscaler[0].name
   policy = data.aws_iam_policy_document.autoscaler[count.index].json
 }
+=======
+>>>>>>> ccf916b (feat: uses autoscaler module instead of repeating code)
