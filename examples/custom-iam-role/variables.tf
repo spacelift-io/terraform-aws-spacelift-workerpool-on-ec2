@@ -18,3 +18,13 @@ variable "worker_pool_id" {
   type        = string
   description = "ID (ULID) of the the worker pool."
 }
+
+variable "autoscaling_group_arn" {
+  type        = string
+  description = "autoscaling group ARN. Required for autoscaler"
+}
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy to"
+}

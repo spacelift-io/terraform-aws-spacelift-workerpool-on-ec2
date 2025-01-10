@@ -26,6 +26,11 @@ variable "disable_container_credentials" {
   default     = false
 }
 
+variable "autoscaling_group_arn" {
+  type        = string
+  description = "autoscaling group ARN. Required for autoscaler"
+}
+
 variable "domain_name" {
   type        = string
   description = "Top-level domain name to use for pulling the launcher binary"
@@ -157,7 +162,7 @@ variable "enable_autoscaling" {
 variable "autoscaler_version" {
   description = "Version of the autoscaler to deploy"
   type        = string
-  default     = "v0.3.0"
+  default     = "latest"
   nullable    = false
 }
 
@@ -224,5 +229,10 @@ variable "autoscaler_s3_package" {
   })
   description = "Configuration to retrieve autoscaler lambda package from s3 bucket"
   default     = null
+}
+
+variable "region" {
+  type        = string
+  description = "AWS region to deploy to"
 }
 

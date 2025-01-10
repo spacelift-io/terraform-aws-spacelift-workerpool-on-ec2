@@ -1,13 +1,16 @@
 version: 1
-module_version: 2.6.4
+module_version: 2.7.0
 tests:
   - name: AMD64-based workerpool
     project_root: examples/amd64
     environment:
+      AWS_DEFAULT_REGION: "eu-west-1"
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
       TF_VAR_worker_pool_id: "01HBD5QZ932J8EEH5GTBM1QMAS"
+      TF_VAR_region: "eu-west-1"
+      TF_VAR_autoscaling_group_arn: "arn:aws:autoscaling:us-east-1:379163426062:autoScalingGroup:57850428-516b-4ffd-9ee5-ccb638077dba:autoScalingGroupName/sp5ft-01GSXBC5843YVQGESHRK33GTTZ-20230301230633970400000002"
 
   - name: ARM64-based workerpool
     project_root: examples/arm64
@@ -16,6 +19,8 @@ tests:
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
       TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAS"
+      TF_VAR_region: "eu-west-1"
+      TF_VAR_autoscaling_group_arn: "arn:aws:autoscaling:us-east-1:379163426062:autoScalingGroup:57850428-516b-4ffd-9ee5-ccb638077dba:autoScalingGroupName/sp5ft-01GSXBC5843YVQGESHRK33GTTZ-20230301230633970400000002"
 
   - name: Custom IAM Role
     project_root: examples/custom-iam-role
@@ -24,6 +29,8 @@ tests:
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
       TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAS"
+      TF_VAR_region: "eu-west-1"
+      TF_VAR_autoscaling_group_arn: "arn:aws:autoscaling:us-east-1:379163426062:autoScalingGroup:57850428-516b-4ffd-9ee5-ccb638077dba:autoScalingGroupName/sp5ft-01GSXBC5843YVQGESHRK33GTTZ-20230301230633970400000002"
 
   - name: S3-hosted autoscaler
     project_root: examples/autoscaler-s3-package
@@ -33,3 +40,5 @@ tests:
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
       TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAS"
+      TF_VAR_region: "eu-west-1"
+      TF_VAR_autoscaling_group_arn: "arn:aws:autoscaling:us-east-1:379163426062:autoScalingGroup:57850428-516b-4ffd-9ee5-ccb638077dba:autoScalingGroupName/sp5ft-01GSXBC5843YVQGESHRK33GTTZ-20230301230633970400000002"
