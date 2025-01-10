@@ -102,6 +102,7 @@ $ make docs
 | <a name="input_autoscaler_architecture"></a> [autoscaler\_architecture](#input\_autoscaler\_architecture) | Instruction set architecture of the autoscaler to use | `string` | `"amd64"` | no |
 | <a name="input_autoscaler_s3_package"></a> [autoscaler\_s3\_package](#input\_autoscaler\_s3\_package) | Configuration to retrieve autoscaler lambda package from s3 bucket | <pre>object({<br>    bucket         = string<br>    key            = string<br>    object_version = optional(string)<br>  })</pre> | `null` | no |
 | <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"latest"` | no |
+| <a name="input_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#input\_autoscaling\_group\_arn) | autoscaling group ARN. Required for autoscaler | `string` | n/a | yes |
 | <a name="input_autoscaling_max_create"></a> [autoscaling\_max\_create](#input\_autoscaling\_max\_create) | The maximum number of instances the utility is allowed to create in a single run | `number` | `1` | no |
 | <a name="input_autoscaling_max_terminate"></a> [autoscaling\_max\_terminate](#input\_autoscaling\_max\_terminate) | The maximum number of instances the utility is allowed to terminate in a single run | `number` | `1` | no |
 | <a name="input_autoscaling_timeout"></a> [autoscaling\_timeout](#input\_autoscaling\_timeout) | Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be. | `number` | `30` | no |
@@ -119,6 +120,7 @@ $ make docs
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | Maximum number of workers to spin up | `number` | `10` | no |
 | <a name="input_min_size"></a> [min\_size](#input\_min\_size) | Minimum numbers of workers to spin up | `number` | `0` | no |
 | <a name="input_poweroff_delay"></a> [poweroff\_delay](#input\_poweroff\_delay) | Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped | `number` | `15` | no |
+| <a name="input_region"></a> [region](#input\_region) | AWS region to deploy to | `string` | n/a | yes |
 | <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | Autoscaler scheduling expression | `string` | `"rate(1 minute)"` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | List of security groups to use | `list(string)` | n/a | yes |
 | <a name="input_spacelift_api_key_endpoint"></a> [spacelift\_api\_key\_endpoint](#input\_spacelift\_api\_key\_endpoint) | Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io | `string` | `null` | no |
