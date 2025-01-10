@@ -17,8 +17,8 @@ module "autoscaler" {
   base_name                  = var.base_name
   region                     = var.region
   autoscaler_s3_package      = var.autoscaler_s3_package
-  subnet_ids                 = var.subnet_ids
-  security_group_ids         = var.security_group_ids
+  subnet_ids                 = var.vpc_subnets
+  security_group_ids         = var.security_groups
 
   depends_on = [module.asg]
 }
