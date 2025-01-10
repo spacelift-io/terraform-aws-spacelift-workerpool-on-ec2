@@ -9,6 +9,7 @@ tests:
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
       TF_VAR_worker_pool_id: "01HBD5QZ932J8EEH5GTBM1QMAS"
+      TF_VAR_region: "eu-west-1"
       TF_VAR_autoscaling_group_arn: "arn:aws:autoscaling:us-east-1:379163426062:autoScalingGroup:57850428-516b-4ffd-9ee5-ccb638077dba:autoScalingGroupName/sp5ft-01GSXBC5843YVQGESHRK33GTTZ-20230301230633970400000002"
 
   - name: ARM64-based workerpool
