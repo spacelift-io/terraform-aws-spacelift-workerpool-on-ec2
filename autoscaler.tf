@@ -1,5 +1,5 @@
 module "autoscaler" {
-  source = "github.com/spacelift-io/ec2-workerpool-autoscaler//iac?ref=v1.0.3"
+  source = "github.com/spacelift-io/ec2-workerpool-autoscaler//iac"
 
   for_each = var.enable_autoscaling ? toset(["ENABLED"]) : toset([])
 

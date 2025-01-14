@@ -81,7 +81,7 @@ $ make docs
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | ~> 8.0 |
-| <a name="module_autoscaler"></a> [autoscaler](#module\_autoscaler) | github.com/spacelift-io/ec2-workerpool-autoscaler//iac | v1.0.3 |
+| <a name="module_autoscaler"></a> [autoscaler](#module\_autoscaler) | github.com/spacelift-io/ec2-workerpool-autoscaler//iac | n/a |
 
 ## Resources
 
