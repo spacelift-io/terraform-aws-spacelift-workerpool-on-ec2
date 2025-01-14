@@ -74,14 +74,14 @@ $ make docs
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.55.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.83.1 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | ~> 8.0 |
-| <a name="module_autoscaler"></a> [autoscaler](#module\_autoscaler) | github.com/spacelift-io/ec2-workerpool-autoscaler//iac | n/a |
+| <a name="module_autoscaler"></a> [autoscaler](#module\_autoscaler) | github.com/spacelift-io/ec2-workerpool-autoscaler//iac | v1.0.3 |
 
 ## Resources
 
@@ -100,25 +100,26 @@ $ make docs
 | <a name="input_additional_tags"></a> [additional\_tags](#input\_additional\_tags) | Additional tags to set on the resources | `map(string)` | `{}` | no |
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used. | `string` | `""` | no |
 | <a name="input_autoscaler_architecture"></a> [autoscaler\_architecture](#input\_autoscaler\_architecture) | Instruction set architecture of the autoscaler to use | `string` | `"amd64"` | no |
-| <a name="input_autoscaler_s3_package"></a> [autoscaler\_s3\_package](#input\_autoscaler\_s3\_package) | Configuration to retrieve autoscaler lambda package from s3 bucket | <pre>object({<br>    bucket         = string<br>    key            = string<br>    object_version = optional(string)<br>  })</pre> | `null` | no |
+| <a name="input_autoscaler_s3_package"></a> [autoscaler\_s3\_package](#input\_autoscaler\_s3\_package) | Configuration to retrieve autoscaler lambda package from s3 bucket | <pre>object({<br/>    bucket         = string<br/>    key            = string<br/>    object_version = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"latest"` | no |
 | <a name="input_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#input\_autoscaling\_group\_arn) | autoscaling group ARN. Required for autoscaler | `string` | n/a | yes |
 | <a name="input_autoscaling_max_create"></a> [autoscaling\_max\_create](#input\_autoscaling\_max\_create) | The maximum number of instances the utility is allowed to create in a single run | `number` | `1` | no |
 | <a name="input_autoscaling_max_terminate"></a> [autoscaling\_max\_terminate](#input\_autoscaling\_max\_terminate) | The maximum number of instances the utility is allowed to terminate in a single run | `number` | `1` | no |
 | <a name="input_autoscaling_timeout"></a> [autoscaling\_timeout](#input\_autoscaling\_timeout) | Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be. | `number` | `30` | no |
 | <a name="input_base_name"></a> [base\_name](#input\_base\_name) | Base name for resources. If unset, it defaults to `sp5ft-${var.worker_pool_id}`. | `string` | `null` | no |
-| <a name="input_configuration"></a> [configuration](#input\_configuration) | User configuration. This allows you to decide how you want to pass your token<br>  and private key to the environment - be that directly, or using SSM Parameter<br>  Store, Vault etc. Ultimately, here you need to export SPACELIFT\_TOKEN and<br>  SPACELIFT\_POOL\_PRIVATE\_KEY to the environment. | `string` | n/a | yes |
+| <a name="input_configuration"></a> [configuration](#input\_configuration) | User configuration. This allows you to decide how you want to pass your token<br/>  and private key to the environment - be that directly, or using SSM Parameter<br/>  Store, Vault etc. Ultimately, here you need to export SPACELIFT\_TOKEN and<br/>  SPACELIFT\_POOL\_PRIVATE\_KEY to the environment. | `string` | n/a | yes |
 | <a name="input_create_iam_role"></a> [create\_iam\_role](#input\_create\_iam\_role) | Determines whether an IAM role is created or to use an existing IAM role | `bool` | `true` | no |
 | <a name="input_custom_iam_role_name"></a> [custom\_iam\_role\_name](#input\_custom\_iam\_role\_name) | Name of an existing IAM to use. Used `when create_iam_role` = `false` | `string` | `""` | no |
-| <a name="input_disable_container_credentials"></a> [disable\_container\_credentials](#input\_disable\_container\_credentials) | If true, the run container will not be able to access the instance profile<br>  credentials by talking to the EC2 metadata endpoint. This is done by setting<br>  the number of hops in IMDSv2 to 1. Since the Docker container goes through an<br>  extra NAT step, this still allows the launcher to talk to the endpoint, but<br>  prevents the container from doing so. | `bool` | `false` | no |
+| <a name="input_disable_container_credentials"></a> [disable\_container\_credentials](#input\_disable\_container\_credentials) | If true, the run container will not be able to access the instance profile<br/>  credentials by talking to the EC2 metadata endpoint. This is done by setting<br/>  the number of hops in IMDSv2 to 1. Since the Docker container goes through an<br/>  extra NAT step, this still allows the launcher to talk to the endpoint, but<br/>  prevents the container from doing so. | `bool` | `false` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Top-level domain name to use for pulling the launcher binary | `string` | `"spacelift.io"` | no |
 | <a name="input_ec2_instance_type"></a> [ec2\_instance\_type](#input\_ec2\_instance\_type) | EC2 instance type for the workers. If an arm64-based AMI is used, this must be an arm64-based instance type. | `string` | `"t3.micro"` | no |
 | <a name="input_enable_autoscaling"></a> [enable\_autoscaling](#input\_enable\_autoscaling) | Determines whether to create the Lambda Autoscaler function and dependent resources or not | `bool` | `true` | no |
 | <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | Enables/disables detailed monitoring | `bool` | `true` | no |
-| <a name="input_enabled_metrics"></a> [enabled\_metrics](#input\_enabled\_metrics) | List of CloudWatch metrics enabled on the ASG | `list(string)` | <pre>[<br>  "GroupDesiredCapacity",<br>  "GroupInServiceInstances",<br>  "GroupMaxSize",<br>  "GroupMinSize",<br>  "GroupPendingInstances",<br>  "GroupStandbyInstances",<br>  "GroupTerminatingInstances",<br>  "GroupTotalInstances"<br>]</pre> | no |
+| <a name="input_enabled_metrics"></a> [enabled\_metrics](#input\_enabled\_metrics) | List of CloudWatch metrics enabled on the ASG | `list(string)` | <pre>[<br/>  "GroupDesiredCapacity",<br/>  "GroupInServiceInstances",<br/>  "GroupMaxSize",<br/>  "GroupMinSize",<br/>  "GroupPendingInstances",<br/>  "GroupStandbyInstances",<br/>  "GroupTerminatingInstances",<br/>  "GroupTotalInstances"<br/>]</pre> | no |
 | <a name="input_instance_refresh"></a> [instance\_refresh](#input\_instance\_refresh) | If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated based on instance refresh configration. | `any` | `{}` | no |
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | Maximum number of workers to spin up | `number` | `10` | no |
 | <a name="input_min_size"></a> [min\_size](#input\_min\_size) | Minimum numbers of workers to spin up | `number` | `0` | no |
+| <a name="input_permissions_boundary"></a> [permissions\_boundary](#input\_permissions\_boundary) | ARN of the policy that is used to set the permissions boundary for any IAM roles. | `string` | `null` | no |
 | <a name="input_poweroff_delay"></a> [poweroff\_delay](#input\_poweroff\_delay) | Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped | `number` | `15` | no |
 | <a name="input_region"></a> [region](#input\_region) | AWS region to deploy to | `string` | n/a | yes |
 | <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | Autoscaler scheduling expression | `string` | `"rate(1 minute)"` | no |
@@ -126,7 +127,7 @@ $ make docs
 | <a name="input_spacelift_api_key_endpoint"></a> [spacelift\_api\_key\_endpoint](#input\_spacelift\_api\_key\_endpoint) | Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io | `string` | `null` | no |
 | <a name="input_spacelift_api_key_id"></a> [spacelift\_api\_key\_id](#input\_spacelift\_api\_key\_id) | ID of the Spacelift API key to use | `string` | `null` | no |
 | <a name="input_spacelift_api_key_secret"></a> [spacelift\_api\_key\_secret](#input\_spacelift\_api\_key\_secret) | Secret corresponding to the Spacelift API key to use | `string` | `null` | no |
-| <a name="input_tag_specifications"></a> [tag\_specifications](#input\_tag\_specifications) | Tag specifications to set on the launch template, which will apply to the instances at launch | <pre>list(object({<br>    resource_type = string<br>    tags          = optional(map(string), {})<br>  }))</pre> | `[]` | no |
+| <a name="input_tag_specifications"></a> [tag\_specifications](#input\_tag\_specifications) | Tag specifications to set on the launch template, which will apply to the instances at launch | <pre>list(object({<br/>    resource_type = string<br/>    tags          = optional(map(string), {})<br/>  }))</pre> | `[]` | no |
 | <a name="input_volume_encryption"></a> [volume\_encryption](#input\_volume\_encryption) | Whether to encrypt the EBS volume | `bool` | `false` | no |
 | <a name="input_volume_encryption_kms_key_id"></a> [volume\_encryption\_kms\_key\_id](#input\_volume\_encryption\_kms\_key\_id) | KMS key ID to use for encrypting the EBS volume | `string` | `null` | no |
 | <a name="input_volume_size"></a> [volume\_size](#input\_volume\_size) | Size of instance EBS volume | `number` | `40` | no |
