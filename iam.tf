@@ -25,7 +25,8 @@ resource "aws_iam_role" "this" {
       Principal = { Service = "ec2.amazonaws.com" }
     }]
   })
-  tags = var.additional_tags
+  tags                 = var.additional_tags
+  permissions_boundary = var.permissions_boundary
 }
 
 locals {
