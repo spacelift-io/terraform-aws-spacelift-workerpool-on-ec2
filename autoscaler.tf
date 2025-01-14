@@ -1,24 +1,25 @@
 module "autoscaler" {
-  source = "github.com/spacelift-io/ec2-workerpool-autoscaler//iac"
+  source = "github.com/spacelift-io/ec2-workerpool-autoscaler//iac?ref=v1.0.3"
 
   for_each = var.enable_autoscaling ? toset(["ENABLED"]) : toset([])
 
-  autoscaling_group_arn      = var.autoscaling_group_arn
-  autoscaler_version         = var.autoscaler_version
-  spacelift_api_key_id       = var.spacelift_api_key_id
-  spacelift_api_key_secret   = var.spacelift_api_key_secret
-  spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
-  worker_pool_id             = var.worker_pool_id
-  autoscaler_architecture    = var.autoscaler_architecture
-  autoscaling_timeout        = var.autoscaling_timeout
-  autoscaling_max_create     = var.autoscaling_max_create
-  autoscaling_max_terminate  = var.autoscaling_max_terminate
-  schedule_expression        = var.schedule_expression
-  base_name                  = var.base_name
-  region                     = var.region
-  autoscaler_s3_package      = var.autoscaler_s3_package
-  subnet_ids                 = var.vpc_subnets
-  security_group_ids         = var.security_groups
+  autoscaling_group_arn           = var.autoscaling_group_arn
+  autoscaler_version              = var.autoscaler_version
+  spacelift_api_key_id            = var.spacelift_api_key_id
+  spacelift_api_key_secret        = var.spacelift_api_key_secret
+  spacelift_api_key_endpoint      = var.spacelift_api_key_endpoint
+  worker_pool_id                  = var.worker_pool_id
+  autoscaler_architecture         = var.autoscaler_architecture
+  autoscaling_timeout             = var.autoscaling_timeout
+  autoscaling_max_create          = var.autoscaling_max_create
+  autoscaling_max_terminate       = var.autoscaling_max_terminate
+  schedule_expression             = var.schedule_expression
+  base_name                       = var.base_name
+  region                          = var.region
+  autoscaler_s3_package           = var.autoscaler_s3_package
+  subnet_ids                      = var.vpc_subnets
+  security_group_ids              = var.security_groups
+  autoscaler_permissions_boundary = var.permissions_boundary
 
   depends_on = [module.asg]
 }
