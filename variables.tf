@@ -23,7 +23,7 @@ variable "disable_container_credentials" {
   extra NAT step, this still allows the launcher to talk to the endpoint, but
   prevents the container from doing so.
   EOF
-  default     = false
+  default     = true
 }
 
 variable "autoscaling_group_arn" {
