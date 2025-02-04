@@ -59,8 +59,6 @@ module "this" {
     export SPACELIFT_TOKEN="<token-here>"
     export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
   EOT
-  autoscaling_group_arn      = var.autoscaling_group_arn
-  region                     = var.region
   ami_id                     = data.aws_ami.this.id
   ec2_instance_type          = "t4g.micro"
   security_groups            = [data.aws_security_group.this.id]

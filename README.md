@@ -74,23 +74,35 @@ $ make docs
 
 | Name | Version |
 |------|---------|
+| <a name="provider_archive"></a> [archive](#provider\_archive) | n/a |
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.55.0 |
+| <a name="provider_null"></a> [null](#provider\_null) | n/a |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_asg"></a> [asg](#module\_asg) | terraform-aws-modules/autoscaling/aws | ~> 8.0 |
-| <a name="module_autoscaler"></a> [autoscaler](#module\_autoscaler) | github.com/spacelift-io/ec2-workerpool-autoscaler//iac | n/a |
 
 ## Resources
 
 | Name | Type |
 |------|------|
+| [aws_cloudwatch_event_rule.scheduling](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_rule) | resource |
+| [aws_cloudwatch_event_target.scheduling](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_event_target) | resource |
+| [aws_cloudwatch_log_group.log_group](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cloudwatch_log_group) | resource |
 | [aws_iam_instance_profile.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_instance_profile) | resource |
+| [aws_iam_role.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
+| [aws_lambda_function.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
+| [aws_lambda_permission.allow_cloudwatch_to_call_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
+| [aws_ssm_parameter.spacelift_api_key_secret](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ssm_parameter) | resource |
+| [null_resource.download](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [archive_file.binary](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
+| [aws_iam_policy_document.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_region.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 
 ## Inputs
@@ -101,8 +113,7 @@ $ make docs
 | <a name="input_ami_id"></a> [ami\_id](#input\_ami\_id) | ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used. | `string` | `""` | no |
 | <a name="input_autoscaler_architecture"></a> [autoscaler\_architecture](#input\_autoscaler\_architecture) | Instruction set architecture of the autoscaler to use | `string` | `"amd64"` | no |
 | <a name="input_autoscaler_s3_package"></a> [autoscaler\_s3\_package](#input\_autoscaler\_s3\_package) | Configuration to retrieve autoscaler lambda package from s3 bucket | <pre>object({<br>    bucket         = string<br>    key            = string<br>    object_version = optional(string)<br>  })</pre> | `null` | no |
-| <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"latest"` | no |
-| <a name="input_autoscaling_group_arn"></a> [autoscaling\_group\_arn](#input\_autoscaling\_group\_arn) | autoscaling group ARN. Required for autoscaler | `string` | n/a | yes |
+| <a name="input_autoscaler_version"></a> [autoscaler\_version](#input\_autoscaler\_version) | Version of the autoscaler to deploy | `string` | `"v0.3.0"` | no |
 | <a name="input_autoscaling_max_create"></a> [autoscaling\_max\_create](#input\_autoscaling\_max\_create) | The maximum number of instances the utility is allowed to create in a single run | `number` | `1` | no |
 | <a name="input_autoscaling_max_terminate"></a> [autoscaling\_max\_terminate](#input\_autoscaling\_max\_terminate) | The maximum number of instances the utility is allowed to terminate in a single run | `number` | `1` | no |
 | <a name="input_autoscaling_timeout"></a> [autoscaling\_timeout](#input\_autoscaling\_timeout) | Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be. | `number` | `30` | no |
@@ -120,7 +131,6 @@ $ make docs
 | <a name="input_max_size"></a> [max\_size](#input\_max\_size) | Maximum number of workers to spin up | `number` | `10` | no |
 | <a name="input_min_size"></a> [min\_size](#input\_min\_size) | Minimum numbers of workers to spin up | `number` | `0` | no |
 | <a name="input_poweroff_delay"></a> [poweroff\_delay](#input\_poweroff\_delay) | Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped | `number` | `15` | no |
-| <a name="input_region"></a> [region](#input\_region) | AWS region to deploy to | `string` | n/a | yes |
 | <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | Autoscaler scheduling expression | `string` | `"rate(1 minute)"` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | List of security groups to use | `list(string)` | n/a | yes |
 | <a name="input_spacelift_api_key_endpoint"></a> [spacelift\_api\_key\_endpoint](#input\_spacelift\_api\_key\_endpoint) | Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io | `string` | `null` | no |
