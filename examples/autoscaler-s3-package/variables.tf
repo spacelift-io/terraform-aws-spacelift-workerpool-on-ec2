@@ -31,13 +31,3 @@ variable "autoscaler_architecture" {
   description = "Instruction set architecture of the autoscaler to use"
   default     = "amd64"
 }
-
-variable "autoscaling_group_arn" {
-  type        = string
-  description = "autoscaling group ARN. Required for autoscaler"
-}
-
-variable "region" {
-  type        = string
-  description = "AWS region to deploy to"
-}
