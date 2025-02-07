@@ -30,6 +30,8 @@ module "this" {
   vpc_subnets                = data.aws_subnets.this.ids
   worker_pool_id             = var.worker_pool_id
 
+  autoscaler_version = var.autoscaler_version
+
   enable_autoscaling = true
   autoscaler_s3_package = {
     bucket = aws_s3_bucket.autoscaler_binary.id

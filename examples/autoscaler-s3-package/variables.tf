@@ -22,7 +22,7 @@ variable "worker_pool_id" {
 variable "autoscaler_version" {
   description = "Version of the autoscaler to deploy"
   type        = string
-  default     = "v0.3.0"
+  default     = "latest"
   nullable    = false
 }
 

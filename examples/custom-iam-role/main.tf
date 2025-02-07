@@ -70,6 +70,8 @@ module "this" {
   vpc_subnets                = data.aws_subnets.this.ids
   worker_pool_id             = var.worker_pool_id
 
+  autoscaler_version = var.autoscaler_version
+
   tag_specifications = [
     {
       resource_type = "instance"
