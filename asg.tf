@@ -83,7 +83,7 @@ module "asg" {
   name = local.base_name
 
   iam_instance_profile_arn = aws_iam_instance_profile.this.arn
-  image_id                 = var.ami_id != "" ? var.ami_id : data.aws_ami.this.id
+  image_id                 = var.ami_id != "" ? var.ami_id : data.aws_ami.this[0].id
   instance_type            = var.ec2_instance_type
   security_groups          = var.security_groups
   enable_monitoring        = var.enable_monitoring
@@ -132,7 +132,7 @@ module "asg" {
   }
 
   suspended_processes = var.enable_autoscaling ? [
-    # Prevents the ASG from terminating instances for rebalancing between AZs, 
+    # Prevents the ASG from terminating instances for rebalancing between AZs,
     # which triggered right after termination of instances by lambda
     "AZRebalance"
   ] : []
