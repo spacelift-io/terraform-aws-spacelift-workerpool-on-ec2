@@ -18,3 +18,8 @@ variable "worker_pool_id" {
   type        = string
   description = "ID (ULID) of the the worker pool."
 }
+
+variable "autoscaler_version" {
+  type = string
+  default = "latest"
+}

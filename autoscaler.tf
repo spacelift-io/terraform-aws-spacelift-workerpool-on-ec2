@@ -14,8 +14,8 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 resource "null_resource" "download" {
   count = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
   triggers = {
-    # Always re-download the archive file
-    now = timestamp()
+    # Always re-download the archive file if the version is set to "latest"
+    keeper = var.autoscaler_version == "latest" ? timestamp() : var.autoscaler_version
   }
   provisioner "local-exec" {
     command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
