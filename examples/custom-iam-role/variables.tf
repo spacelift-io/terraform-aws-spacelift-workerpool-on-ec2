@@ -20,6 +20,6 @@ variable "worker_pool_id" {
 }
 
 variable "autoscaler_version" {
-  type = string
+  type    = string
   default = "latest"
 }
