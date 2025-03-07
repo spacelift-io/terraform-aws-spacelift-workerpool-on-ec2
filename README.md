@@ -1,10 +1,12 @@
-# Terraform AWS Spacelift Workerpool On EC2
+# ☁️ Terraform AWS Spacelift Workerpool On EC2
 
 Terraform module deploying a Spacelift worker pool on AWS EC2 using an autoscaling group.
 
 This module can optionally deploy a Lambda function to auto-scale the worker pool. The function adds or removes workers depending on the worker pool queue length.
 
-## Usage
+## ✨ Usage
+
+### SaaS
 
 The most important is that you should provide `SPACELIFT_TOKEN` and `SPACELIFT_POOL_PRIVATE_KEY` environmental variables in the `configuration` variable to the module. More information can be found in the [docs](https://docs.spacelift.io/concepts/worker-pools).
 
@@ -13,13 +15,13 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.57.0"
+      version = "~> 5.0"
     }
   }
 }
 
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.6.1"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.12.0"
 
   configuration = <<-EOT
     export SPACELIFT_TOKEN="${var.worker_pool_config}"
@@ -38,6 +40,42 @@ You also need to add the required values for `spacelift_api_key_endpoint`, `spac
 
 You can also set the optional `autoscaling_max_create` and `autoscaling_max_terminate` values in the module block for Lambda Autoscaler function to set the optional `AUTOSCALING_MAX_CREATE` and `AUTOSCALING_MAX_KILL` parameters. These parameters default to 1. These parameters set the maximum number of instances the utility is allowed to create or terminate in a single run.
 
+### Self-hosted
+
+For self-hosted, other than the aforementioned `SPACELIFT_TOKEN` and `SPACELIFT_POOL_PRIVATE_KEY` variables, you also need to provide the `selfhosted_configuration` variable. In `selfhosted_configuration`, the only mandatory field is `s3_uri` which should point to the location of the launcher binary in S3:
+
+```terraform
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+module "my_workerpool" {
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v2.12.0"
+
+  configuration = <<-EOT
+    export SPACELIFT_TOKEN="${var.worker_pool_config}"
+    export SPACELIFT_POOL_PRIVATE_KEY="${var.worker_pool_private_key}"
+  EOT
+
+  min_size                 = 1
+  max_size                 = 5
+  worker_pool_id           = var.worker_pool_id
+  security_groups          = var.worker_pool_security_groups
+  vpc_subnets              = var.worker_pool_subnets
+  enable_autoscaling       = false
+  selfhosted_configuration = {
+    s3_uri = "s3://spacelift-binaries-123ab/spacelift-launcher"
+  }
+}
+```
+
+> Note: the module will parse the `s3_uri` and set `s3:GetObject` IAM permission accordingly. However, if the S3 bucket is KMS encrypted, it will fail. In that case, you can create a custom instance profile for yourself and provide it via the `custom_iam_role_name` variable.
+
 ## Default AMI
 
 The default AMI used by this module comes from the [spacelift-worker-image](https://github.com/spacelift-io/spacelift-worker-image)
@@ -54,7 +92,7 @@ You can find an example of ARM-based workerpool in the [examples](./examples/) d
 
 >❗️ If you use [custom runner images](https://docs.spacelift.io/concepts/stack/stack-settings.html#runner-image), make sure they support ARM. The default Spacelift images do support it.
 
-## How to generate docs
+## 📚 How to generate docs
 
 The generated documentation is between `BEGIN_TF_DOCS` and `END_TF_DOCS` comments in the `README.md` file.
 Use the following command to update the docs:
@@ -95,6 +133,7 @@ $ make docs
 | [aws_iam_role.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
+| [aws_iam_role_policy.s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_lambda_function.autoscaler](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_function) | resource |
 | [aws_lambda_permission.allow_cloudwatch_to_call_lambda](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lambda_permission) | resource |
@@ -134,6 +173,7 @@ $ make docs
 | <a name="input_poweroff_delay"></a> [poweroff\_delay](#input\_poweroff\_delay) | Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped | `number` | `15` | no |
 | <a name="input_schedule_expression"></a> [schedule\_expression](#input\_schedule\_expression) | Autoscaler scheduling expression | `string` | `"rate(1 minute)"` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | List of security groups to use | `list(string)` | n/a | yes |
+| <a name="input_selfhosted_configuration"></a> [selfhosted\_configuration](#input\_selfhosted\_configuration) | Configuration for selfhosted launcher | <pre>object({<br>    s3_uri                         = string                 # If provided, the launcher binary will be downloaded from that URI. Mandatory for selfhosted. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher<br>    run_launcher_as_spacelift_user = optional(bool)         # Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.<br>    http_proxy_config              = optional(string)       # The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.<br>    https_proxy_config             = optional(string)       # The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.<br>    no_proxy_config                = optional(string)       # The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.<br>    ca_certificates                = optional(list(string)) # List of additional root CAs to install on the instance. Example: [\"-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----\"].<br>    power_off_on_error             = optional(bool)         # Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.<br>  })</pre> | <pre>{<br>  "ca_certificates": [],<br>  "http_proxy_config": "",<br>  "https_proxy_config": "",<br>  "no_proxy_config": "",<br>  "power_off_on_error": true,<br>  "run_launcher_as_spacelift_user": true,<br>  "s3_uri": ""<br>}</pre> | no |
 | <a name="input_spacelift_api_key_endpoint"></a> [spacelift\_api\_key\_endpoint](#input\_spacelift\_api\_key\_endpoint) | Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io | `string` | `null` | no |
 | <a name="input_spacelift_api_key_id"></a> [spacelift\_api\_key\_id](#input\_spacelift\_api\_key\_id) | ID of the Spacelift API key to use | `string` | `null` | no |
 | <a name="input_spacelift_api_key_secret"></a> [spacelift\_api\_key\_secret](#input\_spacelift\_api\_key\_secret) | Secret corresponding to the Spacelift API key to use | `string` | `null` | no |

@@ -42,6 +42,21 @@ resource "aws_iam_role_policy_attachment" "this" {
   policy_arn = each.value
 }
 
+resource "aws_iam_role_policy" "s3" {
+  count = var.selfhosted_configuration.s3_uri != "" ? 1 : 0
+
+  name = "s3-access"
+  role = aws_iam_role.this[0].name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["s3:GetObject"]
+      Resource = [format("arn:aws:s3:::%s/*", split("/", var.selfhosted_configuration.s3_uri)[2])]
+    }]
+  })
+}
+
 resource "aws_iam_instance_profile" "this" {
   depends_on = [aws_iam_role_policy_attachment.this]
 

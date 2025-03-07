@@ -44,12 +44,16 @@ resource "aws_iam_role" "this" {
       },
     ]
   })
+}
 
-  managed_policy_arns = [
+resource "aws_iam_role_policy_attachment" "attachment" {
+  for_each = toset([
     "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess",
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-  ]
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  ])
+  role       = aws_iam_role.this.name
+  policy_arn = each.key
 }
 
 #### Spacelift worker pool ####
