@@ -83,6 +83,11 @@ module "asg" {
     "AZRebalance"
   ] : []
 
+  # Launch template versioning
+  default_version         = var.default_version
+  launch_template_version = var.launch_template_version
+  update_default_version  = var.update_default_version
+
   user_data = base64encode(var.selfhosted_configuration.s3_uri == "" ? local.saas_user_data : local.selfhosted_user_data)
 
   tag_specifications = var.tag_specifications
