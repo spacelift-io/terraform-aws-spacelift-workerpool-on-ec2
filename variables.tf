@@ -68,6 +68,24 @@ variable "create_iam_role" {
   default     = true
 }
 
+variable "launch_template_version" {
+  description = "Launch template version. Can be version number, `$Latest`, or `$Default`"
+  type        = string
+  default     = null
+}
+
+variable "default_version" {
+  description = "Default Version of the launch template"
+  type        = string
+  default     = null
+}
+
+variable "update_default_version" {
+  description = "Whether to update Default Version each update. Conflicts with `default_version`"
+  type        = bool
+  default     = null
+}
+
 variable "min_size" {
   type        = number
   description = "Minimum numbers of workers to spin up"
