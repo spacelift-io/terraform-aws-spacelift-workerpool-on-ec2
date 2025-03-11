@@ -38,3 +38,12 @@ tests:
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
       TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAD"
       TF_VAR_autoscaler_version: "v1.0.3"
+
+  - name: Self-hosted setup
+    project_root: examples/self-hosted
+    environment:
+      AWS_DEFAULT_REGION: "eu-west-1"
+      TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
+      TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+      TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAE"
