@@ -8,10 +8,13 @@ variable "configuration" {
   type        = string
   description = <<EOF
   User configuration. This allows you to decide how you want to pass your token
-  and private key to the environment - be that directly, or using SSM Parameter
-  Store, Vault etc. Ultimately, here you need to export SPACELIFT_TOKEN and
-  SPACELIFT_POOL_PRIVATE_KEY to the environment.
+  and private key to the environment if you dont wish to use secrets manager and
+  the secret strings functionality - be that directly, or using SSM Parameter
+  Store, Vault etc.
+
+  NOTE: One of var.configuration or var.secure_strings is required.
   EOF
+  default     = ""
 }
 
 variable "disable_container_credentials" {
@@ -81,6 +84,24 @@ variable "poweroff_delay" {
   type        = number
   description = "Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped"
   default     = 15
+}
+
+variable "secure_strings" {
+  type        = map(string)
+  description = <<EOF
+    Secure strings to be stored in Secrets Manager, their values will be exported
+    at run time as `export {key}={value}`. This allows you pass the token, private
+    key, or any values securely.
+
+    NOTE: One of var.configuration or var.secure_strings is required.
+EOF
+  default     = {}
+}
+
+variable "secure_strings_kms_key_id" {
+  type        = string
+  description = "KMS key ID to use for encrypting the secure strings, default is the default KMS key"
+  default     = null
 }
 
 variable "security_groups" {
