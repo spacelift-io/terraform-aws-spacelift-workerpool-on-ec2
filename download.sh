@@ -11,7 +11,12 @@ if [ "$code_version" != "latest" ]; then
 else
   # Make a temporary file to store the headers in
   tmpfile=$(mktemp /tmp/spacelift-request-headers.XXXXXX)
-  request=$(curl -D "$tmpfile" -X GET -sS "https://api.github.com/repos/spacelift-io/ec2-workerpool-autoscaler/releases/latest")
+  # If GITHUB_TOKEN is set, we can benefit from its higher rate limit
+  if [ -n "${GITHUB_TOKEN}" ]; then
+    request=$(curl -D "$tmpfile" -X GET --header "Authorization: Bearer ${GITHUB_TOKEN}" -sS "https://api.github.com/repos/spacelift-io/ec2-workerpool-autoscaler/releases/latest")
+  else
+    request=$(curl -D "$tmpfile" -X GET -sS "https://api.github.com/repos/spacelift-io/ec2-workerpool-autoscaler/releases/latest")
+  fi
   ratelimit=$(cat "$tmpfile" | grep x-ratelimit-remaining | awk '{print $2}' | tr -d '\012\015')
   rm "$tmpfile"
   if [ $ratelimit = "0" ]; then
