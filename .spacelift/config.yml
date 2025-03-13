@@ -1,5 +1,5 @@
 version: 1
-module_version: 2.11.1
+module_version: 2.12.1
 tests:
   - name: AMD64-based workerpool
     project_root: examples/amd64
@@ -8,8 +8,8 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8EEH5GTBM1QMAS"
-      TF_VAR_autocaler_version: "latest"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8EEH5GTBM1QMAA"
+      TF_VAR_autoscaler_version: "latest"
 
   - name: ARM64-based workerpool
     project_root: examples/arm64
@@ -17,8 +17,8 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAS"
-      TF_VAR_autocaler_version: "v1.0.3"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAB"
+      TF_VAR_autoscaler_version: "v1.0.3"
 
   - name: Custom IAM Role
     project_root: examples/custom-iam-role
@@ -26,8 +26,8 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAS"
-      TF_VAR_autocaler_version: "v1.0.3"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAC"
+      TF_VAR_autoscaler_version: "v1.0.3"
 
   - name: S3-hosted autoscaler
     project_root: examples/autoscaler-s3-package
@@ -36,5 +36,14 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAS"
-      TF_VAR_autocaler_version: "v1.0.3"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAD"
+      TF_VAR_autoscaler_version: "v1.0.3"
+
+  - name: Self-hosted setup
+    project_root: examples/self-hosted
+    environment:
+      AWS_DEFAULT_REGION: "eu-west-1"
+      TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
+      TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+      TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAE"

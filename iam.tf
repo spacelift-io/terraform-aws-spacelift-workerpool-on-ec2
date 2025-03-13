@@ -12,6 +12,8 @@ locals {
   : ""))
 }
 
+data "aws_partition" "current" {}
+
 resource "aws_iam_role" "this" {
   count = var.create_iam_role ? 1 : 0
   name  = local.base_name
@@ -22,7 +24,7 @@ resource "aws_iam_role" "this" {
     Statement = [{
       Effect    = "Allow"
       Action    = "sts:AssumeRole"
-      Principal = { Service = "ec2.amazonaws.com" }
+      Principal = { Service = "ec2.${data.aws_partition.current.dns_suffix}" }
     }]
   })
   tags = var.additional_tags
@@ -30,9 +32,9 @@ resource "aws_iam_role" "this" {
 
 locals {
   iam_managed_policies = var.create_iam_role ? [
-    "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/AutoScalingReadOnlyAccess",
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy",
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore",
   ] : []
 }
 resource "aws_iam_role_policy_attachment" "this" {
@@ -40,6 +42,21 @@ resource "aws_iam_role_policy_attachment" "this" {
 
   role       = aws_iam_role.this[0].name
   policy_arn = each.value
+}
+
+resource "aws_iam_role_policy" "s3" {
+  count = var.create_iam_role && var.selfhosted_configuration.s3_uri != "" ? 1 : 0
+
+  name = "s3-access"
+  role = aws_iam_role.this[0].name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["s3:GetObject"]
+      Resource = [format("arn:${data.aws_partition.current.partition}:s3:::%s/*", split("/", var.selfhosted_configuration.s3_uri)[2])]
+    }]
+  })
 }
 
 resource "aws_iam_instance_profile" "this" {
@@ -115,7 +132,7 @@ resource "aws_iam_role" "autoscaler" {
       {
         "Effect" : "Allow",
         "Principal" : {
-          "Service" : "lambda.amazonaws.com"
+          "Service" : "lambda.${data.aws_partition.current.dns_suffix}"
         },
         "Action" : "sts:AssumeRole"
       },
