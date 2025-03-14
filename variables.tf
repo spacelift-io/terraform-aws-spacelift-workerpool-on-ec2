@@ -23,12 +23,7 @@ variable "disable_container_credentials" {
   extra NAT step, this still allows the launcher to talk to the endpoint, but
   prevents the container from doing so.
   EOF
-  default     = false
-}
-
-variable "autoscaling_group_arn" {
-  type        = string
-  description = "autoscaling group ARN. Required for autoscaler"
+  default     = true
 }
 
 variable "domain_name" {
@@ -231,13 +226,35 @@ variable "autoscaler_s3_package" {
   default     = null
 }
 
-variable "region" {
-  type        = string
-  description = "AWS region to deploy to"
+variable "instance_market_options" {
+  description = "The market (purchasing) option for the instance"
+  type        = any
+  default     = {}
 }
 
 variable "permissions_boundary" {
   type        = string
   default     = null
   description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
+
+variable "selfhosted_configuration" {
+  type = object({
+    s3_uri                         = string                 # If provided, the launcher binary will be downloaded from that URI. Mandatory for selfhosted. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher
+    run_launcher_as_spacelift_user = optional(bool)         # Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.
+    http_proxy_config              = optional(string)       # The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+    https_proxy_config             = optional(string)       # The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+    no_proxy_config                = optional(string)       # The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+    ca_certificates                = optional(list(string)) # List of additional root CAs to install on the instance. Example: [\"-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----\"].
+    power_off_on_error             = optional(bool)         # Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.
+  })
+  description = "Configuration for selfhosted launcher"
+  default = {
+    s3_uri                         = ""
+    run_launcher_as_spacelift_user = true
+    http_proxy_config              = ""
+    https_proxy_config             = ""
+    no_proxy_config                = ""
+    ca_certificates                = []
+    power_off_on_error             = true
+  }
 }

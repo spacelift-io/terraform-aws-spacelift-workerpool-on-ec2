@@ -18,16 +18,3 @@ variable "worker_pool_id" {
   type        = string
   description = "ID (ULID) of the the worker pool."
 }
-
-variable "autoscaler_version" {
-  description = "Version of the autoscaler to deploy"
-  type        = string
-  default     = "latest"
-  nullable    = false
-}
-
-variable "autoscaler_architecture" {
-  type        = string
-  description = "Instruction set architecture of the autoscaler to use"
-  default     = "amd64"
-}

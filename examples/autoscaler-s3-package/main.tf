@@ -23,14 +23,14 @@ module "this" {
     export SPACELIFT_TOKEN="<token-here>"
     export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
   EOT
-  autoscaling_group_arn      = var.autoscaling_group_arn
-  region                     = var.region
   security_groups            = [data.aws_security_group.this.id]
   spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
   spacelift_api_key_id       = var.spacelift_api_key_id
   spacelift_api_key_secret   = var.spacelift_api_key_secret
   vpc_subnets                = data.aws_subnets.this.ids
   worker_pool_id             = var.worker_pool_id
+
+  autoscaler_version = var.autoscaler_version
 
   enable_autoscaling = true
   autoscaler_s3_package = {

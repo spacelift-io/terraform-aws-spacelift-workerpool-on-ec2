@@ -39,17 +39,21 @@ resource "aws_iam_role" "this" {
         Action = "sts:AssumeRole"
         Effect = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com"
+          Service = "ec2.${data.aws_partition.current.dns_suffix}"
         }
       },
     ]
   })
+}
 
-  managed_policy_arns = [
+resource "aws_iam_role_policy_attachment" "attachment" {
+  for_each = toset([
     "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess",
     "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-  ]
+    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  ])
+  role       = aws_iam_role.this.name
+  policy_arn = each.key
 }
 
 #### Spacelift worker pool ####
@@ -61,8 +65,6 @@ module "this" {
     export SPACELIFT_TOKEN="<token-here>"
     export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
   EOT
-  autoscaling_group_arn      = var.autoscaling_group_arn
-  region                     = var.region
   create_iam_role            = false
   custom_iam_role_name       = aws_iam_role.this.name
   security_groups            = [data.aws_security_group.this.id]
@@ -71,6 +73,8 @@ module "this" {
   spacelift_api_key_secret   = var.spacelift_api_key_secret
   vpc_subnets                = data.aws_subnets.this.ids
   worker_pool_id             = var.worker_pool_id
+
+  autoscaler_version = var.autoscaler_version
 
   tag_specifications = [
     {
