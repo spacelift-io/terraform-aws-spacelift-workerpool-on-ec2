@@ -140,8 +140,9 @@ resource "aws_iam_role" "autoscaler" {
     ]
   })
 
-  depends_on = [module.asg]
-  tags       = var.additional_tags
+  depends_on           = [module.asg]
+  tags                 = var.additional_tags
+  permissions_boundary = var.permissions_boundary
 }
 
 resource "aws_iam_role_policy" "autoscaler" {

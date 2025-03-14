@@ -236,6 +236,7 @@ variable "permissions_boundary" {
   type        = string
   default     = null
   description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
+}
 
 variable "selfhosted_configuration" {
   type = object({
