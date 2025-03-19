@@ -4,6 +4,8 @@ terraform {
       source  = "hashicorp/aws"
       version = "< 6.0"
     }
+
+    random = { source = "hashicorp/random" }
   }
 }
 
@@ -27,48 +29,18 @@ data "aws_subnets" "this" {
   }
 }
 
-data "aws_partition" "current" {}
-
-resource "random_pet" "this" {}
-
-resource "aws_iam_role" "this" {
-  name = random_pet.this.id
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.${data.aws_partition.current.dns_suffix}"
-        }
-      },
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "attachment" {
-  for_each = toset([
-    "arn:aws:iam::aws:policy/AutoScalingReadOnlyAccess",
-    "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy",
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-  ])
-  role       = aws_iam_role.this.name
-  policy_arn = each.key
-}
+resource "random_uuid" "this" {}
 
 #### Spacelift worker pool ####
 
 module "this" {
   source = "../../"
 
-  configuration              = <<-EOT
-    export SPACELIFT_TOKEN="<token-here>"
-    export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
-  EOT
-  create_iam_role            = false
-  custom_iam_role_name       = aws_iam_role.this.name
+  secure_env_vars = {
+    SPACELIFT_TOKEN            = "<token-here>"
+    SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
+  }
+
   security_groups            = [data.aws_security_group.this.id]
   spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
   spacelift_api_key_id       = var.spacelift_api_key_id
@@ -77,6 +49,9 @@ module "this" {
   worker_pool_id             = var.worker_pool_id
 
   autoscaler_version = var.autoscaler_version
+
+  # You normally wouldnt do this, this is only here for us to test this module.
+  base_name = random_uuid.this.result
 
   tag_specifications = [
     {
