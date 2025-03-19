@@ -60,6 +60,9 @@ module "this" {
     export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
   EOT
   ami_id                     = data.aws_ami.this.id
+  # t4g.micro is just for using the random provider and a few resources.
+  # If you are using more than a few resources as well as memory intensive providers it's recommended to use a t4g.medium or at least a t4g.small
+  # https://docs.spacelift.io/concepts/worker-pools#hardware-recommendations
   ec2_instance_type          = "t4g.micro"
   security_groups            = [data.aws_security_group.this.id]
   spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
