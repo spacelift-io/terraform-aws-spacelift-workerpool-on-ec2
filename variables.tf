@@ -253,6 +253,12 @@ variable "instance_market_options" {
   default     = {}
 }
 
+variable "permissions_boundary" {
+  type        = string
+  default     = null
+  description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
+}
+
 variable "selfhosted_configuration" {
   type = object({
     s3_uri                         = string                 # If provided, the launcher binary will be downloaded from that URI. Mandatory for selfhosted. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher
