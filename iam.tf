@@ -60,12 +60,49 @@ resource "aws_iam_role_policy" "s3" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "secure_env_vars" {
+  count      = local.secure_env_vars_count
+  role       = aws_iam_role.this[0].name
+  policy_arn = aws_iam_policy.secure_env_vars[count.index].arn
+}
+
 resource "aws_iam_instance_profile" "this" {
   depends_on = [aws_iam_role_policy_attachment.this]
 
   name = local.base_name
   role = var.create_iam_role ? aws_iam_role.this[0].name : var.custom_iam_role_name
   tags = var.additional_tags
+}
+
+data "aws_iam_policy_document" "secure_env_vars" {
+  count = local.secure_env_vars_count
+  statement {
+    effect = "Allow"
+    actions = [
+      "secretsmanager:GetSecretValue",
+    ]
+    resources = [aws_secretsmanager_secret.this[count.index].arn]
+  }
+
+  dynamic "statement" {
+    for_each = var.secure_env_vars_kms_key_id != null ? ["USE_KMS_KEY"] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey",
+      ]
+      resources = [var.secure_env_vars_kms_key_id]
+    }
+  }
+}
+
+resource "aws_iam_policy" "secure_env_vars" {
+  count       = local.secure_env_vars_count
+  name        = "${local.base_name}-secure-strings"
+  description = "Allows access to the secure strings stored in Secrets Manager"
+  policy      = data.aws_iam_policy_document.secure_env_vars[count.index].json
 }
 
 data "aws_iam_policy_document" "autoscaler" {
