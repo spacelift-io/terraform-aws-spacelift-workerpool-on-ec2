@@ -6,8 +6,8 @@ code_version=$1
 export code_architecture=$2
 
 if [ "$code_version" != "latest" ]; then
-  # If the code version is not latest, we dont need to hit the github api.
-  curl -L -o lambda.zip "https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${code_version}/ec2-workerpool-autoscaler_linux_${code_architecture}.zip"
+  # If the code version is not latest, we don't need to hit the github api.
+  download_url="https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${code_version}/ec2-workerpool-autoscaler_linux_${code_architecture}.zip"
 else
   # Make a temporary file to store the headers in
   tmpfile=$(mktemp /tmp/spacelift-request-headers.XXXXXX)
@@ -35,12 +35,7 @@ else
     echo "  Release Name: $code_version"
     echo "  Release Date: $release_date"
     echo "  Download URL: $download_url"
-
-    curl -L -o lambda.zip $download_url
   fi
 fi
 
-mkdir -p lambda
-cd lambda
-unzip -o ../lambda.zip
-rm ../lambda.zip
+curl -L -O "$download_url"

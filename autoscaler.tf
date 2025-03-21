@@ -1,4 +1,5 @@
 locals {
+  autoscaler_zip = "${path.module}/ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
   function_name  = "${local.base_name}-ec2-autoscaler"
   use_s3_package = var.autoscaler_s3_package != null
 }
@@ -14,27 +15,36 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 resource "null_resource" "download" {
   count = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
   triggers = {
-    # Always re-download the archive file if the version is set to "latest"
-    keeper = var.autoscaler_version == "latest" ? timestamp() : var.autoscaler_version
+    # Always re-download the archive file if the version is set to "latest" or if the file does not exist
+    keeper = (
+      var.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip)
+      ? timestamp()
+      : var.autoscaler_version
+    )
   }
+}
+
+resource "local_file" "autoscaler_zip" {
+  count    = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
+  filename = local.autoscaler_zip
+  content  = "placeholder"
+
+  lifecycle {
+    replace_triggered_by = [
+      null_resource.download
+    ]
+  }
+
   provisioner "local-exec" {
     command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
   }
 }
 
-data "archive_file" "binary" {
-  count       = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
-  type        = "zip"
-  source_file = "lambda/bootstrap"
-  output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
-  depends_on  = [null_resource.download]
-}
-
 resource "aws_lambda_function" "autoscaler" {
   count = var.enable_autoscaling ? 1 : 0
 
-  filename         = !local.use_s3_package ? data.archive_file.binary[count.index].output_path : null
-  source_code_hash = !local.use_s3_package ? data.archive_file.binary[count.index].output_base64sha256 : null
+  filename         = !local.use_s3_package ? local_file.autoscaler_zip[count.index].filename : null
+  source_code_hash = !local.use_s3_package ? local_file.autoscaler_zip[count.index].content_base64sha256 : null
 
   s3_bucket         = local.use_s3_package ? var.autoscaler_s3_package.bucket : null
   s3_key            = local.use_s3_package ? var.autoscaler_s3_package.key : null
