@@ -15,7 +15,7 @@ provider "aws" {
   default_tags {
     tags = {
       TfModule = "terraform-aws-spacelift-workerpool-on-ec2"
-      TestCase = "amd64"
+      TestCase = "AutoscalerWithCustomS3Package"
     }
   }
 }
@@ -41,10 +41,6 @@ data "aws_subnets" "this" {
 module "this" {
   source = "../../"
 
-  configuration = <<-EOT
-    export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
-    export SPACELIFT_LAUNCHER_RUN_TIMEOUT=120m
-  EOT
   secure_env_vars = {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
@@ -53,24 +49,14 @@ module "this" {
   vpc_subnets     = data.aws_subnets.this.ids
   worker_pool_id  = var.worker_pool_id
 
-  tag_specifications = [
-    {
-      resource_type = "instance"
-      tags = {
-        Name = "sp5ft-${var.worker_pool_id}"
-      }
-    },
-    {
-      resource_type = "volume"
-      tags = {
-        Name = "sp5ft-${var.worker_pool_id}"
-      }
-    },
-    {
-      resource_type = "network-interface"
-      tags = {
-        Name = "sp5ft-${var.worker_pool_id}"
-      }
+  autoscaling_configuration = {
+    api_key_endpoint = var.spacelift_api_key_endpoint
+    api_key_id       = var.spacelift_api_key_id
+    api_key_secret   = var.spacelift_api_key_secret
+    version          = var.autoscaler_version
+    s3_package = {
+      bucket = aws_s3_bucket.autoscaler_binary.id
+      key    = aws_s3_object.autoscaler_binary.id
     }
-  ]
+  }
 }
