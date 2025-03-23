@@ -4,16 +4,24 @@ variable "ami_id" {
   default     = ""
 }
 
+variable "secure_env_vars" {
+  type        = map(string)
+  sensitive   = true
+  description = <<EOF
+    Secure env vars to be stored in Secrets Manager. Their values will be exported
+    at run time as `export {key}={value}`. This allows you pass the token, private
+    key, or any values securely.
+EOF
+}
+
+
 variable "configuration" {
   type        = string
   description = <<EOF
-  User configuration. This allows you to decide how you want to pass your token
-  and private key to the environment if you dont wish to use secrets manager and
-  the secret strings functionality - be that directly, or using SSM Parameter
-  Store, Vault etc.
-
-  NOTE: One of var.configuration or var.secure_env_vars is required.
-  EOF
+  Plain text user configuration. This allows you to pass any
+  non-secret variables to the worker. This configuration is directly
+  inserted into the user data script without encryption.
+EOF
   default     = ""
 }
 
@@ -104,18 +112,6 @@ variable "poweroff_delay" {
   default     = 15
 }
 
-variable "secure_env_vars" {
-  type        = map(string)
-  description = <<EOF
-    Secure env vars to be stored in Secrets Manager, their values will be exported
-    at run time as `export {key}={value}`. This allows you pass the token, private
-    key, or any values securely.
-
-    NOTE: One of var.configuration or var.secure_env_vars is required.
-EOF
-  default     = {}
-}
-
 variable "secure_env_vars_kms_key_id" {
   type        = string
   description = "KMS key ID to use for encrypting the secure strings, default is the default KMS key"
@@ -125,12 +121,6 @@ variable "secure_env_vars_kms_key_id" {
 variable "security_groups" {
   type        = list(string)
   description = "List of security groups to use"
-}
-
-variable "additional_tags" {
-  type        = map(string)
-  description = "Additional tags to set on the resources"
-  default     = {}
 }
 
 variable "tag_specifications" {
@@ -146,6 +136,12 @@ variable "volume_encryption" {
   type        = bool
   default     = false
   description = "Whether to encrypt the EBS volume"
+}
+
+variable "volume_encryption_kms_key_id" {
+  description = "KMS key ID to use for encrypting the EBS volume"
+  type        = string
+  default     = null
 }
 
 variable "volume_size" {
@@ -187,107 +183,82 @@ variable "instance_refresh" {
   default     = {}
 }
 
-variable "iam_permissions_boundary" {
-  type        = string
-  default     = null
-  description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
-}
-
-variable "enable_autoscaling" {
-  default     = true
-  description = "Determines whether to create the Lambda Autoscaler function and dependent resources or not"
-  type        = bool
-}
-
-variable "autoscaler_version" {
-  description = "Version of the autoscaler to deploy"
-  type        = string
-  default     = "latest"
-  nullable    = false
-}
-
-variable "autoscaler_architecture" {
-  type        = string
-  description = "Instruction set architecture of the autoscaler to use"
-  default     = "amd64"
-}
-
-variable "spacelift_api_key_id" {
-  type        = string
-  description = "ID of the Spacelift API key to use"
-  default     = null
-}
-
-variable "spacelift_api_key_secret" {
-  type        = string
-  sensitive   = true
-  description = "Secret corresponding to the Spacelift API key to use"
-  default     = null
-}
-
-variable "spacelift_api_key_endpoint" {
-  type        = string
-  description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
-  default     = null
-}
-
-variable "schedule_expression" {
-  type        = string
-  description = "Autoscaler scheduling expression"
-  default     = "rate(1 minute)"
-}
-
-variable "volume_encryption_kms_key_id" {
-  description = "KMS key ID to use for encrypting the EBS volume"
-  type        = string
-  default     = null
-}
-
-variable "autoscaling_max_create" {
-  description = "The maximum number of instances the utility is allowed to create in a single run"
-  type        = number
-  default     = 1
-}
-
-variable "autoscaling_max_terminate" {
-  description = "The maximum number of instances the utility is allowed to terminate in a single run"
-  type        = number
-  default     = 1
-}
-
-variable "autoscaling_timeout" {
-  type        = number
-  description = "Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be."
-  default     = 30
-}
-
-variable "autoscaler_s3_package" {
-  type = object({
-    bucket         = string
-    key            = string
-    object_version = optional(string)
-  })
-  description = "Configuration to retrieve autoscaler lambda package from s3 bucket"
-  default     = null
-}
-
 variable "instance_market_options" {
   description = "The market (purchasing) option for the instance"
   type        = any
   default     = {}
 }
 
-variable "selfhosted_configuration" {
+variable "iam_permissions_boundary" {
+  type        = string
+  default     = null
+  description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
+}
+
+variable "additional_tags" {
+  description = "Additional tags to apply to all resources"
+  type        = map(string)
+  default     = {}
+}
+
+variable "autoscaling_configuration" {
+  description = <<EOF
+  Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
+  - api_key_id: (mandatory) The ID of the Spacelift API key to use by the Autoscaling Lambda function.
+  - api_key_secret: (mandatory) The secret corresponding to the Spacelift API key to use by the Autoscaling Lambda function.
+  - api_key_endpoint: (mandatory) The full URL of the Spacelift API endpoint to use by the Autoscaling Lambda function. Example: https://mycorp.app.spacelift.io
+  - version: (optional) Version of the autoscaler to deploy.
+  - architecture: (optional) Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
+  - schedule_expression: (optional) Autoscaler scheduling expression. Default: rate(1 minute).
+  - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
+  - max_terminate: (optional) The maximum number of instances the utility is allowed to terminate in a single run.
+  - timeout: (optional) Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be.
+  - s3_package: (optional) Configuration to retrieve autoscaler lambda package from a specific S3 bucket.
+    - bucket: (mandatory) S3 bucket name
+    - key: (mandatory) S3 object key
+    - object_version: (optional) S3 object version
+  EOF
+
   type = object({
-    s3_uri                         = string                 # If provided, the launcher binary will be downloaded from that URI. Mandatory for selfhosted. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher
-    run_launcher_as_spacelift_user = optional(bool)         # Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.
-    http_proxy_config              = optional(string)       # The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-    https_proxy_config             = optional(string)       # The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-    no_proxy_config                = optional(string)       # The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-    ca_certificates                = optional(list(string)) # List of additional root CAs to install on the instance. Example: [\"-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----\"].
-    power_off_on_error             = optional(bool)         # Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.
+    api_key_id          = string
+    api_key_secret      = string
+    api_key_endpoint    = string
+    version             = optional(string)
+    architecture        = optional(string)
+    schedule_expression = optional(string)
+    max_create          = optional(number)
+    max_terminate       = optional(number)
+    timeout             = optional(number)
+    s3_package = optional(object({
+      bucket         = string
+      key            = string
+      object_version = optional(string)
+    }))
   })
-  description = "Configuration for selfhosted launcher"
+  default = null
+}
+
+variable "selfhosted_configuration" {
+  description = <<EOF
+  Configuration for selfhosted launcher. Configuration options are:
+  - s3_uri: (mandatory) If provided, the launcher binary will be downloaded from that URI. Mandatory for selfhosted. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher
+  - run_launcher_as_spacelift_user: (optional) Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.
+  - http_proxy_config: (optional) The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - https_proxy_config: (optional) The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - no_proxy_config: (optional) The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - ca_certificates: (optional) List of additional root CAs to install on the instance. Example: ["-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----"].
+  - power_off_on_error: (optional) Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.
+  EOF
+
+  type = object({
+    s3_uri                         = string
+    run_launcher_as_spacelift_user = optional(bool)
+    http_proxy_config              = optional(string)
+    https_proxy_config             = optional(string)
+    no_proxy_config                = optional(string)
+    ca_certificates                = optional(list(string))
+    power_off_on_error             = optional(bool)
+  })
   default = {
     s3_uri                         = ""
     run_launcher_as_spacelift_user = true

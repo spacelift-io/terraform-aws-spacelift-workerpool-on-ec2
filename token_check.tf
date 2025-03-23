@@ -5,7 +5,7 @@ resource "null_resource" "token_check" {
 
   lifecycle {
     precondition {
-      condition     = length(keys(var.secure_env_vars)) > 0 || var.configuration != ""
+      condition     = local.has_secure_env_vars || var.configuration != ""
       error_message = "Either var.secure_env_vars or var.configuration must be set"
     }
   }
