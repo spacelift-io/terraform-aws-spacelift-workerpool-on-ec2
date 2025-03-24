@@ -77,6 +77,11 @@ module "asg" {
     http_put_response_hop_limit = var.disable_container_credentials ? 1 : 2
   }
 
+  # Launch template versioning
+  default_version         = var.launch_template_default_version
+  launch_template_version = var.launch_template_version
+  update_default_version  = var.launch_template_update_default_version
+
   suspended_processes = var.enable_autoscaling ? [
     # Prevents the ASG from terminating instances for rebalancing between AZs, 
     # which triggered right after termination of instances by lambda
