@@ -60,9 +60,9 @@ resource "aws_iam_role_policy" "s3" {
 }
 
 resource "aws_iam_role_policy_attachment" "secure_env_vars" {
-  count      = var.create_iam_role ? 1 : 0
+  count      = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
   role       = aws_iam_role.this[0].name
-  policy_arn = aws_iam_policy.secure_env_vars.arn
+  policy_arn = aws_iam_policy.secure_env_vars[0].arn
 }
 
 resource "aws_iam_instance_profile" "this" {
@@ -74,12 +74,14 @@ resource "aws_iam_instance_profile" "this" {
 }
 
 data "aws_iam_policy_document" "secure_env_vars" {
+  count = local.has_secure_env_vars ? 1 : 0
+
   statement {
     effect = "Allow"
     actions = [
       "secretsmanager:GetSecretValue",
     ]
-    resources = [aws_secretsmanager_secret.this.arn]
+    resources = [aws_secretsmanager_secret.this[0].arn]
   }
 
   dynamic "statement" {
@@ -97,7 +99,9 @@ data "aws_iam_policy_document" "secure_env_vars" {
 }
 
 resource "aws_iam_policy" "secure_env_vars" {
+  count = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
+
   name        = "${local.base_name}-secure-strings"
   description = "Allows access to the secure strings stored in Secrets Manager"
-  policy      = data.aws_iam_policy_document.secure_env_vars.json
+  policy      = data.aws_iam_policy_document.secure_env_vars[0].json
 }

@@ -49,7 +49,7 @@ module "my_workerpool" {
 }
 ```
 
-> ❗️ Previous versions of this module (`<v3`) placed the token and private key directly into the `configuration` variable. This is still supported for [non-sensitive configuration options](https://docs.spacelift.io/concepts/worker-pools.html#configuration-options), but for the worker pool token and private key, it is recommended to use the `secure_env_vars` variable as this will store the values in [Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html) instead of in the userdata which is insecure.
+> ❗️ Previous versions of this module (`<v3`) placed the token and private key directly into the `configuration` variable. This is still supported for [non-sensitive configuration options](https://docs.spacelift.io/concepts/worker-pools.html#configuration-options), but for the worker pool token and private key, it is highly recommended to use the `secure_env_vars` variable as this will store the values in [Secrets Manager](https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html) instead of having it in plaintext in the userdata.
 
 You can also set the optional `secure_env_vars_kms_key_id` to a KMS key id to use for encrypting the secure strings in Secrets Manager. This defaults to the default KMS key that AWS uses.
 
@@ -150,6 +150,7 @@ $ make docs
 | Name | Version |
 |------|---------|
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.55.0 |
+| <a name="requirement_validation"></a> [validation](#requirement\_validation) | >= 1.0.0 |
 
 ## Providers
 
@@ -157,6 +158,7 @@ $ make docs
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.55.0 |
 | <a name="provider_null"></a> [null](#provider\_null) | n/a |
+| <a name="provider_validation"></a> [validation](#provider\_validation) | >= 1.0.0 |
 
 ## Modules
 
@@ -178,6 +180,7 @@ $ make docs
 | [aws_secretsmanager_secret.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
 | [aws_secretsmanager_secret_version.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [null_resource.token_check](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
+| [validation_warning.token_or_private_key_in_plaintext](https://registry.terraform.io/providers/tlkamp/validation/latest/docs/resources/warning) | resource |
 | [aws_ami.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_iam_policy_document.secure_env_vars](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_partition.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/partition) | data source |
@@ -224,5 +227,5 @@ $ make docs
 | <a name="output_instances_role_arn"></a> [instances\_role\_arn](#output\_instances\_role\_arn) | ARN of the IAM role of the EC2 instances. Will only be populated if the IAM role is created by this module |
 | <a name="output_instances_role_name"></a> [instances\_role\_name](#output\_instances\_role\_name) | Name of the IAM role of the EC2 instances. Will only be populated if the IAM role is created by this module |
 | <a name="output_launch_template_id"></a> [launch\_template\_id](#output\_launch\_template\_id) | ID of the launch template |
-| <a name="output_secretsmanager_secret_arn"></a> [secretsmanager\_secret\_arn](#output\_secretsmanager\_secret\_arn) | ARN of the secret in Secrets Manager that holds the encrypted environment variables |
+| <a name="output_secretsmanager_secret_arn"></a> [secretsmanager\_secret\_arn](#output\_secretsmanager\_secret\_arn) | ARN of the secret in Secrets Manager that holds the encrypted environment variables. |
 <!-- END_TF_DOCS -->

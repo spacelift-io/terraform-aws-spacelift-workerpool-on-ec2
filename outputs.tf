@@ -24,6 +24,6 @@ output "launch_template_id" {
 }
 
 output "secretsmanager_secret_arn" {
-  value       = aws_secretsmanager_secret.this.arn
-  description = "ARN of the secret in Secrets Manager that holds the encrypted environment variables"
+  value       = aws_secretsmanager_secret.this.*.arn
+  description = "ARN of the secret in Secrets Manager that holds the encrypted environment variables."
 }
