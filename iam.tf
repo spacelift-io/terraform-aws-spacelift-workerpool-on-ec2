@@ -27,6 +27,8 @@ resource "aws_iam_role" "this" {
       Principal = { Service = "ec2.${data.aws_partition.current.dns_suffix}" }
     }]
   })
+  permissions_boundary = var.iam_permissions_boundary
+
   tags = var.additional_tags
 }
 
@@ -175,6 +177,7 @@ resource "aws_iam_role" "autoscaler" {
       },
     ]
   })
+  permissions_boundary = var.iam_permissions_boundary
 
   depends_on = [module.asg]
   tags       = var.additional_tags
