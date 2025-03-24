@@ -22,3 +22,8 @@ output "launch_template_id" {
   value       = module.asg.launch_template_id
   description = "ID of the launch template"
 }
+
+output "secretsmanager_secret_arn" {
+  value       = aws_secretsmanager_secret.this.*.arn
+  description = "ARN of the secret in Secrets Manager that holds the encrypted environment variables."
+}

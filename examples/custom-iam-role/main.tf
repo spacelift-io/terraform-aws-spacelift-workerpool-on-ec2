@@ -9,6 +9,13 @@ terraform {
 
 provider "aws" {
   region = "eu-west-1"
+
+  default_tags {
+    tags = {
+      TfModule = "terraform-aws-spacelift-workerpool-on-ec2"
+      TestCase = "CustomIAMRole"
+    }
+  }
 }
 
 data "aws_vpc" "this" {
@@ -63,39 +70,13 @@ resource "aws_iam_role_policy_attachment" "attachment" {
 module "this" {
   source = "../../"
 
-  configuration              = <<-EOT
-    export SPACELIFT_TOKEN="<token-here>"
-    export SPACELIFT_POOL_PRIVATE_KEY="<private-key-here>"
-  EOT
-  create_iam_role            = false
-  custom_iam_role_name       = aws_iam_role.this.name
-  security_groups            = [data.aws_security_group.this.id]
-  spacelift_api_key_endpoint = var.spacelift_api_key_endpoint
-  spacelift_api_key_id       = var.spacelift_api_key_id
-  spacelift_api_key_secret   = var.spacelift_api_key_secret
-  vpc_subnets                = data.aws_subnets.this.ids
-  worker_pool_id             = var.worker_pool_id
-
-  autoscaler_version = var.autoscaler_version
-
-  tag_specifications = [
-    {
-      resource_type = "instance"
-      tags = {
-        Name = "sp5ft-${var.worker_pool_id}"
-      }
-    },
-    {
-      resource_type = "volume"
-      tags = {
-        Name = "sp5ft-${var.worker_pool_id}"
-      }
-    },
-    {
-      resource_type = "network-interface"
-      tags = {
-        Name = "sp5ft-${var.worker_pool_id}"
-      }
-    }
-  ]
+  secure_env_vars = {
+    SPACELIFT_TOKEN            = "<token-here>"
+    SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
+  }
+  create_iam_role      = false
+  custom_iam_role_name = aws_iam_role.this.name
+  security_groups      = [data.aws_security_group.this.id]
+  vpc_subnets          = data.aws_subnets.this.ids
+  worker_pool_id       = var.worker_pool_id
 }

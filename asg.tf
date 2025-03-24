@@ -77,7 +77,7 @@ module "asg" {
     http_put_response_hop_limit = var.disable_container_credentials ? 1 : 2
   }
 
-  suspended_processes = var.enable_autoscaling ? [
+  suspended_processes = var.autoscaling_configuration != null ? [
     # Prevents the ASG from terminating instances for rebalancing between AZs, 
     # which triggered right after termination of instances by lambda
     "AZRebalance"
@@ -86,7 +86,6 @@ module "asg" {
   user_data = base64encode(var.selfhosted_configuration.s3_uri == "" ? local.saas_user_data : local.selfhosted_user_data)
 
   tag_specifications = var.tag_specifications
-
   tags = merge(var.additional_tags,
     {
       "WorkerPoolID" : var.worker_pool_id

@@ -6,6 +6,7 @@
 
 resource "aws_s3_bucket" "autoscaler_binary" {
   bucket_prefix = "spacelift-autoscaler-example-"
+  force_destroy = true
 }
 
 data "http" "autoscaler_binary" {
