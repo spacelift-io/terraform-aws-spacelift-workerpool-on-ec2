@@ -187,6 +187,12 @@ variable "instance_refresh" {
   default     = {}
 }
 
+variable "iam_permissions_boundary" {
+  type        = string
+  default     = null
+  description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
+}
+
 variable "enable_autoscaling" {
   default     = true
   description = "Determines whether to create the Lambda Autoscaler function and dependent resources or not"
