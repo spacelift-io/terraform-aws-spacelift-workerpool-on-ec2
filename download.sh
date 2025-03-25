@@ -3,7 +3,8 @@ set -ex
 
 # Download the data.
 code_version=$1
-export code_architecture=$2
+code_architecture=$2
+downloadFolder=$3
 
 if [ "$code_version" != "latest" ]; then
   # If the code version is not latest, we dont need to hit the github api.
@@ -40,7 +41,7 @@ else
   fi
 fi
 
-mkdir -p lambda
-cd lambda
+mkdir -p "$downloadFolder"
+cd "$downloadFolder"
 unzip -o ../lambda.zip
 rm ../lambda.zip

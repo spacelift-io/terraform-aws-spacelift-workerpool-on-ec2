@@ -1,6 +1,7 @@
 locals {
-  function_name  = "${local.base_name}-ec2-autoscaler"
-  use_s3_package = var.autoscaler_s3_package != null
+  download_folder = var.worker_pool_id # Unique folder name to avoid race conditions when downloading the archive in parallel
+  function_name   = "${local.base_name}-ec2-autoscaler"
+  use_s3_package  = var.autoscaler_s3_package != null
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
@@ -17,16 +18,17 @@ resource "null_resource" "download" {
     # Always re-download the archive file if the version is set to "latest"
     keeper = var.autoscaler_version == "latest" ? timestamp() : var.autoscaler_version
   }
+
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture}"
+    command = "${path.module}/download.sh ${var.autoscaler_version} ${var.autoscaler_architecture} ${local.download_folder}"
   }
 }
 
 data "archive_file" "binary" {
   count       = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
   type        = "zip"
-  source_file = "lambda/bootstrap"
-  output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}.zip"
+  source_file = "${local.download_folder}/bootstrap"
+  output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}_${var.worker_pool_id}.zip" # Unique name to avoid race conditions
   depends_on  = [null_resource.download]
 }
 
