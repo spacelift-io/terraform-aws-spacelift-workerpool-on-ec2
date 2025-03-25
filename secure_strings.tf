@@ -6,7 +6,7 @@ locals {
       for key, _ in var.secure_env_vars : "export ${key}=$(echo $SECRET_VALUE | jq -r '.${key}')"
     ]
   ) : ""
-  secure_env_vars = "export SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${local.base_name}-secret --query SecretString --output text)\n${local.secure_env_vars_exports}"
+  secure_env_vars = local.secure_env_vars_count > 0 ? "export SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${local.base_name}-secret --query SecretString --output text)\n${local.secure_env_vars_exports}" : ""
 }
 
 resource "aws_secretsmanager_secret" "this" {
