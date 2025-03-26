@@ -7,8 +7,8 @@ code_architecture=$2
 downloadFolder=$3
 
 if [ "$code_version" != "latest" ]; then
-  # If the code version is not latest, we dont need to hit the github api.
-  curl -L -o lambda.zip "https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${code_version}/ec2-workerpool-autoscaler_linux_${code_architecture}.zip"
+  # If the code version is not latest, we don't need to hit the github api.
+  download_url="https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${code_version}/ec2-workerpool-autoscaler_linux_${code_architecture}.zip"
 else
   # Make a temporary file to store the headers in
   tmpfile=$(mktemp /tmp/spacelift-request-headers.XXXXXX)
@@ -21,8 +21,8 @@ else
   ratelimit=$(cat "$tmpfile" | grep x-ratelimit-remaining | awk '{print $2}' | tr -d '\012\015')
   rm "$tmpfile"
   if [ $ratelimit = "0" ]; then
-      echo "Github API rate limit exceeded, cannot find latest version. Please try again later or version pin the module."
-      exit 1
+    echo "Github API rate limit exceeded, cannot find latest version. Please try again later or version pin the module."
+    exit 1
   else
     echo "Github API rate limit remaining: '$ratelimit'"
 
@@ -36,12 +36,9 @@ else
     echo "  Release Name: $code_version"
     echo "  Release Date: $release_date"
     echo "  Download URL: $download_url"
-
-    curl -L -o lambda.zip $download_url
   fi
 fi
 
 mkdir -p "$downloadFolder"
 cd "$downloadFolder"
-unzip -o ../lambda.zip
-rm ../lambda.zip
+curl -L -O "$download_url"

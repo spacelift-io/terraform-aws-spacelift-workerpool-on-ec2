@@ -1,5 +1,6 @@
 locals {
   download_folder = var.worker_pool_id # Unique folder name to avoid race conditions when downloading the archive in parallel
+  autoscaler_zip  = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${var.autoscaler_architecture}.zip"
   function_name   = "${local.base_name}-ec2-autoscaler"
   use_s3_package  = var.autoscaler_s3_package != null
 }
@@ -15,8 +16,12 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
 resource "null_resource" "download" {
   count = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
   triggers = {
-    # Always re-download the archive file if the version is set to "latest"
-    keeper = var.autoscaler_version == "latest" ? timestamp() : var.autoscaler_version
+    # Always re-download the archive file if the version is set to "latest" or if the file does not exist
+    keeper = (
+      var.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip)
+      ? timestamp()
+      : var.autoscaler_version
+    )
   }
 
   provisioner "local-exec" {
@@ -24,19 +29,17 @@ resource "null_resource" "download" {
   }
 }
 
-data "archive_file" "binary" {
-  count       = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
-  type        = "zip"
-  source_file = "${local.download_folder}/bootstrap"
-  output_path = "ec2-workerpool-autoscaler_${var.autoscaler_version}_${var.worker_pool_id}.zip" # Unique name to avoid race conditions
-  depends_on  = [null_resource.download]
+data "local_file" "autoscaler_zip" {
+  count      = var.enable_autoscaling && !local.use_s3_package ? 1 : 0
+  depends_on = [null_resource.download]
+  filename   = local.autoscaler_zip
 }
 
 resource "aws_lambda_function" "autoscaler" {
   count = var.enable_autoscaling ? 1 : 0
 
-  filename         = !local.use_s3_package ? data.archive_file.binary[count.index].output_path : null
-  source_code_hash = !local.use_s3_package ? data.archive_file.binary[count.index].output_base64sha256 : null
+  filename         = !local.use_s3_package ? data.local_file.autoscaler_zip[count.index].filename : null
+  source_code_hash = !local.use_s3_package ? data.local_file.autoscaler_zip[count.index].content_base64sha256 : null
 
   s3_bucket         = local.use_s3_package ? var.autoscaler_s3_package.bucket : null
   s3_key            = local.use_s3_package ? var.autoscaler_s3_package.key : null
