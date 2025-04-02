@@ -32,6 +32,11 @@ moved {
 }
 
 moved {
+  from = null_resource.download
+  to   = module.autoscaler[0].null_resource.download
+}
+
+moved {
   from = aws_ssm_parameter.spacelift_api_key_secret
   to   = module.autoscaler[0].aws_ssm_parameter.spacelift_api_key_secret
 }
