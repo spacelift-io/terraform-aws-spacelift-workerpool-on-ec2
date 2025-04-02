@@ -15,3 +15,43 @@ module "autoscaler" {
   iam_permissions_boundary  = var.iam_permissions_boundary
   worker_pool_id            = var.worker_pool_id
 }
+
+moved {
+  from = aws_iam_role.autoscaler
+  to   = module.autoscaler[0].aws_iam_role.autoscaler
+}
+
+moved {
+  from = aws_iam_role_policy.autoscaler
+  to   = module.autoscaler[0].aws_iam_role_policy.autoscaler
+}
+
+moved {
+  from = aws_lambda_function.autoscaler
+  to   = module.autoscaler[0].aws_lambda_function.autoscaler
+}
+
+moved {
+  from = aws_ssm_parameter.spacelift_api_key_secret
+  to   = module.autoscaler[0].aws_ssm_parameter.spacelift_api_key_secret
+}
+
+moved {
+  from = aws_cloudwatch_event_rule.scheduling
+  to   = module.autoscaler[0].aws_cloudwatch_event_rule.scheduling
+}
+
+moved {
+  from = aws_cloudwatch_event_target.scheduling
+  to   = module.autoscaler[0].aws_cloudwatch_event_target.scheduling
+}
+
+moved {
+  from = aws_lambda_permission.allow_cloudwatch_to_call_lambda
+  to   = module.autoscaler[0].aws_lambda_permission.allow_cloudwatch_to_call_lambda
+}
+
+moved {
+  from = aws_cloudwatch_log_group.log_group
+  to   = module.autoscaler[0].aws_cloudwatch_log_group.log_group
+}
