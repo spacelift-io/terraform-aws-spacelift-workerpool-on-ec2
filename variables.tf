@@ -4,6 +4,12 @@ variable "ami_id" {
   default     = ""
 }
 
+variable "ami_architecture" {
+  type        = string
+  description = "Architecture of the Spacelift AMI. Currently, only x86_64 or arm64 are supported."
+  default     = "x86_64"
+}
+
 variable "secure_env_vars" {
   type        = map(string)
   sensitive   = true
