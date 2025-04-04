@@ -75,6 +75,12 @@ resource "aws_iam_instance_profile" "this" {
   tags = var.additional_tags
 }
 
+data "aws_kms_key" "secure_env_vars" {
+  count = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
+
+  key_id = var.secure_env_vars_kms_key_id
+}
+
 data "aws_iam_policy_document" "secure_env_vars" {
   count = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
 
@@ -95,7 +101,7 @@ data "aws_iam_policy_document" "secure_env_vars" {
         "kms:DescribeKey",
         "kms:GenerateDataKey",
       ]
-      resources = [var.secure_env_vars_kms_key_id]
+      resources = [data.aws_kms_key.secure_env_vars[0].arn]
     }
   }
 }
