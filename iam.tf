@@ -61,8 +61,12 @@ resource "aws_iam_role_policy" "s3" {
   })
 }
 
+locals {
+  use_secure_env_vars = alltrue([local.has_secure_env_vars, var.create_iam_role])
+}
+
 resource "aws_iam_role_policy_attachment" "secure_env_vars" {
-  count      = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
+  count      = local.use_secure_env_vars ? 1 : 0
   role       = aws_iam_role.this[0].name
   policy_arn = aws_iam_policy.secure_env_vars[0].arn
 }
@@ -75,8 +79,14 @@ resource "aws_iam_instance_profile" "this" {
   tags = var.additional_tags
 }
 
+data "aws_kms_key" "secure_env_vars" {
+  count = local.use_secure_env_vars ? 1 : 0
+
+  key_id = var.secure_env_vars_kms_key_id
+}
+
 data "aws_iam_policy_document" "secure_env_vars" {
-  count = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
+  count = local.use_secure_env_vars ? 1 : 0
 
   statement {
     effect = "Allow"
@@ -95,13 +105,13 @@ data "aws_iam_policy_document" "secure_env_vars" {
         "kms:DescribeKey",
         "kms:GenerateDataKey",
       ]
-      resources = [var.secure_env_vars_kms_key_id]
+      resources = [data.aws_kms_key.secure_env_vars[0].arn]
     }
   }
 }
 
 resource "aws_iam_policy" "secure_env_vars" {
-  count = local.has_secure_env_vars && var.create_iam_role ? 1 : 0
+  count = local.use_secure_env_vars ? 1 : 0
 
   name        = "${local.base_name}-secure-strings"
   description = "Allows access to the secure strings stored in Secrets Manager"
