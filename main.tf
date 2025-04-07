@@ -12,6 +12,7 @@ module "autoscaler" {
   aws_partition_dns_suffix  = data.aws_partition.current.dns_suffix
   aws_region                = data.aws_region.this.name
   base_name                 = local.base_name
+  cloudwatch_log_group      = var.autoscaling_configuration.cloudwatch_log_group
   iam_permissions_boundary  = var.iam_permissions_boundary
   worker_pool_id            = var.worker_pool_id
 }

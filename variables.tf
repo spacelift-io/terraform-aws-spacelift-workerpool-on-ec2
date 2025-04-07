@@ -214,6 +214,8 @@ variable "autoscaling_configuration" {
   - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
   - max_terminate: (optional) The maximum number of instances the utility is allowed to terminate in a single run.
   - timeout: (optional) Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be.
+  - cloudwatch_log_group: (optional) Object of inputs for the autoscaler log group.
+    - retention_in_days: (optional) The number of days to retain log events for the autoscaler log group. Default: 7.
   - s3_package: (optional) Configuration to retrieve autoscaler lambda package from a specific S3 bucket.
     - bucket: (mandatory) S3 bucket name
     - key: (mandatory) S3 object key
@@ -230,6 +232,9 @@ variable "autoscaling_configuration" {
     max_create          = optional(number)
     max_terminate       = optional(number)
     timeout             = optional(number)
+    cloudwatch_log_group = optional(object({
+      retention_in_days = optional(number, 7)
+    }), {})
     s3_package = optional(object({
       bucket         = string
       key            = string

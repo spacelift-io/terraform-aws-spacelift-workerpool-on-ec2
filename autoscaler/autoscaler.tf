@@ -92,5 +92,5 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
 
 resource "aws_cloudwatch_log_group" "log_group" {
   name              = "/aws/lambda/${local.function_name}"
-  retention_in_days = 7
+  retention_in_days = var.cloudwatch_log_group.retention_in_days
 }
