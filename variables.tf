@@ -12,6 +12,7 @@ variable "secure_env_vars" {
     at run time as `export {key}={value}`. This allows you pass the token, private
     key, or any values securely.
 EOF
+  default     = {}
 }
 
 
