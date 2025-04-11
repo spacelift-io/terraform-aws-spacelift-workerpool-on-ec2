@@ -46,3 +46,12 @@ variable "iam_permissions_boundary" {
   type        = string
   description = "ARN of the policy that is used to set the permissions boundary for any IAM roles."
 }
+
+variable "cloudwatch_log_group" {
+  description = "Object of inputs for the autoscaler cloudwatch log group."
+  type = object({
+    retention_in_days = optional(number, 7)
+  })
+  nullable = false
+  default  = {}
+}
