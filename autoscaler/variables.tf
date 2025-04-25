@@ -55,3 +55,9 @@ variable "cloudwatch_log_group" {
   nullable = false
   default  = {}
 }
+
+variable "is_managed" {
+  description = "If this module is being used and deployed via spacelift"
+  type        = bool
+  default     = true
+}
