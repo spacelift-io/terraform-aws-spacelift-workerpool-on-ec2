@@ -19,12 +19,14 @@ resource "null_resource" "download" {
   triggers = {
     # Always re-download the archive file if the version is set to "latest" or if the file does not exist
     keeper = (
-      local.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip)
+      local.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip) && !var.is_managed
       ? timestamp()
       : local.autoscaler_version
     )
   }
-
+  // pinned to a version(false) and managed locally ==> dont download
+  // pinned to a version and managed by spacelift ==> dont download
+  // set to latest ==> download
   provisioner "local-exec" {
     command = "${path.module}/download.sh ${local.autoscaler_version} ${local.architecture} ${local.download_folder}"
   }
