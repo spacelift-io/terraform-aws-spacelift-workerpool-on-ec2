@@ -31,7 +31,7 @@ provider "aws" {
 }
 
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v3.0.3"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v3.1.3"
   
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
@@ -74,7 +74,7 @@ Example:
 
 ```hcl
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v3.0.3"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v3.1.3"
   
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
@@ -99,7 +99,7 @@ For self-hosted, other than the aforementioned `SPACELIFT_TOKEN` and `SPACELIFT_
 
 ```terraform
 module "my_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v3.0.3"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v3.1.3"
 
   secure_env_vars = {
     SPACELIFT_TOKEN = var.worker_pool_config
