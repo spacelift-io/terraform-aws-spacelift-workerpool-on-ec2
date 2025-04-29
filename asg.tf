@@ -2,7 +2,7 @@ data "aws_region" "this" {}
 
 locals {
   selfhosted_user_data = templatefile("${path.module}/user_data/selfhosted.tftpl", {
-    custom_user_data               = join("\n", [local.secure_env_vars, var.configuration])
+    custom_user_data               = join("\n", [replace(local.secure_env_vars, "$", "\\$"), var.configuration])
     run_launcher_as_spacelift_user = var.selfhosted_configuration.run_launcher_as_spacelift_user == null ? true : var.selfhosted_configuration.run_launcher_as_spacelift_user
     launcher_s3_uri                = var.selfhosted_configuration.s3_uri
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
