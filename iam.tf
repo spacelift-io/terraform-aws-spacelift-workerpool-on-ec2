@@ -14,6 +14,11 @@ locals {
 
 data "aws_partition" "current" {}
 
+data "aws_iam_role" "custom" {
+  count = var.create_iam_role ? 0 : 1
+  name  = var.custom_iam_role_name
+}
+
 resource "aws_iam_role" "this" {
   count = var.create_iam_role ? 1 : 0
   name  = local.base_name
@@ -21,23 +26,36 @@ resource "aws_iam_role" "this" {
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect    = "Allow"
-      Action    = "sts:AssumeRole"
-      Principal = { Service = "ec2.${data.aws_partition.current.dns_suffix}" }
-    }]
+    Statement = concat([
+      {
+        Effect    = "Allow"
+        Action    = "sts:AssumeRole"
+        Principal = { Service = "ec2.${data.aws_partition.current.dns_suffix}" }
+      }
+      ], local.lifecycle_manager_enabled ? [
+      {
+        Effect    = "Allow"
+        Action    = "sts:AssumeRole"
+        Principal = { Service = "autoscaling.${data.aws_partition.current.dns_suffix}" }
+      }
+    ] : [])
+
   })
+
+
   permissions_boundary = var.iam_permissions_boundary
 
   tags = var.additional_tags
 }
 
 locals {
-  iam_managed_policies = var.create_iam_role ? [
+  iam_managed_policies = var.create_iam_role ? concat([
     "arn:${data.aws_partition.current.partition}:iam::aws:policy/AutoScalingReadOnlyAccess",
     "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy",
     "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore",
-  ] : []
+    ], local.lifecycle_manager_enabled ? [
+    "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole"
+  ] : []) : []
 }
 resource "aws_iam_role_policy_attachment" "this" {
   for_each = toset(local.iam_managed_policies)
@@ -75,7 +93,7 @@ resource "aws_iam_instance_profile" "this" {
   depends_on = [aws_iam_role_policy_attachment.this]
 
   name = local.base_name
-  role = var.create_iam_role ? aws_iam_role.this[0].name : var.custom_iam_role_name
+  role = var.create_iam_role ? aws_iam_role.this[0].name : data.aws_iam_role.custom[0].name
   tags = var.additional_tags
 }
 

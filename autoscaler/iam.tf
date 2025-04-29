@@ -1,4 +1,3 @@
-
 data "aws_iam_policy_document" "autoscaler" {
   # Allow the Lambda to write CloudWatch Logs.
   statement {
@@ -50,7 +49,7 @@ data "aws_iam_policy_document" "autoscaler" {
   statement {
     effect    = "Allow"
     actions   = ["ssm:GetParameter"]
-    resources = [aws_ssm_parameter.spacelift_api_key_secret.arn]
+    resources = [var.api_key_ssm_parameter_arn]
   }
 }
 
