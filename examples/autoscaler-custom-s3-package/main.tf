@@ -50,13 +50,16 @@ module "this" {
   worker_pool_id  = var.worker_pool_id
 
   autoscaling_configuration = {
-    api_key_endpoint = var.spacelift_api_key_endpoint
-    api_key_id       = var.spacelift_api_key_id
-    api_key_secret   = var.spacelift_api_key_secret
-    version          = var.autoscaler_version
+    version = var.autoscaler_version
     s3_package = {
       bucket = aws_s3_bucket.autoscaler_binary.id
       key    = aws_s3_object.autoscaler_binary.id
     }
+  }
+
+  spacelift_api_credentials = {
+    api_key_endpoint = var.spacelift_api_key_endpoint
+    api_key_id       = var.spacelift_api_key_id
+    api_key_secret   = var.spacelift_api_key_secret
   }
 }

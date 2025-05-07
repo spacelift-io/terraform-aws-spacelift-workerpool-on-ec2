@@ -95,6 +95,12 @@ variable "launch_template_update_default_version" {
   default     = null
 }
 
+variable "lifecycle_hook_timeout" {
+  description = "Timeout for the lifecycle hook in seconds"
+  type        = number
+  default     = 300
+}
+
 variable "min_size" {
   type        = number
   description = "Minimum numbers of workers to spin up"
@@ -205,17 +211,12 @@ variable "additional_tags" {
 variable "autoscaling_configuration" {
   description = <<EOF
   Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
-  - api_key_id: (mandatory) The ID of the Spacelift API key to use by the Autoscaling Lambda function.
-  - api_key_secret: (mandatory) The secret corresponding to the Spacelift API key to use by the Autoscaling Lambda function.
-  - api_key_endpoint: (mandatory) The full URL of the Spacelift API endpoint to use by the Autoscaling Lambda function. Example: https://mycorp.app.spacelift.io
   - version: (optional) Version of the autoscaler to deploy.
   - architecture: (optional) Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
   - schedule_expression: (optional) Autoscaler scheduling expression. Default: rate(1 minute).
   - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
   - max_terminate: (optional) The maximum number of instances the utility is allowed to terminate in a single run.
   - timeout: (optional) Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be.
-  - cloudwatch_log_group: (optional) Object of inputs for the autoscaler log group.
-    - retention_in_days: (optional) The number of days to retain log events for the autoscaler log group. Default: 7.
   - s3_package: (optional) Configuration to retrieve autoscaler lambda package from a specific S3 bucket.
     - bucket: (mandatory) S3 bucket name
     - key: (mandatory) S3 object key
@@ -223,18 +224,12 @@ variable "autoscaling_configuration" {
   EOF
 
   type = object({
-    api_key_id          = string
-    api_key_secret      = string
-    api_key_endpoint    = string
     version             = optional(string)
     architecture        = optional(string)
     schedule_expression = optional(string)
     max_create          = optional(number)
     max_terminate       = optional(number)
     timeout             = optional(number)
-    cloudwatch_log_group = optional(object({
-      retention_in_days = optional(number, 7)
-    }), {})
     s3_package = optional(object({
       bucket         = string
       key            = string
@@ -274,4 +269,26 @@ variable "selfhosted_configuration" {
     ca_certificates                = []
     power_off_on_error             = true
   }
+}
+
+variable "spacelift_api_credentials" {
+  description = <<EOF
+  Spacelift API credentials. This is used to authenticate the autoscaler and lifecycle manager with Spacelift. The credentials are stored in AWS Secrets Manager and SSM.
+  - api_key_id: (mandatory) The ID of the Spacelift API key to use by the launcher.
+  - api_key_secret: (mandatory) The secret corresponding to the Spacelift API key to use by the launcher.
+  - api_key_endpoint: (mandatory) The full URL of the Spacelift API endpoint to use by the launcher. Example: https://mycorp.app.spacelift.io
+  EOF
+  sensitive   = true
+  type = object({
+    api_key_id       = string
+    api_key_secret   = string
+    api_key_endpoint = string
+  })
+  default = null
+}
+
+variable "cloudwatch_log_group_retention" {
+  description = "Retention period for the autoscaler and lifecycle manager cloudwatch log group."
+  type        = number
+  default     = 7
 }
