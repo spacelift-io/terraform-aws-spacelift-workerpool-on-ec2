@@ -4,6 +4,36 @@ variable "ami_id" {
   default     = ""
 }
 
+variable "byo_ssm" {
+  type = object({
+    name = string
+    arn  = string
+  })
+  description = <<EOF
+  Name and ARN of the SSM parameter to use for the autoscaler. If left empty, the parameter will be created for you.
+  The parameter should only contain the Spacelift API key secret in plain text.
+EOF
+  default     = null
+}
+
+variable "byo_secretsmanager" {
+  type = object({
+    name = string
+    arn  = string
+    keys = list(string)
+  })
+  description = <<EOF
+  Name and ARN of the Secrets Manager secret to use for the autoscaler and keys to export. If left empty, the secret will be created for you.
+  The keys will be exported as environment variables in the format `export {key}=$(echo $SECRET_VALUE | jq -r '.{key}')`.
+    The secret value must be a JSON object with the keys specified in the list. For example, if the list is ["key_1", "key_2"], the secret value must be:
+    {
+      "key_1": "value_1",
+      "key_2": "value_2"
+    }
+EOF
+  default     = null
+}
+
 variable "secure_env_vars" {
   type        = map(string)
   sensitive   = true
@@ -275,13 +305,13 @@ variable "spacelift_api_credentials" {
   description = <<EOF
   Spacelift API credentials. This is used to authenticate the autoscaler and lifecycle manager with Spacelift. The credentials are stored in AWS Secrets Manager and SSM.
   - api_key_id: (mandatory) The ID of the Spacelift API key to use by the launcher.
-  - api_key_secret: (mandatory) The secret corresponding to the Spacelift API key to use by the launcher.
+  - api_key_secret: (optional) The secret corresponding to the Spacelift API key to use by the launcher.
   - api_key_endpoint: (mandatory) The full URL of the Spacelift API endpoint to use by the launcher. Example: https://mycorp.app.spacelift.io
   EOF
   sensitive   = true
   type = object({
     api_key_id       = string
-    api_key_secret   = string
+    api_key_secret   = optional(string)
     api_key_endpoint = string
   })
   default = null

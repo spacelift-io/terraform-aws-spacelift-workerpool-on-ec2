@@ -1,12 +1,19 @@
 locals {
-  base_name                 = var.base_name == null ? "sp5ft-${var.worker_pool_id}" : var.base_name
-  autoscaling_enabled       = var.autoscaling_configuration == null ? false : true
-  lifecycle_manager_enabled = length(var.instance_refresh) > 0 ? true : false
+  base_name                               = var.base_name == null ? "sp5ft-${var.worker_pool_id}" : var.base_name
+  autoscaling_enabled                     = var.autoscaling_configuration == null ? false : true
+  lifecycle_manager_enabled               = length(var.instance_refresh) > 0 ? true : false
+  autoscaler_or_lifecycle_manager_enabled = local.autoscaling_enabled || local.lifecycle_manager_enabled
+
+  byo_ssm            = var.byo_ssm != null
+  generated_ssm_name = "/${local.base_name}/api-secret-${var.worker_pool_id}"
+  ssm_name           = local.byo_ssm ? var.byo_ssm.name : local.generated_ssm_name
+  ssm_arn = (local.byo_ssm ? var.byo_ssm.arn : (local.autoscaler_or_lifecycle_manager_enabled ?
+  aws_ssm_parameter.spacelift_api_key_secret[0].arn : "DISABLED"))
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
-  count = local.autoscaling_enabled || local.lifecycle_manager_enabled ? 1 : 0
-  name  = "/${local.base_name}/api-secret-${var.worker_pool_id}"
+  count = local.autoscaler_or_lifecycle_manager_enabled && !local.byo_ssm ? 1 : 0
+  name  = local.generated_ssm_name
   type  = "SecureString"
   value = var.spacelift_api_credentials.api_key_secret
   tags  = var.additional_tags
@@ -17,8 +24,8 @@ module "autoscaler" {
   source = "./autoscaler"
 
   additional_tags                = var.additional_tags
-  api_key_ssm_parameter_arn      = aws_ssm_parameter.spacelift_api_key_secret[0].arn
-  api_key_ssm_parameter_name     = aws_ssm_parameter.spacelift_api_key_secret[0].name
+  api_key_ssm_parameter_arn      = local.ssm_arn
+  api_key_ssm_parameter_name     = local.ssm_name
   auto_scaling_group_arn         = module.asg.autoscaling_group_arn
   autoscaling_configuration      = var.autoscaling_configuration
   aws_partition_dns_suffix       = data.aws_partition.current.dns_suffix
@@ -35,8 +42,8 @@ module "lifecycle_manager" {
   source = "./lifecycle_manager"
 
   additional_tags                = var.additional_tags
-  api_key_ssm_parameter_arn      = aws_ssm_parameter.spacelift_api_key_secret[0].arn
-  api_key_ssm_parameter_name     = aws_ssm_parameter.spacelift_api_key_secret[0].name
+  api_key_ssm_parameter_arn      = local.ssm_arn
+  api_key_ssm_parameter_name     = local.ssm_name
   auto_scaling_group_arn         = module.asg.autoscaling_group_arn
   cloudwatch_log_group_retention = var.cloudwatch_log_group_retention
   aws_partition_dns_suffix       = data.aws_partition.current.dns_suffix

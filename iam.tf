@@ -10,6 +10,9 @@ locals {
     (!local.validate_condition
       ? local.validate_message
   : ""))
+
+  secretsmanager_arn = (local.byo_secretsmanager ? var.byo_secretsmanager.arn :
+  (local.has_secure_env_vars ? aws_secretsmanager_secret.this[0].arn : "DISABLED"))
 }
 
 data "aws_partition" "current" {}
@@ -111,7 +114,7 @@ data "aws_iam_policy_document" "secure_env_vars" {
     actions = [
       "secretsmanager:GetSecretValue",
     ]
-    resources = [aws_secretsmanager_secret.this[0].arn]
+    resources = [local.secretsmanager_arn]
   }
 
   dynamic "statement" {
