@@ -1,17 +1,9 @@
-variable "autoscaling_configuration" {
-  type = object({
-    version             = optional(string)
-    architecture        = optional(string)
-    schedule_expression = optional(string)
-    max_create          = optional(number)
-    max_terminate       = optional(number)
-    timeout             = optional(number)
-    s3_package = optional(object({
-      bucket         = string
-      key            = string
-      object_version = optional(string)
-    }))
-  })
+variable "api_key_ssm_parameter_arn" {
+  type = string
+}
+
+variable "api_key_ssm_parameter_name" {
+  type = string
 }
 
 variable "base_name" {
@@ -45,7 +37,7 @@ variable "iam_permissions_boundary" {
 }
 
 variable "cloudwatch_log_group_retention" {
-  description = "Retention period for the autoscaler cloudwatch log group."
+  description = "Retention period for the lifecycle manager cloudwatch log group."
   type        = number
   default     = 7
 }
@@ -64,12 +56,4 @@ variable "spacelift_api_credentials" {
     api_key_endpoint = string
   })
   default = null
-}
-
-variable "api_key_ssm_parameter_name" {
-  type = string
-}
-
-variable "api_key_ssm_parameter_arn" {
-  type = string
 }

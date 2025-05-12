@@ -2,7 +2,7 @@ data "aws_region" "this" {}
 
 locals {
   selfhosted_user_data = templatefile("${path.module}/user_data/selfhosted.tftpl", {
-    custom_user_data               = join("\n", [local.secure_env_vars, var.configuration])
+    custom_user_data               = join("\n", [replace(local.secure_env_vars, "$", "\\$"), var.configuration])
     run_launcher_as_spacelift_user = var.selfhosted_configuration.run_launcher_as_spacelift_user == null ? true : var.selfhosted_configuration.run_launcher_as_spacelift_user
     launcher_s3_uri                = var.selfhosted_configuration.s3_uri
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
@@ -34,6 +34,17 @@ module "asg" {
   enable_monitoring        = var.enable_monitoring
   instance_refresh         = var.instance_refresh
   instance_market_options  = var.instance_market_options
+
+  initial_lifecycle_hooks = local.lifecycle_manager_enabled ? [
+    {
+      name                    = "DrainWorkerLifecycleHook"
+      default_result          = "CONTINUE"
+      heartbeat_timeout       = var.lifecycle_hook_timeout
+      lifecycle_transition    = "autoscaling:EC2_INSTANCE_TERMINATING"
+      notification_target_arn = module.lifecycle_manager[0].sqs_arn
+      role_arn                = var.create_iam_role ? aws_iam_role.this[0].arn : data.aws_iam_role.custom[0].arn
+    }
+  ] : []
 
   block_device_mappings = [
     {
