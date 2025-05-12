@@ -1,0 +1,16 @@
+name: "Support: Comment"
+
+on:
+  workflow_run:
+    workflows: [ "Support: Get Info" ]
+    types: [ completed ]
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  comment:
+    uses: spacelift-io/.github/.github/workflows/support-comment.yaml@main
+    secrets:
+      slack_webhook_url: ${{ secrets.SUPPORT_SLACK_WEBHOOK_URL }}
