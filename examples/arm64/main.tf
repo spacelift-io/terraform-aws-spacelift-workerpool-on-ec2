@@ -36,27 +36,6 @@ data "aws_subnets" "this" {
   }
 }
 
-data "aws_ami" "this" {
-  most_recent = true
-  name_regex  = "^spacelift-\\d{10}-arm64$"
-  owners      = ["643313122712"]
-
-  filter {
-    name   = "root-device-type"
-    values = ["ebs"]
-  }
-
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-  filter {
-    name   = "architecture"
-    values = ["arm64"]
-  }
-}
-
 #### Spacelift worker pool ####
 
 module "this" {
@@ -69,7 +48,6 @@ module "this" {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
-  ami_id = data.aws_ami.this.id
   # t4g.micro is just for using the random provider and a few resources.
   # If you are using more than a few resources as well as memory intensive providers it's recommended to use a t4g.medium or at least a t4g.small
   # https://docs.spacelift.io/concepts/worker-pools#hardware-recommendations

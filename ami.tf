@@ -3,11 +3,17 @@ locals {
     aws        = "643313122712"
     aws-us-gov = "092348861888"
   }
+
+  archs = {
+    amd64 = "x86_64"
+    arm64 = "arm64"
+  }
+  arch = local.archs[var.autoscaling_configuration["architecture"]]
 }
 
 data "aws_ami" "this" {
   most_recent = true
-  name_regex  = "^spacelift-\\d{10}-x86_64$"
+  name_regex  = "^spacelift-\\d{10}-${local.arch}$"
   owners      = [local.ami_owner_ids[data.aws_partition.current.partition]]
 
   filter {
@@ -22,6 +28,6 @@ data "aws_ami" "this" {
 
   filter {
     name   = "architecture"
-    values = ["x86_64"]
+    values = [local.arch]
   }
 }
