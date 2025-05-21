@@ -46,6 +46,15 @@ resource "aws_lambda_function" "autoscaler" {
   architectures = [var.autoscaling_configuration.architecture == "amd64" ? "x86_64" : coalesce(var.autoscaling_configuration.architecture, "x86_64")]
   timeout       = var.autoscaling_configuration.timeout != null ? var.autoscaling_configuration.timeout : 30
 
+  dynamic "vpc_config" {
+    for_each = var.subnet_ids != null && var.security_group_ids != null ? [true] : []
+    content {
+      security_group_ids          = var.security_group_ids
+      subnet_ids                  = var.subnet_ids
+      ipv6_allowed_for_dual_stack = var.ipv6_allowed_for_dual_stack
+    }
+  }
+
   environment {
     variables = {
       AUTOSCALING_GROUP_ARN         = var.auto_scaling_group_arn
