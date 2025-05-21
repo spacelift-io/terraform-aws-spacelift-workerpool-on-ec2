@@ -73,3 +73,21 @@ variable "api_key_ssm_parameter_name" {
 variable "api_key_ssm_parameter_arn" {
   type = string
 }
+
+variable "subnet_ids" {
+  description = "List of subnet IDs when the lambda function should run in a VPC."
+  type        = list(string)
+  default     = null
+}
+
+variable "security_group_ids" {
+  description = "List of security group IDs when the lambda function should run in a VPC."
+  type        = list(string)
+  default     = null
+}
+
+variable "ipv6_allowed_for_dual_stack" {
+  description = "Allows outbound IPv6 traffic on VPC functions that are connected to dual-stack subnets"
+  type        = bool
+  default     = null
+}
