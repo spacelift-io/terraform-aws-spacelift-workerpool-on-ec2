@@ -47,7 +47,7 @@ resource "aws_lambda_function" "autoscaler" {
   timeout       = var.autoscaling_configuration.timeout != null ? var.autoscaling_configuration.timeout : 30
 
   dynamic "vpc_config" {
-    for_each = var.subnet_ids != null && var.security_group_ids != null ? [true] : []
+    for_each = var.subnet_ids != null && var.security_group_ids != null ? ["USE_VPC_CONFIG"] : []
     content {
       security_group_ids          = var.security_group_ids
       subnet_ids                  = var.subnet_ids
