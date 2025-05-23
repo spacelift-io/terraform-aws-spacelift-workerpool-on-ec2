@@ -189,7 +189,7 @@ The default AMI used by this module comes from the [spacelift-worker-image](http
 
 ## ARM-based AMI
 
-You can use an ARM-based AMI by setting the `ami_id` variable to an arm64 AMI, and `ec2_instance_type` to an ARM-based instance type (e.g. `t4g.micro`).
+You can use an ARM-based AMI by setting the `ami_architecture` to `arm64`, or the `ami_id` variable to an arm64 AMI, and `ec2_instance_type` to an ARM-based instance type (e.g. `t4g.micro`).
 
 We recommend using [Spacelift AMIs](https://github.com/spacelift-io/spacelift-worker-image/releases) because they come with every required tool preinstalled.
 
