@@ -74,13 +74,13 @@ variable "api_key_ssm_parameter_arn" {
   type = string
 }
 
-variable "subnet_ids" {
+variable "spacelift_vpc_subnet_ids" {
   description = "List of subnet IDs when the lambda function should run in a VPC."
   type        = list(string)
   default     = null
 }
 
-variable "security_group_ids" {
+variable "spacelift_vpc_security_group_ids" {
   description = "List of security group IDs when the lambda function should run in a VPC."
   type        = list(string)
   default     = null

@@ -23,18 +23,20 @@ module "autoscaler" {
   count  = local.autoscaling_enabled ? 1 : 0
   source = "./autoscaler"
 
-  additional_tags                = var.additional_tags
-  api_key_ssm_parameter_arn      = local.ssm_arn
-  api_key_ssm_parameter_name     = local.ssm_name
-  auto_scaling_group_arn         = module.asg.autoscaling_group_arn
-  autoscaling_configuration      = var.autoscaling_configuration
-  aws_partition_dns_suffix       = data.aws_partition.current.dns_suffix
-  aws_region                     = data.aws_region.this.name
-  base_name                      = local.base_name
-  cloudwatch_log_group_retention = var.cloudwatch_log_group_retention
-  spacelift_api_credentials      = var.spacelift_api_credentials
-  iam_permissions_boundary       = var.iam_permissions_boundary
-  worker_pool_id                 = var.worker_pool_id
+  additional_tags                  = var.additional_tags
+  api_key_ssm_parameter_arn        = local.ssm_arn
+  api_key_ssm_parameter_name       = local.ssm_name
+  auto_scaling_group_arn           = module.asg.autoscaling_group_arn
+  autoscaling_configuration        = var.autoscaling_configuration
+  aws_partition_dns_suffix         = data.aws_partition.current.dns_suffix
+  aws_region                       = data.aws_region.this.name
+  base_name                        = local.base_name
+  cloudwatch_log_group_retention   = var.cloudwatch_log_group_retention
+  spacelift_api_credentials        = var.spacelift_api_credentials
+  iam_permissions_boundary         = var.iam_permissions_boundary
+  worker_pool_id                   = var.worker_pool_id
+  spacelift_vpc_subnet_ids         = var.autoscaling_vpc_subnets
+  spacelift_vpc_security_group_ids = var.autoscaling_vpc_sg_ids
 }
 
 module "lifecycle_manager" {
