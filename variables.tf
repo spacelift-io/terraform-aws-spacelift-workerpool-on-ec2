@@ -34,6 +34,16 @@ EOF
   default     = null
 }
 
+variable "ami_architecture" {
+  type        = string
+  description = "Architecture of the Spacelift AMI. Currently, only x86_64 or arm64 are supported."
+  default     = "x86_64"
+  validation {
+    condition     = contains(["x86_64", "arm64"], var.ami_architecture)
+    error_message = "Currently, only x86_64 or arm64 are supported."
+  }
+}
+
 variable "secure_env_vars" {
   type        = map(string)
   sensitive   = true
