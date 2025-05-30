@@ -36,7 +36,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.2.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.4.0"
   
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
