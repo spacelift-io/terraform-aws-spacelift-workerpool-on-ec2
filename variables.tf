@@ -22,15 +22,17 @@ variable "byo_secretsmanager" {
     arn  = string
     keys = list(string)
   })
-  description = <<EOF
-  Name and ARN of the Secrets Manager secret to use for the autoscaler and keys to export. If left empty, the secret will be created for you.
-  The keys will be exported as environment variables in the format `export {key}=$(echo $SECRET_VALUE | jq -r '.{key}')`.
+  description = <<-EOF
+    Name and ARN of the Secrets Manager secret to use for the autoscaler and keys to export. If left empty, the secret will be created for you.
+    The keys will be exported as environment variables in the format `export {key}=$(echo $SECRET_VALUE \| jq -r '.{key}')`.
     The secret value must be a JSON object with the keys specified in the list. For example, if the list is ["key_1", "key_2"], the secret value must be:
+    ```
     {
       "key_1": "value_1",
       "key_2": "value_2"
     }
-EOF
+    ```
+  EOF
   default     = null
 }
 
@@ -239,18 +241,19 @@ variable "additional_tags" {
 }
 
 variable "autoscaling_configuration" {
-  description = <<EOF
-  Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
-  - version: (optional) Version of the autoscaler to deploy.
-  - architecture: (optional) Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
-  - schedule_expression: (optional) Autoscaler scheduling expression. Default: rate(1 minute).
-  - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
-  - max_terminate: (optional) The maximum number of instances the utility is allowed to terminate in a single run.
-  - timeout: (optional) Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be.
-  - s3_package: (optional) Configuration to retrieve autoscaler lambda package from a specific S3 bucket.
-    - bucket: (mandatory) S3 bucket name
-    - key: (mandatory) S3 object key
-    - object_version: (optional) S3 object version
+  description = <<-EOF
+    Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
+
+    - version: Version of the autoscaler to deploy.
+    - architecture: Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
+    - schedule_expression: Autoscaler scheduling expression. Default: rate(1 minute).
+    - max_create: The maximum number of instances the utility is allowed to create in a single run.
+    - max_terminate: The maximum number of instances the utility is allowed to terminate in a single run.
+    - timeout: Timeout (in seconds) for a single autoscaling run. The more instances you have, the higher this should be.
+    - s3_package: Configuration to retrieve autoscaler lambda package from a specific S3 bucket.
+      - bucket: S3 bucket name
+      - key: S3 object key
+      - object_version: S3 object version
   EOF
 
   type = object({
@@ -284,13 +287,13 @@ variable "autoscaling_vpc_sg_ids" {
 variable "selfhosted_configuration" {
   description = <<EOF
   Configuration for selfhosted launcher. Configuration options are:
-  - s3_uri: (mandatory) If provided, the launcher binary will be downloaded from that URI. Mandatory for selfhosted. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher
-  - run_launcher_as_spacelift_user: (optional) Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.
-  - http_proxy_config: (optional) The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-  - https_proxy_config: (optional) The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-  - no_proxy_config: (optional) The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-  - ca_certificates: (optional) List of additional root CAs to install on the instance. Example: ["-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----"].
-  - power_off_on_error: (optional) Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.
+  - s3_uri: URI to download launcher binary from.
+  - run_launcher_as_spacelift_user: Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.
+  - http_proxy_config: The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - https_proxy_config: The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - no_proxy_config: The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - ca_certificates: List of additional root CAs to install on the instance. Example: ["-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----"].
+  - power_off_on_error: Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.
   EOF
 
   type = object({
@@ -316,9 +319,9 @@ variable "selfhosted_configuration" {
 variable "spacelift_api_credentials" {
   description = <<EOF
   Spacelift API credentials. This is used to authenticate the autoscaler and lifecycle manager with Spacelift. The credentials are stored in AWS Secrets Manager and SSM.
-  - api_key_id: (mandatory) The ID of the Spacelift API key to use by the launcher.
-  - api_key_secret: (optional) The secret corresponding to the Spacelift API key to use by the launcher.
-  - api_key_endpoint: (mandatory) The full URL of the Spacelift API endpoint to use by the launcher. Example: https://mycorp.app.spacelift.io
+  - api_key_id: The ID of the Spacelift API key to use by the launcher.
+  - api_key_secret: The secret corresponding to the Spacelift API key to use by the launcher.
+  - api_key_endpoint: The full URL of the Spacelift API endpoint to use by the launcher. Example: https://mycorp.app.spacelift.io
   EOF
   sensitive   = true
   type = object({
