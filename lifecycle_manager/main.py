@@ -187,3 +187,4 @@ def main(event, context):
                     put_message_back_on_queue(body)
         else:
             print(f"No worker found for instance ID {instance_id}.")
+            put_message_back_on_queue(body)
