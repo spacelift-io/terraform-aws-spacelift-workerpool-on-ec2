@@ -49,6 +49,10 @@ module "this" {
   vpc_subnets     = data.aws_subnets.this.ids
   worker_pool_id  = var.worker_pool_id
 
+  # Autoscaler VPC configuration
+  autoscaling_vpc_sg_ids = [data.aws_security_group.this.id]
+  autoscaling_vpc_subnets = data.aws_subnets.this.ids
+
   autoscaling_configuration = {
     max_create          = 5
     max_terminate       = 5

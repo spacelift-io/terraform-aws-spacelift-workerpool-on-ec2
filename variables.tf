@@ -269,6 +269,18 @@ variable "autoscaling_configuration" {
   default = null
 }
 
+variable "autoscaling_vpc_subnets" {
+  description = "List of VPC subnets to use for the autoscaler Lambda function."
+  type        = list(string)
+  default     = null
+}
+
+variable "autoscaling_vpc_sg_ids" {
+  description = "values of the security group to use for the autoscaler Lambda function."
+  type        = list(string)
+  default     = null
+}
+
 variable "selfhosted_configuration" {
   description = <<EOF
   Configuration for selfhosted launcher. Configuration options are:
