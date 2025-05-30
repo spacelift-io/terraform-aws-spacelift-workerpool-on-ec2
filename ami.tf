@@ -8,7 +8,7 @@ locals {
     amd64 = "x86_64"
     arm64 = "arm64"
   }
-  arch = local.archs[var.autoscaling_configuration["architecture"]]
+  arch = try(local.archs[var.autoscaling_configuration["architecture"]], "x86_64")
 }
 
 data "aws_ami" "this" {
