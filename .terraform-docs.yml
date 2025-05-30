@@ -1,0 +1,15 @@
+formatter: markdown table
+header-from: _readme-header.md
+output:
+  file: README.md
+sections:
+  hide:
+    - requirements
+    - providers
+    - modules
+    - resources
+    - data-sources
+settings:
+  # Don't show `required` column for variables. Takes up a lot of space and
+  # narrows the description column.
+  required: false
