@@ -36,7 +36,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.1.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.2.0"
   
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
@@ -237,6 +237,8 @@ This module is also available [on the OpenTofu registry](https://search.opentofu
 | `spacelift_api_credentials` | Spacelift API credentials used to authenticate the autoscaler and lifecycle manager with Spacelift. See definition for full details. | `object`<br/>(See definition) | `null` | [variables.tf:304-318](./variables.tf#L304-L318) |
 | `instance_refresh` | If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated | `any`                         | `{}` | [variables.tf:217-221](./variables.tf#L217-L221) |
 | `instance_market_options` | The market (purchasing) option for the instance | `any`                         | `{}` | [variables.tf:223-227](./variables.tf#L223-L227) |
+| `autoscaling_vpc_sg_ids` | Security groups that should be assigned to autoscaling lambda | `null`                         | `[]` | [variables.tf:223-227](./variables.tf#L272-L276) |
+| `autoscaling_vpc_subnets` | Subnets that should be assigned to autoscaling lambda | `null`                         | `[]` | [variables.tf:223-227](./variables.tf#L278-L82) |
 
 ### Self-hosted Configuration
 
