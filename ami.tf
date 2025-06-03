@@ -6,8 +6,10 @@ locals {
 }
 
 data "aws_ami" "this" {
+  count = var.ami_id == "" ? 1 : 0
+
   most_recent = true
-  name_regex  = "^spacelift-\\d{10}-x86_64$"
+  name_regex  = "^spacelift-\\d{10}-${var.ami_architecture}$"
   owners      = [local.ami_owner_ids[data.aws_partition.current.partition]]
 
   filter {
@@ -22,6 +24,6 @@ data "aws_ami" "this" {
 
   filter {
     name   = "architecture"
-    values = ["x86_64"]
+    values = [var.ami_architecture]
   }
 }
