@@ -1,5 +1,5 @@
 version: 2
-module_version: 4.4.1
+module_version: 4.4.2
 
 tests:
   - name: AMD64-based workerpool
@@ -11,6 +11,11 @@ tests:
     project_root: examples/arm64
     environment:
       TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAB"
+
+  - name: extra-iam-statements
+    project_root: examples/extra-iam-statments
+    environment:
+      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAH"
 
   - name: Custom IAM Role
     project_root: examples/custom-iam-role
