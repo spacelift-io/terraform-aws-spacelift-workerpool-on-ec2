@@ -11,6 +11,7 @@ variable "autoscaling_configuration" {
       key            = string
       object_version = optional(string)
     }))
+    scale_down_delay = optional(number)
   })
 }
 
