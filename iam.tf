@@ -149,5 +149,5 @@ resource "aws_iam_role_policy" "extra" {
 
   name   = "extra-statements"
   role   = aws_iam_role.this[0].name
-  policy = data.aws_iam_role.custom[0].json
+  policy = data.aws_iam_policy_document.extra[0].json
 }
