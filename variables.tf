@@ -344,3 +344,9 @@ variable "cloudwatch_log_group_retention" {
   type        = number
   default     = 7
 }
+
+variable "extra_iam_statements" {
+  description = "Extra IAM statements to add to the created IAM role. **All statements should have a SID.** Requires `create_iam_role` to be `true`."
+  type        = list(string)
+  default     = []
+}

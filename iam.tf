@@ -138,3 +138,16 @@ resource "aws_iam_policy" "secure_env_vars" {
   description = "Allows access to the secure strings stored in Secrets Manager"
   policy      = data.aws_iam_policy_document.secure_env_vars[count.index].json
 }
+
+data "aws_iam_policy_document" "extra" {
+  count                   = length(var.extra_iam_statements) > 0 ? 1 : 0
+  source_policy_documents = var.extra_iam_statements
+}
+
+resource "aws_iam_role_policy" "extra" {
+  count = length(var.extra_iam_statements) > 0 ? 1 : 0
+
+  name   = "extra-statements"
+  role   = aws_iam_role.this[0].name
+  policy = data.aws_iam_policy_document.extra[0].json
+}

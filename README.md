@@ -37,12 +37,12 @@ provider "aws" {
 
 module "spacelift_workerpool" {
   source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.4.0"
-  
+
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
     SPACELIFT_POOL_PRIVATE_KEY = var.worker_pool_private_key
   }
-  
+
   configuration = <<EOF
     export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
   EOF
@@ -62,6 +62,7 @@ For more examples covering specific use cases, please see the [examples director
 - [Autoscaler configuration](./examples/autoscaler/)
 - [Custom S3 package for autoscaler](./examples/autoscaler-custom-s3-package/)
 - [BYO SSM and Secrets Manager](./examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle/)
+- [Extra IAM statements](./examples/extra-iam-statements/)
 - [Custom IAM role](./examples/custom-iam-role/)
 - [Self-hosted deployment](./examples/self-hosted/)
 
@@ -108,7 +109,7 @@ byo_ssm = {
 #### Important: Mutual Exclusivity
 
 > ⚠️ **Important:** When using `byo_secretsmanager`, you should not use `secure_env_vars` for the same environment variables. These approaches are mutually exclusive for any given variable.
-> 
+>
 > - Use `secure_env_vars` when you want the module to manage your Secrets Manager resources
 > - Use `byo_secretsmanager` when you have pre-existing Secrets Manager resources or need more control
 > - If you use both, `byo_secretsmanager` takes precedence for the keys specified in its `keys` list
@@ -225,6 +226,7 @@ This module is also available [on the OpenTofu registry](https://search.opentofu
 | `volume_encryption` | Whether to encrypt the EBS volume | `bool` | `false` | [variables.tf:172-176](./variables.tf#L172-L176) |
 | `create_iam_role` | Determines whether an IAM role is created or to use an existing IAM role | `bool` | `true` | [variables.tf:104-108](./variables.tf#L104-L108) |
 | `custom_iam_role_name` | Name of an existing IAM to use. Used `when create_iam_role` = `false` | `string` | `""` | [variables.tf:98-102](./variables.tf#L98-L102) |
+| `extra_iam_statements` | Extra IAM statements to add to the worker pool role. **All statements should have a SID.** | `list(string)` | `[]` | [variables.tf:83-95](./variables.tf#L338-L342) |
 | `base_name` | Base name for resources. If unset, it defaults to `sp5ft-${var.worker_pool_id}`. | `string` | `null` | [variables.tf:204-209](./variables.tf#L204-L209) |
 | `additional_tags` | Additional tags to apply to all resources | `map(string)` | `{}` | [variables.tf:235-239](./variables.tf#L235-L239) |
 | `enable_monitoring` | Enables/disables detailed monitoring | `bool` | `true` | [variables.tf:211-215](./variables.tf#L211-L215) |
