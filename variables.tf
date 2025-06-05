@@ -261,6 +261,7 @@ variable "autoscaling_configuration" {
     - bucket: (mandatory) S3 bucket name
     - key: (mandatory) S3 object key
     - object_version: (optional) S3 object version
+  - scale_down_delay: (optional) The number of minutes a worker must be registered to spacelift before it is eligible for termination. Default: 0 minutes.
   EOF
 
   type = object({
@@ -275,6 +276,7 @@ variable "autoscaling_configuration" {
       key            = string
       object_version = optional(string)
     }))
+    scale_down_delay = optional(number)
   })
   default = null
 }

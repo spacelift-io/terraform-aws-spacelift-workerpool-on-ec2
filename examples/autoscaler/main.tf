@@ -50,7 +50,7 @@ module "this" {
   worker_pool_id  = var.worker_pool_id
 
   # Autoscaler VPC configuration
-  autoscaling_vpc_sg_ids = [data.aws_security_group.this.id]
+  autoscaling_vpc_sg_ids  = [data.aws_security_group.this.id]
   autoscaling_vpc_subnets = data.aws_subnets.this.ids
 
   autoscaling_configuration = {
@@ -59,6 +59,7 @@ module "this" {
     architecture        = "arm64" # ~ 20% cheaper than amd64
     schedule_expression = "rate(1 minute)"
     timeout             = 60
+    scale_down_delay    = 5
   }
 
   spacelift_api_credentials = {
