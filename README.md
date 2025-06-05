@@ -1,3 +1,6 @@
+<h1 align="center" style="color: red;">This branch is no longer maintained, please update your code to use main.</h1>
+
+
 # ☁️ Terraform AWS Spacelift Workerpool On EC2
 
 Terraform module for deploying a Spacelift worker pool on AWS EC2 using an autoscaling group.
@@ -36,7 +39,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.4.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.4.3"
 
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
@@ -201,85 +204,3 @@ Self hosted does not currently support ARM.
 ## Module Registries
 
 This module is also available [on the OpenTofu registry](https://search.opentofu.org/module/spacelift-io/spacelift-workerpool-on-ec2/aws/latest) where you can browse the input and output variables.
-
-## 📝 Input Variables
-
-### Required Variables
-
-| Name | Description | Type | Definition |
-|------|-------------|------|------------|
-| `worker_pool_id` | ID (ULID) of the the worker pool. | `string` | [variables.tf:195-202](./variables.tf#L195-L202) |
-| `security_groups` | List of security groups to use | `list(string)` | [variables.tf:158-161](./variables.tf#L158-L161) |
-| `vpc_subnets` | List of VPC subnets to use | `list(string)` | [variables.tf:190-193](./variables.tf#L190-L193) |
-
-### Optional Variables
-
-| Name | Description | Type | Default | Definition |
-|------|-------------|------|---------|------------|
-| `secure_env_vars` | Secure env vars to be stored in Secrets Manager. See definition for full details. | `map(string)` | `{}` | [variables.tf:37-46](./variables.tf#L37-L46) |
-| `configuration` | Plain text user configuration for non-secret variables. See definition for full details. | `string` | `""` | [variables.tf:49-57](./variables.tf#L49-L57) |
-| `min_size` | Minimum numbers of workers to spin up | `number` | `0` | [variables.tf:134-138](./variables.tf#L134-L138) |
-| `max_size` | Maximum number of workers to spin up | `number` | `10` | [variables.tf:140-144](./variables.tf#L140-L144) |
-| `ami_id` | ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used. | `string` | `""` | [variables.tf:1-5](./variables.tf#L1-L5) |
-| `ec2_instance_type` | EC2 instance type for the workers. If an arm64-based AMI is used, this must be an arm64-based instance type. | `string` | `"t3.micro"` | [variables.tf:77-81](./variables.tf#L77-L81) |
-| `volume_size` | Size of instance EBS volume | `number` | `40` | [variables.tf:184-188](./variables.tf#L184-L188) |
-| `volume_encryption` | Whether to encrypt the EBS volume | `bool` | `false` | [variables.tf:172-176](./variables.tf#L172-L176) |
-| `create_iam_role` | Determines whether an IAM role is created or to use an existing IAM role | `bool` | `true` | [variables.tf:104-108](./variables.tf#L104-L108) |
-| `custom_iam_role_name` | Name of an existing IAM to use. Used `when create_iam_role` = `false` | `string` | `""` | [variables.tf:98-102](./variables.tf#L98-L102) |
-| `extra_iam_statements` | Extra IAM statements to add to the worker pool role. **All statements should have a SID.** | `list(string)` | `[]` | [variables.tf:83-95](./variables.tf#L338-L342) |
-| `base_name` | Base name for resources. If unset, it defaults to `sp5ft-${var.worker_pool_id}`. | `string` | `null` | [variables.tf:204-209](./variables.tf#L204-L209) |
-| `additional_tags` | Additional tags to apply to all resources | `map(string)` | `{}` | [variables.tf:235-239](./variables.tf#L235-L239) |
-| `enable_monitoring` | Enables/disables detailed monitoring | `bool` | `true` | [variables.tf:211-215](./variables.tf#L211-L215) |
-
-### Autoscaling Configuration
-
-| Name | Description | Type                          | Default | Definition |
-|------|-------------|-------------------------------|---------|------------|
-| `autoscaling_configuration` | Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. See definition for full details. | `object`<br/>(See definition) | `null` | [variables.tf:241-270](./variables.tf#L241-L270) |
-| `spacelift_api_credentials` | Spacelift API credentials used to authenticate the autoscaler and lifecycle manager with Spacelift. See definition for full details. | `object`<br/>(See definition) | `null` | [variables.tf:304-318](./variables.tf#L304-L318) |
-| `instance_refresh` | If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated | `any`                         | `{}` | [variables.tf:217-221](./variables.tf#L217-L221) |
-| `instance_market_options` | The market (purchasing) option for the instance | `any`                         | `{}` | [variables.tf:223-227](./variables.tf#L223-L227) |
-| `autoscaling_vpc_sg_ids` | Security groups that should be assigned to autoscaling lambda | `null`                         | `[]` | [variables.tf:223-227](./variables.tf#L272-L276) |
-| `autoscaling_vpc_subnets` | Subnets that should be assigned to autoscaling lambda | `null`                         | `[]` | [variables.tf:223-227](./variables.tf#L278-L82) |
-
-### Self-hosted Configuration
-
-| Name | Description | Type                          | Default | Definition |
-|------|-------------|-------------------------------|---------|------------|
-| `selfhosted_configuration` | Configuration for selfhosted launcher, including S3 URI, user permissions, proxy settings, and more. See definition for full details. | `object`<br/>(See definition) | See definition | [variables.tf:272-301](./variables.tf#L272-L301) |
-| `domain_name` | Top-level domain name to use for pulling the launcher binary | `string`                      | `"spacelift.io"` | [variables.tf:71-75](./variables.tf#L71-L75) |
-
-### Bring Your Own (BYO) Variables
-
-| Name | Description | Type                          | Default | Definition |
-|------|-------------|-------------------------------|---------|------------|
-| `byo_ssm` | Name and ARN of the SSM parameter to use for the autoscaler. See definition for full details. | `object`<br/>(See definition) | `null` | [variables.tf:7-16](./variables.tf#L7-L16) |
-| `byo_secretsmanager` | Name and ARN of the Secrets Manager secret to use for the autoscaler and keys to export. See definition for full details. | `object`<br/>(See definition) | `null` | [variables.tf:19-35](./variables.tf#L19-L35) |
-
-### Advanced Configuration
-
-| Name | Description | Type                                | Default | Definition |
-|------|-------------|-------------------------------------|---------|------------|
-| `enabled_metrics` | List of CloudWatch metrics enabled on the ASG | `list(string)`<br/>(See definition) | See definition | [variables.tf:83-95](./variables.tf#L83-L95) |
-| `disable_container_credentials` | Controls whether containers can access EC2 instance profile credentials. See definition for full details. | `bool`                              | `true` | [variables.tf:59-69](./variables.tf#L59-L69) |
-| `poweroff_delay` | Number of seconds to wait before powering the EC2 instance off after the Spacelift launcher stopped | `number`                            | `15` | [variables.tf:146-150](./variables.tf#L146-L150) |
-| `secure_env_vars_kms_key_id` | KMS key ID to use for encrypting the secure strings, default is the default KMS key | `string`                            | `null` | [variables.tf:152-156](./variables.tf#L152-L156) |
-| `volume_encryption_kms_key_id` | KMS key ID to use for encrypting the EBS volume | `string`                            | `null` | [variables.tf:178-182](./variables.tf#L178-L182) |
-| `tag_specifications` | Tag specifications to set on the launch template, which will apply to the instances at launch | `list(object)`<br/>(See definition) | `[]` | [variables.tf:163-170](./variables.tf#L163-L170) |
-| `launch_template_version` | Launch template version. Can be version number, `$Latest`, or `$Default` | `string`                            | `null` | [variables.tf:110-114](./variables.tf#L110-L114) |
-| `launch_template_default_version` | Default Version of the launch template | `string`                            | `null` | [variables.tf:116-120](./variables.tf#L116-L120) |
-| `launch_template_update_default_version` | Whether to update Default Version each update. Conflicts with `default_version` | `bool`                              | `null` | [variables.tf:122-126](./variables.tf#L122-L126) |
-| `lifecycle_hook_timeout` | Timeout for the lifecycle hook in seconds | `number`                            | `300` | [variables.tf:128-132](./variables.tf#L128-L132) |
-| `iam_permissions_boundary` | ARN of the policy that is used to set the permissions boundary for any IAM roles. | `string`                            | `null` | [variables.tf:229-233](./variables.tf#L229-L233) |
-| `cloudwatch_log_group_retention` | Retention period for the autoscaler and lifecycle manager cloudwatch log group. | `number`                            | `7` | [variables.tf:320-324](./variables.tf#L320-L324) |
-
-## 🔍 Outputs
-
-| Name | Description |
-|------|-------------|
-| `instances_role_arn` | ARN of the IAM role of the EC2 instances |
-| `instances_role_name` | Name of the IAM role of the EC2 instances |
-| `autoscaling_group_arn` | ARN of the auto scaling group |
-| `autoscaling_group_name` | Name of the auto scaling group |
-| `launch_template_id` | ID of the launch template |
-| `secretsmanager_secret_arn` | ARN of the secret in Secrets Manager |
