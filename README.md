@@ -1,6 +1,3 @@
-<h1 align="center" style="color: red;">This branch is no longer maintained, please update your code to use main.</h1>
-
-
 # ☁️ Terraform AWS Spacelift Workerpool On EC2
 
 Terraform module for deploying a Spacelift worker pool on AWS EC2 using an autoscaling group.
