@@ -36,6 +36,17 @@ data "aws_subnets" "this" {
   }
 }
 
+resource "random_string" "worker_pool_id" {
+  length           = 26
+  numeric          = true
+  # Use special and override special to allow only uppercase letters and numbers
+  # but exclude I, L, O, and U as it does not conform to the regex used by Spacelift
+  special          = true
+  override_special = "ABCDEFGHJKMNPQRSTVWXYZ"
+  lower            = false
+  upper            = false
+}
+
 #### Spacelift worker pool ####
 
 module "this" {
@@ -55,5 +66,5 @@ module "this" {
   ec2_instance_type = "t4g.micro"
   security_groups   = [data.aws_security_group.this.id]
   vpc_subnets       = data.aws_subnets.this.ids
-  worker_pool_id    = var.worker_pool_id
+  worker_pool_id    = random_string.worker_pool_id.id
 }

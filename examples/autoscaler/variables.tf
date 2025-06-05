@@ -1,8 +1,3 @@
-variable "worker_pool_id" {
-  type        = string
-  description = "ID (ULID) of the the worker pool."
-}
-
 variable "spacelift_api_key_id" {
   type        = string
   description = "ID of the Spacelift API key to use"
