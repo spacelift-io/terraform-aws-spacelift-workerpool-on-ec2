@@ -14,11 +14,6 @@ variable "spacelift_api_key_endpoint" {
   description = "Full URL of the Spacelift API endpoint to use, eg. https://demo.app.spacelift.io"
 }
 
-variable "worker_pool_id" {
-  type        = string
-  description = "ID (ULID) of the the worker pool."
-}
-
 variable "autoscaler_version" {
   description = "Version of the autoscaler to deploy"
   type        = string

@@ -4,28 +4,19 @@ module_version: 4.4.3
 tests:
   - name: AMD64-based workerpool
     project_root: examples/amd64
-    environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8EEH5GTBM1QMAA"
 
   - name: ARM64-based workerpool
     project_root: examples/arm64
-    environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAB"
 
   - name: extra-iam-statements
     project_root: examples/extra-iam-statements
-    environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAH"
 
   - name: Custom IAM Role
     project_root: examples/custom-iam-role
-    environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAC"
 
   - name: With autoscaling
     project_root: examples/autoscaler
     environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAD"
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
@@ -33,7 +24,6 @@ tests:
   - name: S3-hosted autoscaler
     project_root: examples/autoscaler-custom-s3-package
     environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAE"
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
       TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
@@ -41,13 +31,10 @@ tests:
 
   - name: Self-hosted setup
     project_root: examples/self-hosted
-    environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAF"
 
   - name: With autoscaling, lifecycle rules and BYO ssm and secretsmanager
     project_root: examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle
     environment:
-      TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAG"
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
       TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
