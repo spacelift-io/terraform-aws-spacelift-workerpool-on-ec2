@@ -13,7 +13,7 @@ tests:
       TF_VAR_worker_pool_id: "01HBD5QZ932J8AEH5GTBM1QMAB"
 
   - name: extra-iam-statements
-    project_root: examples/extra-iam-statments
+    project_root: examples/extra-iam-statements
     environment:
       TF_VAR_worker_pool_id: "01HBD5QZ932J8CEH5GTBM1QMAH"
 
