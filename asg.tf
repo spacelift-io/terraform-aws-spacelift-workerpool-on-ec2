@@ -23,7 +23,7 @@ locals {
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 8.0"
+  version = "~> 9.0"
 
   name = local.base_name
 
