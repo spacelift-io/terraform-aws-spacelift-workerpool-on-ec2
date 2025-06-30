@@ -1,6 +1,6 @@
 locals {
   lifecycle_code = "${path.module}/main.py"
-  name           = "${var.base_name}-lifecycle-manager"
+  name           = length("${var.base_name}-lifecycle-manager") <= 64 ? "${var.base_name}-lifecycle-manager" : "${var.base_name}-lcm"
 }
 
 data "archive_file" "this" {
@@ -55,3 +55,4 @@ resource "aws_cloudwatch_log_group" "log_group" {
   name              = "/aws/lambda/${local.name}"
   retention_in_days = var.cloudwatch_log_group_retention
 }
+
