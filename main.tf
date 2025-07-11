@@ -1,7 +1,7 @@
 locals {
   base_name                               = var.base_name == null ? "sp5ft-${var.worker_pool_id}" : var.base_name
   autoscaling_enabled                     = var.autoscaling_configuration == null ? false : true
-  lifecycle_manager_enabled               = length(var.instance_refresh) > 0 ? true : false
+  lifecycle_manager_enabled               = var.instance_refresh != null ? true : false
   autoscaler_or_lifecycle_manager_enabled = local.autoscaling_enabled || local.lifecycle_manager_enabled
 
   byo_ssm            = var.byo_ssm != null
