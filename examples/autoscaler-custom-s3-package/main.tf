@@ -64,7 +64,7 @@ module "this" {
     version = var.autoscaler_version
     s3_package = {
       bucket = aws_s3_bucket.autoscaler_binary.id
-      key    = aws_s3_object.autoscaler_binary.id
+      key    = aws_s3_object.autoscaler_binary.key
     }
   }
 
