@@ -197,6 +197,12 @@ variable "volume_size" {
   description = "Size of instance EBS volume"
 }
 
+variable "volume_throughput" {
+  type        = number
+  default     = null
+  description = "Throughput in MiB/sec for instance EBS volume"
+}
+
 variable "vpc_subnets" {
   type        = list(string)
   description = "List of VPC subnets to use"
