@@ -9,7 +9,7 @@ locals {
     https_proxy_config             = var.selfhosted_configuration.https_proxy_config == null ? "" : var.selfhosted_configuration.https_proxy_config
     no_proxy_config                = var.selfhosted_configuration.no_proxy_config == null ? "" : var.selfhosted_configuration.no_proxy_config
     ca_certificates                = var.selfhosted_configuration.ca_certificates == null ? [] : var.selfhosted_configuration.ca_certificates
-    region                         = data.aws_region.this.name
+    region                         = data.aws_region.this.region
     power_off_on_error             = var.selfhosted_configuration.power_off_on_error == null ? true : var.selfhosted_configuration.power_off_on_error
   })
 
@@ -17,13 +17,13 @@ locals {
     custom_user_data = join("\n", [local.secure_env_vars, var.configuration])
     domain_name      = var.domain_name
     poweroff_delay   = var.poweroff_delay
-    region           = data.aws_region.this.name
+    region           = data.aws_region.this.region
   })
 }
 
 module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
-  version = "~> 8.0"
+  version = "~> 9.0"
 
   name = local.base_name
 

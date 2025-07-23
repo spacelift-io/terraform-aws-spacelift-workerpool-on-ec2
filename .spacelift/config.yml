@@ -1,5 +1,5 @@
 version: 2
-module_version: 4.4.4
+module_version: 5.0.0
 
 tests:
   - name: AMD64-based workerpool

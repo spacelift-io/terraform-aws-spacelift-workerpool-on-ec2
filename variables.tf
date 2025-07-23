@@ -227,13 +227,13 @@ variable "enable_monitoring" {
 variable "instance_refresh" {
   description = "If this block is configured, start an Instance Refresh when this Auto Scaling Group is updated based on instance refresh configration."
   type        = any
-  default     = {}
+  default     = null
 }
 
 variable "instance_market_options" {
   description = "The market (purchasing) option for the instance"
   type        = any
-  default     = {}
+  default     = null
 }
 
 variable "iam_permissions_boundary" {

@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "< 6.0"
+      version = ">= 6.0.0"
     }
 
     random = { source = "hashicorp/random" }
@@ -64,7 +64,7 @@ module "this" {
     version = var.autoscaler_version
     s3_package = {
       bucket = aws_s3_bucket.autoscaler_binary.id
-      key    = aws_s3_object.autoscaler_binary.id
+      key    = aws_s3_object.autoscaler_binary.key
     }
   }
 
