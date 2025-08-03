@@ -12,9 +12,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
+      with:
+        fetch-depth: 0
 
     - name: Setup OpenTofu
       uses: opentofu/setup-opentofu@main
 
     - name: Tofu init
       run: tofu init
+
+    - name: Tofu fmt
+      run: tofu fmt --recursive --check
+
+    - name: Validate Lifecycle Manager
+      run: |
+        # If the ./lifecycle_manager/main.py file has been modified, make sure the zip file was rebuilt
+        if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -q "lifecycle_manager/main.py"; then
+          echo "Lifecycle Manager main.py has been modified, checking zip file..."
+          cd lifecycle_manager
+          ./build_lifecycle_manager.sh
+          
+          # check if the zip file changed, if it did then the zip was rebuilt and we need to fail the build
+          # it should be checked in as part of the PR.
+          if git diff --name-only HEAD^ | grep -q 'lifecycle_manager/ec2-workerpool-lifecycle-manager.zip'; then
+            echo "Lifecycle Manager zip file has been modified, build failed."
+            exit 1
+          else
+            echo "Lifecycle Manager zip file has not been modified, build succeeded."
+          fi
+        else
+            echo "Lifecycle Manager main.py has not been modified, skipping zip file check."
+        fi
