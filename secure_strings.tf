@@ -26,7 +26,7 @@ EOT
 }
 
 resource "aws_secretsmanager_secret" "this" {
-  count = local.has_secure_env_vars && !local.byo_secretsmanager ? 1 : 0
+  count = local.has_secure_env_vars && ! local.byo_secretsmanager ? 1 : 0
 
   name                    = "${local.base_name}-secret"
   kms_key_id              = var.secure_env_vars_kms_key_id
@@ -36,7 +36,7 @@ resource "aws_secretsmanager_secret" "this" {
 }
 
 resource "aws_secretsmanager_secret_version" "this" {
-  count = local.has_secure_env_vars && !local.byo_secretsmanager ? 1 : 0
+  count = local.has_secure_env_vars && ! local.byo_secretsmanager ? 1 : 0
 
   secret_id     = aws_secretsmanager_secret.this[0].id
   secret_string = jsonencode(var.secure_env_vars)
