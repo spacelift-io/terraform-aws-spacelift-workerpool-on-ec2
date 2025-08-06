@@ -37,8 +37,8 @@ data "aws_subnets" "this" {
 }
 
 resource "random_string" "worker_pool_id" {
-  length           = 26
-  numeric          = true
+  length  = 26
+  numeric = true
   # Use special and override special to allow only uppercase letters and numbers
   # but exclude I, L, O, and U as it does not conform to the regex used by Spacelift
   special          = true
