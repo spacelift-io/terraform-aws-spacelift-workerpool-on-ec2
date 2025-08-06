@@ -12,7 +12,7 @@ locals {
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
-  count = local.autoscaler_or_lifecycle_manager_enabled && ! local.byo_ssm ? 1 : 0
+  count = local.autoscaler_or_lifecycle_manager_enabled && !local.byo_ssm ? 1 : 0
   name  = local.generated_ssm_name
   type  = "SecureString"
   value = var.spacelift_api_credentials.api_key_secret
