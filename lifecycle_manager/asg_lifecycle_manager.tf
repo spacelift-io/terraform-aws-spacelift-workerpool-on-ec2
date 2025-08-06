@@ -1,12 +1,6 @@
 locals {
-  lifecycle_code = "${path.module}/main.py"
+  lifecycle_code = "${path.module}/ec2-workerpool-lifecycle-manager.zip"
   name           = length("${var.base_name}-lifecycle-manager") <= 64 ? "${var.base_name}-lifecycle-manager" : "${var.base_name}-lcm"
-}
-
-data "archive_file" "this" {
-  type        = "zip"
-  source_file = local.lifecycle_code
-  output_path = "ec2-workerpool-lifecycle-manager.zip"
 }
 
 resource "aws_sqs_queue" "this" {
@@ -20,8 +14,8 @@ resource "aws_sqs_queue" "this" {
 }
 
 resource "aws_lambda_function" "this" {
-  filename         = data.archive_file.this.output_path
-  source_code_hash = data.archive_file.this.output_base64sha256
+  filename         = local.lifecycle_code
+  source_code_hash = filebase64sha256(local.lifecycle_code)
 
   function_name = local.name
   role          = aws_iam_role.this.arn
