@@ -1,5 +1,5 @@
 version: 2
-module_version: 5.0.1
+module_version: 5.1.0
 
 tests:
   - name: AMD64-based workerpool
@@ -34,6 +34,13 @@ tests:
 
   - name: With autoscaling, lifecycle rules and BYO ssm and secretsmanager
     project_root: examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle
+    environment:
+      TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
+      TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+      TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+
+  - name: With autoscaling and custom EBS throughput
+    project_root: examples/autoscaler-custom-ebs-throughput
     environment:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
       TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
