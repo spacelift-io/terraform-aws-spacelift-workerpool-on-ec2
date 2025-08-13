@@ -13,6 +13,9 @@ api_key_id = os.environ.get("SPACELIFT_API_KEY_ID", None)
 worker_pool_id = os.environ.get("SPACELIFT_WORKER_POOL_ID", None)
 queue_url = os.environ.get("QUEUE_URL", None)
 
+DRAIN_FAILURE = "DRAIN_FAILURE"
+HOOK_FAILURE = "HOOK_FAILURE"
+
 def query_api(query: str, variables: dict = None, token: str = None) -> dict:
     headers = {
         "Content-Type": "application/json",
@@ -180,11 +183,30 @@ def main(event, context):
         if worker:
             success = drain_worker(worker, token)
             if not success:
+                body["WORKER_TERM_FAILURE"] = DRAIN_FAILURE
                 put_message_back_on_queue(body)
             else:
                 success = complete_hook(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id)
                 if not success:
+                    body["WORKER_TERM_FAILURE"] = HOOK_FAILURE
                     put_message_back_on_queue(body)
         else:
             print(f"No worker found for instance ID {instance_id}.")
+
+            if "WORKER_TERM_FAILURE" in body and body["WORKER_TERM_FAILURE"] == DRAIN_FAILURE:
+                print("Worker was previously found but is now missing. Completing lifecycle hook to avoid hanging instance.")
+                success = complete_hook(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id)
+                if not success:
+                    body["WORKER_TERM_FAILURE"] = HOOK_FAILURE
+                    put_message_back_on_queue(body)
+                continue
+
+            if "WORKER_TERM_FAILURE" in body and body["WORKER_TERM_FAILURE"] == HOOK_FAILURE:
+                print("Lifecycle hook was previously attempted but failed. Retrying to complete lifecycle hook.")
+                success = complete_hook(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id)
+                if not success:
+                    print("Failed again to complete lifecycle hook. Dropping message to avoid infinite loop, hook will timeout and terminate instance.")
+                continue
+
+            # Put the message back on the queue to retry later
             put_message_back_on_queue(body)
