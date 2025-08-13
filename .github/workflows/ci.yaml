@@ -30,16 +30,16 @@ jobs:
         if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -q "lifecycle_manager/main.py"; then
           echo "Lifecycle Manager main.py has been modified, checking zip file..."
           cd lifecycle_manager
-          ./build_lifecycle_manager.sh
           
-          # check if the zip file changed, if it did then the zip was rebuilt and we need to fail the build
-          # it should be checked in as part of the PR.
-          if git diff --name-only HEAD^ | grep -q 'lifecycle_manager/ec2-workerpool-lifecycle-manager.zip'; then
-            echo "Lifecycle Manager zip file has been modified, build failed."
-            exit 1
+          # Check if the committed zip contains the current main.py content
+          if cmp -s <(unzip -p ec2-workerpool-lifecycle-manager.zip main.py) <(cat main.py); then
+            echo "Lifecycle Manager zip file contains the current main.py content."
           else
-            echo "Lifecycle Manager zip file has not been modified, build succeeded."
+            echo "ERROR: Lifecycle Manager zip file is not up to date!"
+            echo "The zip file content doesn't match the current main.py."
+            echo "Please rebuild the zip file using './build_lifecycle_manager.sh' and commit the updated zip."
+            exit 1
           fi
         else
-            echo "Lifecycle Manager main.py has not been modified, skipping zip file check."
+          echo "Lifecycle Manager main.py has not been modified, skipping zip file check."
         fi
