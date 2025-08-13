@@ -66,6 +66,6 @@ spacelift () {(
 # Reset the errexit option so if for some reason the `spacelift` binary stops, the poweroff should be run.
 set +e
 spacelift
-echo "Powering off in ${poweroff_delay} seconds" >> /var/log/spacelift/error.log
-sleep ${poweroff_delay}
-poweroff
+# echo "Powering off in ${poweroff_delay} seconds" >> /var/log/spacelift/error.log
+# sleep ${poweroff_delay}
+# poweroff
