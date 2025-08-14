@@ -11,6 +11,7 @@ This module supports both SaaS and self-hosted Spacelift deployments, and can op
 - Optional autoscaling based on worker pool queue length
 - Secure storage of credentials using AWS Secrets Manager
 - Support for ARM64 instances for cost optimization
+- Spot instance support for significant cost savings (up to 90%)
 - Instance lifecycle management with worker draining
 - Configurable instance types, volume sizes, and more
 - "Bring Your Own" (BYO) options for SSM parameters and Secrets Manager
@@ -26,7 +27,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
   }
 }
@@ -36,7 +37,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v4.4.3"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v5.2.0"
 
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
@@ -59,6 +60,7 @@ For more examples covering specific use cases, please see the [examples director
 
 - [AMD64 deployment](./examples/amd64/)
 - [ARM64 deployment](./examples/arm64/)
+- [Spot instances for cost optimization](./examples/spot-instances/)
 - [Autoscaler configuration](./examples/autoscaler/)
 - [Custom S3 package for autoscaler](./examples/autoscaler-custom-s3-package/)
 - [BYO SSM and Secrets Manager](./examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle/)
@@ -183,6 +185,60 @@ This module includes a lifecycle management feature that ensures graceful termin
    - Works specifically for instance refresh operations, not regular scale-in events (which are handled by the autoscaler)
 
 To enable lifecycle management, provide the `spacelift_api_credentials` variable and configure the `instance_refresh` variable. See the [BYO SSM and Secrets Manager with Autoscaling and Lifecycle example](./examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle/) for a complete configuration.
+
+## 💰 Spot Instances for Cost Optimization
+
+This module supports AWS Spot Instances, which can provide significant cost savings (up to 90%) compared to On-Demand instances. Spot instances use spare AWS capacity and are ideal for fault-tolerant and flexible workloads.
+
+> ⚠️ Spot instances are **NOT recommended for critical workloads** as they can be interrupted with only 2 minutes notice, potentially causing:
+> - Incomplete or corrupted Terraform state
+> - Failed deployments leaving infrastructure in inconsistent state
+> - Loss of work-in-progress for long-running operations
+
+### How to Enable Spot Instances
+
+Configure spot instances using the `instance_market_options` variable:
+
+```hcl
+module "spacelift_workerpool" {
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2"
+
+  # ... other configuration ...
+
+  # Enable spot instances
+  instance_market_options = {
+    market_type = "spot"
+    # spot_options = {
+    #  spot_instance_type             = "one-time"
+    #  instance_interruption_behavior = "terminate"
+    # }
+  }
+}
+```
+
+### Configuration Options
+
+- **max_price** (Optional): Maximum hourly price you're willing to pay. AWS recommends omitting this to use current Spot pricing, as setting a lower price can increase interruption frequency.
+- **spot_instance_type**: Use `"one-time"` for Auto Scaling Groups (recommended) or `"persistent"` for individual instances.
+- **instance_interruption_behavior**: How instances behave when interrupted - `"terminate"` (default), `"stop"`, or `"hibernate"`. For AutoScaling Groups, it's recommended to use `"terminate"`, as the ASG handles replacements automatically.
+
+These options use sensible defaults when omitted, so explicit configuration is typically unnecessary.
+
+Use the [AWS EC2 Spot Instance Advisor](https://aws.amazon.com/ec2/spot/instance-advisor/) to select cost-effective instance types and understand interruption rates.
+
+### Graceful Spot Instance Interruption Handling
+
+The Spacelift worker includes built-in spot instance interruption detection to minimize job disruption:
+
+- **Automatic Monitoring**: The worker polls the EC2 Instance Metadata Service for spot interruption notices
+- **Graceful Shutdown**: When an interruption is detected, the worker:
+  - Exits immediately if idle (no active runs)
+  - If processing a run, allows the current run to finish without cancellation, then shuts down gracefully
+  - **Important**: If the run doesn't complete within the 2-minute interruption grace period, the run will be abruptly terminated and crash
+
+**Reference**: [AWS Spot Instance Termination Notices](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/spot-instance-termination-notices.html)
+
+For a complete example, see the [spot instances example](./examples/spot-instances/).
 
 ## Default AMI
 
