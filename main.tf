@@ -37,6 +37,7 @@ module "autoscaler" {
   worker_pool_id                   = var.worker_pool_id
   spacelift_vpc_subnet_ids         = var.autoscaling_vpc_subnets
   spacelift_vpc_security_group_ids = var.autoscaling_vpc_sg_ids
+  tracing_mode                     = var.autoscaling_tracing_mode
 }
 
 module "lifecycle_manager" {
