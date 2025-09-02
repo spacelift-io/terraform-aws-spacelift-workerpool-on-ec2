@@ -37,7 +37,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v5.2.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v5.3.0"
 
   secure_env_vars = {
     SPACELIFT_TOKEN            = var.worker_pool_config
@@ -55,6 +55,8 @@ module "spacelift_workerpool" {
   vpc_subnets       = var.subnets
 }
 ```
+
+### Other Examples
 
 For more examples covering specific use cases, please see the [examples directory](./examples/):
 
