@@ -87,6 +87,12 @@ variable "spacelift_vpc_security_group_ids" {
   default     = null
 }
 
+variable "tracing_mode" {
+  description = "Tracing mode for the lambda function. Can be 'Active' or 'PassThrough'."
+  type        = string
+  default     = "Active"
+}
+
 variable "ipv6_allowed_for_dual_stack" {
   description = "Allows outbound IPv6 traffic on VPC functions that are connected to dual-stack subnets"
   type        = bool

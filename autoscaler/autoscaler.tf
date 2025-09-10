@@ -70,7 +70,7 @@ resource "aws_lambda_function" "autoscaler" {
   }
 
   tracing_config {
-    mode = "Active"
+    mode = var.tracing_mode
   }
 }
 

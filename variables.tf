@@ -337,6 +337,16 @@ variable "autoscaling_vpc_sg_ids" {
   default     = null
 }
 
+variable "autoscaling_tracing_mode" {
+  description = "Tracing mode for the autoscaler Lambda function. Can be 'Active' or 'PassThrough'. Default: 'Active'."
+  type        = string
+  default     = "Active"
+  validation {
+    condition     = contains(["Active", "PassThrough"], var.autoscaling_tracing_mode)
+    error_message = "The autoscaling_tracing_mode must be either 'Active' or 'PassThrough'."
+  }
+}
+
 variable "selfhosted_configuration" {
   description = <<EOF
   Configuration for selfhosted launcher. Configuration options are:
