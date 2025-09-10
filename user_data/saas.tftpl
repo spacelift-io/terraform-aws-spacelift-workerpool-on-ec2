@@ -73,12 +73,6 @@ spacelift () {(
   export SPACELIFT_METADATA_asg_id=$(aws autoscaling --region=${region} describe-auto-scaling-instances --instance-ids $SPACELIFT_METADATA_instance_id | jq -r '.AutoScalingInstances[0].AutoScalingGroupName')
 
   echo "Starting the Spacelift binary" >> /var/log/spacelift/info.log
-  
-  if [[ -n "$fedrampSuffix" ]]; then
-    echo "Setting GODEBUG=fips140=only for fedRAMP compliance" >> /var/log/spacelift/info.log
-    export GODEBUG=fips140=only
-  fi
-  
   /usr/bin/spacelift-launcher 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
 )}
 
