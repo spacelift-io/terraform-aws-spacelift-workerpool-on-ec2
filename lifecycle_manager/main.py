@@ -208,5 +208,8 @@ def main(event, context):
                     print("Failed again to complete lifecycle hook. Dropping message to avoid infinite loop, hook will timeout and terminate instance.")
                 continue
 
-            # Put the message back on the queue to retry later
-            put_message_back_on_queue(body)
+            # Worker doesn't exist - nothing to drain, just complete the hook
+            print("Worker not found in Spacelift. Completing lifecycle hook to allow instance termination.")
+            success = complete_hook(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id)
+            if not success:
+                print("Failed to complete lifecycle hook. Dropping message to avoid runaway loop - hook will timeout and terminate instance.")
