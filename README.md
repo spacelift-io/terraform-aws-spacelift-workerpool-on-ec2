@@ -8,6 +8,7 @@ This module supports both SaaS and self-hosted Spacelift deployments, and can op
 
 - Deploy Spacelift worker pools on EC2 instances with autoscaling
 - Support for both SaaS and self-hosted Spacelift deployments
+- Automatically uses the FedRAMP worker image for FedRAMP worker pools
 - Optional autoscaling based on worker pool queue length
 - Secure storage of credentials using AWS Secrets Manager
 - Support for ARM64 instances for cost optimization
