@@ -77,11 +77,25 @@ create_spacelift_launcher_script () {(
 #!/bin/bash
 join_strings () { local d="$1"; echo -n "$2"; shift 2 && printf '%s' "$${!@/#/$d}"; }
 
+validate_metadata() {
+  local value="\$1"
+  local name="\$2"
+  if [[ -z "\$value" ]] || [[ "\$value" == "null" ]] || [[ "\$value" == "None" ]]; then
+    echo "ERROR: \$name is null or empty. EC2 metadata service returned invalid data." >> /var/log/spacelift/error.log
+    exit 1
+  fi
+}
+
 echo "Retrieving EC2 instance ID and ami ID" >> /var/log/spacelift/info.log
 export SPACELIFT_METADATA_instance_id=\$(ec2-metadata --instance-id | cut -d ' ' -f2)
+validate_metadata "\$SPACELIFT_METADATA_instance_id" "instance_id"
+
 export SPACELIFT_METADATA_ami_id=\$(ec2-metadata --ami-id | cut -d ' ' -f2)
+validate_metadata "\$SPACELIFT_METADATA_ami_id" "ami_id"
+
 echo "Retrieving EC2 ASG ID" >> /var/log/spacelift/info.log
 export SPACELIFT_METADATA_asg_id=\$(aws autoscaling --region=${region} describe-auto-scaling-instances --instance-ids \$SPACELIFT_METADATA_instance_id | jq -r '.AutoScalingInstances[0].AutoScalingGroupName')
+validate_metadata "\$SPACELIFT_METADATA_asg_id" "asg_id"
 if [[ "${http_proxy_config}" != "" || "${https_proxy_config}" != "" || "${no_proxy_config}" != "" ]]; then
   whitelisted_vars=()
   echo "Configuring HTTP proxy information" >> /var/log/spacelift/info.log
