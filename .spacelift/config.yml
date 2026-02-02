@@ -48,3 +48,9 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
       TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+
+  - name: Cloudwatch Import
+    project_root: examples/cloudwatch-import
+    before_init:
+      - aws logs create-log-group --log-group-name spacelift-info.log 2>/dev/null || true
+      - aws logs create-log-group --log-group-name spacelift-errors.log 2>/dev/null || true
