@@ -28,12 +28,7 @@ output "secretsmanager_secret_arn" {
   description = "ARN of the secret in Secrets Manager that holds the encrypted environment variables."
 }
 
-output "spacelift_info_log_group_arn" {
-  description = "ARN of the spacelift-info.log CloudWatch log group"
-  value       = aws_cloudwatch_log_group.spacelift_info.arn
-}
-
-output "spacelift_errors_log_group_arn" {
-  description = "ARN of the spacelift-errors.log CloudWatch log group"
-  value       = aws_cloudwatch_log_group.spacelift_errors.arn
+output "log_group_arns" {
+  description = "Map of CloudWatch Log Group names to their ARNs"
+  value       = { for name, lg in aws_cloudwatch_log_group.this : name => lg.arn }
 }

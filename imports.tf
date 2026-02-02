@@ -1,9 +1,5 @@
 import {
-  to = aws_cloudwatch_log_group.spacelift_info
-  id = "spacelift-info.log"
-}
-
-import {
-  to = aws_cloudwatch_log_group.spacelift_errors
-  id = "spacelift-errors.log"
+  for_each = var.import_cloudwatch_log_groups ? local.log_groups : toset([])
+  to       = aws_cloudwatch_log_group.this[each.key]
+  id       = each.key
 }

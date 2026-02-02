@@ -396,33 +396,39 @@ variable "spacelift_api_credentials" {
 }
 
 variable "cloudwatch_log_group_retention" {
-  description = "Retention period for the autoscaler and lifecycle manager CloudWatch log groups."
+  description = "Retention period for the autoscaler and lifecycle manager CloudWatch Log Groups."
   type        = number
   default     = 60
 }
 
 variable "cloudwatch_kms_key_id" {
-  description = "ARN of the KMS key to use for encrypting CloudWatch log groups."
+  description = "ARN of the KMS Key to use for encrypting CloudWatch Log Groups."
   type        = string
   default     = null
 }
 
 variable "cloudwatch_skip_destroy" {
-  description = "Set to true to keep the log group and its logs when destroying the resource, only removing it from state."
+  description = "Set to true to keep the Log Group and its logs when destroying the resource, only removing it from state."
   type        = bool
   default     = null
 }
 
 variable "cloudwatch_deletion_protection_enabled" {
-  description = "Whether deletion protection is enabled for the CloudWatch log groups."
+  description = "Whether deletion protection is enabled for the CloudWatch Log Groups."
   type        = bool
   default     = null
 }
 
 variable "cloudwatch_log_group_class" {
-  description = "The log class of the CloudWatch log groups. Possible values are STANDARD, INFREQUENT_ACCESS, or DELIVERY."
+  description = "The log class of the CloudWatch Log Groups."
   type        = string
   default     = null
+}
+
+variable "import_cloudwatch_log_groups" {
+  description = "Whether to import existing CloudWatch Log Groups created by the awslogs agent into state. Set to true if the Log Groups already exist."
+  type        = bool
+  default     = false
 }
 
 variable "extra_iam_statements" {
