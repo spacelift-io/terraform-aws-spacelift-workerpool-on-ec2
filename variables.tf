@@ -238,23 +238,23 @@ variable "instance_refresh" {
 
 variable "instance_market_options" {
   description = <<EOF
-  The market (purchasing) option for the instance. Configuration block for setting 
+  The market (purchasing) option for the instance. Configuration block for setting
   up an instance on Spot vs On-Demand markets in the launch template.
 
   Configuration:
   - market_type: (Required) Type of market for the instance. Valid values: "spot"
   - spot_options: (Optional) Block to configure the Spot request
-    - max_price: (Optional) The maximum hourly price you're willing to pay for the instance. 
-      If not specified, you will pay the current Spot price (recommended). AWS does not 
-      recommend using this parameter as it can lead to increased interruptions. 
+    - max_price: (Optional) The maximum hourly price you're willing to pay for the instance.
+      If not specified, you will pay the current Spot price (recommended). AWS does not
+      recommend using this parameter as it can lead to increased interruptions.
       The price will never exceed the On-Demand price. Format: "0.05" (string)
-    - spot_instance_type: (Optional) The Spot instance request type. For Auto Scaling Groups, 
-      use "one-time" as ASG handles requesting new instances. Valid values: 
+    - spot_instance_type: (Optional) The Spot instance request type. For Auto Scaling Groups,
+      use "one-time" as ASG handles requesting new instances. Valid values:
       "one-time" (recommended for ASG) or "persistent"
-    - instance_interruption_behavior: (Optional) Indicates Spot instance behavior when 
-      interrupted. Valid values: "terminate" (default), "stop", or "hibernate". 
+    - instance_interruption_behavior: (Optional) Indicates Spot instance behavior when
+      interrupted. Valid values: "terminate" (default), "stop", or "hibernate".
       For persistent requests, "stop" and "hibernate" are valid.
-    - block_duration_minutes: (Optional, Deprecated) The required duration for Spot block 
+    - block_duration_minutes: (Optional, Deprecated) The required duration for Spot block
       instances in minutes. Note: Spot blocks are deprecated by AWS.
 
   Example configuration for spot instances:
@@ -266,14 +266,14 @@ variable "instance_market_options" {
       # max_price omitted to use current Spot price (recommended)
     }
   }
-  
-  ⚠️ WARNING: Spot instances are NOT recommended for critical workloads as they can be 
+
+  ⚠️ WARNING: Spot instances are NOT recommended for critical workloads as they can be
   interrupted with only 2 minutes notice, potentially causing:
   - Incomplete or corrupted Terraform state
   - Failed deployments leaving infrastructure in inconsistent state
   - Loss of work-in-progress for long-running operations
   Use only for non-critical development, testing, or ephemeral workloads.
-  
+
   Note: Auto Scaling Groups only support 'one-time' Spot instance requests with no duration.
   EOF
   type        = any
@@ -396,9 +396,33 @@ variable "spacelift_api_credentials" {
 }
 
 variable "cloudwatch_log_group_retention" {
-  description = "Retention period for the autoscaler and lifecycle manager cloudwatch log group."
+  description = "Retention period for the autoscaler and lifecycle manager CloudWatch log groups."
   type        = number
-  default     = 7
+  default     = 60
+}
+
+variable "cloudwatch_kms_key_id" {
+  description = "ARN of the KMS key to use for encrypting CloudWatch log groups."
+  type        = string
+  default     = null
+}
+
+variable "cloudwatch_skip_destroy" {
+  description = "Set to true to keep the log group and its logs when destroying the resource, only removing it from state."
+  type        = bool
+  default     = null
+}
+
+variable "cloudwatch_deletion_protection_enabled" {
+  description = "Whether deletion protection is enabled for the CloudWatch log groups."
+  type        = bool
+  default     = null
+}
+
+variable "cloudwatch_log_group_class" {
+  description = "The log class of the CloudWatch log groups. Possible values are STANDARD, INFREQUENT_ACCESS, or DELIVERY."
+  type        = string
+  default     = null
 }
 
 variable "extra_iam_statements" {
