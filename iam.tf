@@ -54,10 +54,13 @@ resource "aws_iam_role" "this" {
 locals {
   iam_managed_policies = var.create_iam_role ? concat([
     "arn:${data.aws_partition.current.partition}:iam::aws:policy/AutoScalingReadOnlyAccess",
-    "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy",
     "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    ], local.lifecycle_manager_enabled ? [
-    "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole"
+    ],
+    !var.disable_cloudwatch_agent ? [
+      "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
+    ] : [],
+    local.lifecycle_manager_enabled ? [
+      "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole"
   ] : []) : []
 }
 resource "aws_iam_role_policy_attachment" "this" {
