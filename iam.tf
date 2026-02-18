@@ -61,7 +61,7 @@ locals {
     ] : [],
     local.lifecycle_manager_enabled ? [
       "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole"
-    ] : []) : []
+  ] : []) : []
 }
 resource "aws_iam_role_policy_attachment" "this" {
   for_each = toset(local.iam_managed_policies)
