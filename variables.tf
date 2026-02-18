@@ -406,3 +406,18 @@ variable "extra_iam_statements" {
   type        = list(string)
   default     = []
 }
+
+variable "disable_cloudwatch_agent" {
+  description = <<EOF
+  If true, the CloudWatch Agent (pre-installed in the AMI) will be stopped and disabled on instance startup.
+  This also prevents the CloudWatchAgentServerPolicy from being attached to the IAM role.
+
+  Note: This only affects the CloudWatch Agent running on the EC2 instances, which collects detailed
+  instance-level metrics (CPU, memory, disk, etc.) that incur costs. The free Auto Scaling Group metrics
+  (controlled by the `enabled_metrics` variable) are not affected by this setting.
+
+  Default: false (CloudWatch Agent remains enabled for backward compatibility)
+  EOF
+  type        = bool
+  default     = false
+}
