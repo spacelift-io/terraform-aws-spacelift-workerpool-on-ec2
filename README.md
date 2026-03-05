@@ -245,7 +245,9 @@ For a complete example, see the [spot instances example](./examples/spot-instanc
 
 ## 📊 CloudWatch Agent Cost Management
 
-The Spacelift worker AMI comes with the CloudWatch Agent pre-installed and enabled by default. This agent collects detailed instance-level metrics (CPU, memory, disk usage, etc.) which are sent to CloudWatch.
+The Spacelift worker AMI comes with the CloudWatch Agent pre-installed and enabled by default. This agent collects detailed, process-level metrics (e.g. per-process CPU and memory usage, fine-grained disk and network stats — see the [CloudWatch Agent metrics reference](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html#linux-metrics-enabled-by-CloudWatch-agent)) as well as Spacelift-specific custom metrics configured in the AMI, which are sent to CloudWatch as custom metrics.
+
+**Note**: Standard EC2 instance metrics such as CPU utilization, network I/O, and disk I/O are reported by the EC2 hypervisor and remain visible in CloudWatch regardless of whether the CloudWatch Agent is enabled or disabled.
 
 ### Cost Implications
 
@@ -272,7 +274,7 @@ module "spacelift_workerpool" {
 When `disable_cloudwatch_agent` is set to `true`:
 1. The CloudWatch Agent service is stopped and disabled on instance startup
 2. The `CloudWatchAgentServerPolicy` IAM policy is not attached to the instance role
-3. No instance-level custom metrics are collected or sent to CloudWatch
+3. No detailed process-level or Spacelift custom metrics are collected or sent to CloudWatch (standard EC2 hypervisor metrics such as CPU utilization remain visible)
 
 **Note**: This setting only affects the CloudWatch Agent. The free Auto Scaling Group metrics (like GroupDesiredCapacity, GroupInServiceInstances, etc.) configured via the `enabled_metrics` variable are not affected.
 
