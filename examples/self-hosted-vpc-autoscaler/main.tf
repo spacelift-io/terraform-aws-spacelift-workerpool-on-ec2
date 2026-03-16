@@ -85,6 +85,11 @@ module "this" {
     triggers = ["tag", "vpc_zone_identifier"]
   }
 
+  spacelift_api_credentials = {
+    api_key_endpoint = var.spacelift_api_key_endpoint
+    api_key_id       = var.spacelift_api_key_id
+  }
+
   selfhosted_configuration = {
     s3_uri                         = "s3://example-bucketname1234/spacelift-launcher"
     run_launcher_as_spacelift_user = true
