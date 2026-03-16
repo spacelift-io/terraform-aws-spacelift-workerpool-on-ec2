@@ -69,20 +69,13 @@ module "this" {
     scale_down_delay = 5 # minutes
   }
   instance_refresh = {
-    preferences = {
-      alarm_specification          = null
-      auto_rollback                = true
-      checkpoint_delay             = null
-      checkpoint_percentages       = null
-      instance_warmup              = 180
-      min_healthy_percentage       = 100
-      max_healthy_percentage       = 100
-      scale_in_protected_instances = "Refresh"
-      skip_matching                = false
-      standby_instances            = "Ignore"
-    }
     strategy = "Rolling"
-    triggers = ["tag", "vpc_zone_identifier"]
+    preferences = {
+      instance_warmup        = 60
+      min_healthy_percentage = 50
+      max_healthy_percentage = 100
+    }
+    triggers = ["tag"]
   }
 
   spacelift_api_credentials = {
