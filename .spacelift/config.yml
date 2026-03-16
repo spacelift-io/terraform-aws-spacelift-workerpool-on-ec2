@@ -1,5 +1,5 @@
 version: 2
-module_version: 5.5.0
+module_version: 5.5.1
 
 tests:
   - name: AMD64-based workerpool
@@ -34,6 +34,13 @@ tests:
 
   - name: Self-hosted setup
     project_root: examples/self-hosted
+
+  - name: Self-hosted setup with VPC Lambdas
+    project_root: examples/self-hosted-vpc-autoscaler
+    environment:
+      TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59VOW2"
+      TF_VAR_spacelift_api_key_secret: "EXAMPLEf7anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+      TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
 
   - name: With autoscaling, lifecycle rules and BYO ssm and secretsmanager
     project_root: examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle
