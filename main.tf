@@ -54,6 +54,8 @@ module "lifecycle_manager" {
   base_name                      = local.base_name
   iam_permissions_boundary       = var.iam_permissions_boundary
   worker_pool_id                 = var.worker_pool_id
+  spacelift_vpc_subnet_ids         = var.autoscaling_vpc_subnets
+  spacelift_vpc_security_group_ids = var.autoscaling_vpc_sg_ids
   spacelift_api_credentials      = var.spacelift_api_credentials
 }
 

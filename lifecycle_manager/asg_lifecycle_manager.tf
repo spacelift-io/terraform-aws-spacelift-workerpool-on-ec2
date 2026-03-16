@@ -27,6 +27,15 @@ resource "aws_lambda_function" "this" {
   # So if this takes more than 15 seconds, something is probably wrong.
   timeout = 15
 
+  dynamic "vpc_config" {
+    for_each = var.spacelift_vpc_subnet_ids != null && var.spacelift_vpc_security_group_ids != null ? ["USE_VPC_CONFIG"] : []
+    content {
+      security_group_ids          = var.spacelift_vpc_security_group_ids
+      subnet_ids                  = var.spacelift_vpc_subnet_ids
+      ipv6_allowed_for_dual_stack = var.ipv6_allowed_for_dual_stack
+    }
+  }
+
   environment {
     variables = {
       AUTOSCALING_GROUP_ARN         = var.auto_scaling_group_arn
