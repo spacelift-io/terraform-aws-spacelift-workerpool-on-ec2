@@ -42,7 +42,7 @@ resource "aws_lambda_function" "autoscaler" {
   function_name = local.function_name
   role          = aws_iam_role.autoscaler.arn
   handler       = "bootstrap"
-  runtime       = "provided.al2"
+  runtime       = "provided.al2023"
   architectures = [var.autoscaling_configuration.architecture == "amd64" ? "x86_64" : coalesce(var.autoscaling_configuration.architecture, "x86_64")]
   timeout       = var.autoscaling_configuration.timeout != null ? var.autoscaling_configuration.timeout : 30
 
