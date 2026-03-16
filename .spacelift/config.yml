@@ -35,6 +35,9 @@ tests:
   - name: Self-hosted setup
     project_root: examples/self-hosted
 
+  - name: Self-hosted setup with VPC Lambdas
+    project_root: examples/self-hosted-vpc-autoscaler
+
   - name: With autoscaling, lifecycle rules and BYO ssm and secretsmanager
     project_root: examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle
     environment:
