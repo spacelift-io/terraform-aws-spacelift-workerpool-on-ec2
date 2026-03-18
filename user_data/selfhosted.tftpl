@@ -1,5 +1,16 @@
 #!/bin/bash
 
+disable_cloudwatch_agent () {(
+  %{ if disable_cloudwatch_agent ~}
+  echo "Stopping and disabling CloudWatch Agent" >> /var/log/spacelift/info.log
+  sudo systemctl stop amazon-cloudwatch-agent 2>>/var/log/spacelift/error.log || true
+  sudo systemctl disable amazon-cloudwatch-agent 2>>/var/log/spacelift/error.log || true
+  echo "CloudWatch Agent has been disabled" >> /var/log/spacelift/info.log
+  %{ else ~}
+  echo "CloudWatch Agent remains enabled" >> /var/log/spacelift/info.log
+  %{ endif ~}
+)}
+
 configure_permissions () {(
   set -e
   if [[ "${run_launcher_as_spacelift_user}" == "false" ]]; then
@@ -141,6 +152,7 @@ run_spacelift () {(
   fi
 )}
 
+disable_cloudwatch_agent
 configure_permissions
 download_launcher
 configure_docker

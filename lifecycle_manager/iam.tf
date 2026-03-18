@@ -30,6 +30,19 @@ data "aws_iam_policy_document" "this" {
     resources = [aws_sqs_queue.this.arn]
   }
 
+  # Allow the Lambda to take actions on NetworkInterfaces
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:CreateNetworkInterface",
+      "ec2:DeleteNetworkInterface",
+      "ec2:DescribeInstances",
+      "ec2:AttachNetworkInterface"
+    ]
+    resources = ["*"]
+  }
+
   # Allow the Lambda to read the secret from SSM Parameter Store.
   statement {
     effect    = "Allow"

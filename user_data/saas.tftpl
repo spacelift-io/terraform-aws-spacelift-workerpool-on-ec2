@@ -3,6 +3,13 @@
 spacelift () {(
   set -e
 
+  %{ if disable_cloudwatch_agent ~}
+  echo "Stopping and disabling CloudWatch Agent" >> /var/log/spacelift/info.log
+  sudo systemctl stop amazon-cloudwatch-agent 2>>/var/log/spacelift/error.log || true
+  sudo systemctl disable amazon-cloudwatch-agent 2>>/var/log/spacelift/error.log || true
+  echo "CloudWatch Agent has been disabled" >> /var/log/spacelift/info.log
+  %{ endif ~}
+
   ${custom_user_data}
 
   currentArch=$(uname -m)

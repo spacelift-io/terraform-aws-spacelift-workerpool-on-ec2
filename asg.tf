@@ -11,13 +11,15 @@ locals {
     ca_certificates                = var.selfhosted_configuration.ca_certificates == null ? [] : var.selfhosted_configuration.ca_certificates
     region                         = data.aws_region.this.region
     power_off_on_error             = var.selfhosted_configuration.power_off_on_error == null ? true : var.selfhosted_configuration.power_off_on_error
+    disable_cloudwatch_agent       = var.disable_cloudwatch_agent
   })
 
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {
-    custom_user_data = join("\n", [local.secure_env_vars, var.configuration])
-    domain_name      = var.domain_name
-    poweroff_delay   = var.poweroff_delay
-    region           = data.aws_region.this.region
+    custom_user_data         = join("\n", [local.secure_env_vars, var.configuration])
+    domain_name              = var.domain_name
+    poweroff_delay           = var.poweroff_delay
+    region                   = data.aws_region.this.region
+    disable_cloudwatch_agent = var.disable_cloudwatch_agent
   })
 }
 
