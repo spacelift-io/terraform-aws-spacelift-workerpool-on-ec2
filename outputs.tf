@@ -27,3 +27,8 @@ output "secretsmanager_secret_arn" {
   value       = aws_secretsmanager_secret.this.*.arn
   description = "ARN of the secret in Secrets Manager that holds the encrypted environment variables."
 }
+
+output "log_group_arns" {
+  description = "Map of CloudWatch Log Group names to their ARNs"
+  value       = { for name, lg in aws_cloudwatch_log_group.this : name => lg.arn }
+}
