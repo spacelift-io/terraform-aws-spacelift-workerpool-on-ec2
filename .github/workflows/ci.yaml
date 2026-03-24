@@ -24,22 +24,46 @@ jobs:
     - name: Tofu fmt
       run: tofu fmt --recursive --check
 
-    - name: Validate Lifecycle Manager
+    - name: Validate Lifecycle Manager Zip
       run: |
-        # If the ./lifecycle_manager/main.py file has been modified, make sure the zip file was rebuilt
+        ZIP="lifecycle_manager/ec2-workerpool-lifecycle-manager.zip"
+        SRC="lifecycle_manager/main.py"
+
+        # Always validate the zip — not just when main.py changes.
+        # Someone could modify the zip directly without touching the source.
+        echo "=== Validating ${ZIP} ==="
+
+        # 1. Verify the zip contains ONLY main.py (no extra/hidden files)
+        FILE_LIST=$(unzip -Z1 "${ZIP}")
+        if [ "${FILE_LIST}" != "main.py" ]; then
+          echo "ERROR: Zip contains unexpected files!"
+          echo "Expected: main.py"
+          echo "Got:"
+          unzip -Z1 "${ZIP}"
+          exit 1
+        fi
+        echo "✓ Zip contains only main.py"
+
+        # 2. Verify the extracted content matches the source
+        if cmp -s <(unzip -p "${ZIP}" main.py) "${SRC}"; then
+          echo "✓ Zip content matches source main.py"
+        else
+          echo "ERROR: Zip content does not match source main.py!"
+          echo "Diff:"
+          diff <(unzip -p "${ZIP}" main.py) "${SRC}" || true
+          echo ""
+          echo "Please rebuild: cd lifecycle_manager && ./build_lifecycle_manager.sh"
+          exit 1
+        fi
+
+        # 3. If main.py was modified, verify the zip was also updated
         if git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -q "lifecycle_manager/main.py"; then
-          echo "Lifecycle Manager main.py has been modified, checking zip file..."
-          cd lifecycle_manager
-          
-          # Check if the committed zip contains the current main.py content
-          if cmp -s <(unzip -p ec2-workerpool-lifecycle-manager.zip main.py) <(cat main.py); then
-            echo "Lifecycle Manager zip file contains the current main.py content."
-          else
-            echo "ERROR: Lifecycle Manager zip file is not up to date!"
-            echo "The zip file content doesn't match the current main.py."
-            echo "Please rebuild the zip file using './build_lifecycle_manager.sh' and commit the updated zip."
+          if ! git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -q "lifecycle_manager/ec2-workerpool-lifecycle-manager.zip"; then
+            echo "ERROR: main.py was modified but the zip was not updated!"
+            echo "Please rebuild: cd lifecycle_manager && ./build_lifecycle_manager.sh"
             exit 1
           fi
-        else
-          echo "Lifecycle Manager main.py has not been modified, skipping zip file check."
+          echo "✓ Both main.py and zip were updated together"
         fi
+
+        echo "=== Lifecycle Manager zip validation passed ==="
