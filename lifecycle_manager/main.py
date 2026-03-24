@@ -1,6 +1,7 @@
 import json
 import urllib.request
 import boto3
+import botocore.exceptions
 import os
 
 sqs = boto3.client('sqs')
@@ -111,13 +112,20 @@ def drain_worker(worker, token):
         return True
 
 def complete_hook(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id):
-    status = autoscaling.complete_lifecycle_action(
-        LifecycleHookName=lifecycle_hook_name,
-        AutoScalingGroupName=autoscaling_group_name,
-        LifecycleActionToken=lifecycle_action_token,
-        LifecycleActionResult="CONTINUE",
-        InstanceId=instance_id
-    )
+    try:
+        status = autoscaling.complete_lifecycle_action(
+            LifecycleHookName=lifecycle_hook_name,
+            AutoScalingGroupName=autoscaling_group_name,
+            LifecycleActionToken=lifecycle_action_token,
+            LifecycleActionResult="CONTINUE",
+            InstanceId=instance_id
+        )
+    except botocore.exceptions.ClientError as e:
+        if e.response["Error"]["Code"] == "ValidationError":
+            print(f"Lifecycle action no longer active for instance {instance_id}. Instance will be terminated by hook timeout.")
+            return True
+        raise
+
     if "ResponseMetadata" in status and "HTTPStatusCode" in status["ResponseMetadata"]:
         if status["ResponseMetadata"]["HTTPStatusCode"] == 200:
             print(f"Lifecycle hook completed successfully for instance {instance_id}.")
