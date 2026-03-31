@@ -407,6 +407,19 @@ variable "extra_iam_statements" {
   default     = []
 }
 
+variable "lifecycle_manager_allow_recursive_loop" {
+  description = <<EOF
+  Whether to allow the lifecycle manager Lambda to invoke itself recursively via SQS.
+  The lifecycle manager intentionally re-queues messages to the same SQS queue when a worker
+  is busy and cannot yet be drained. AWS Lambda's recursive loop detection treats this pattern
+  as a runaway loop and will terminate invocations, cutting short the drain retry chain.
+  Defaults to true since the retry pattern is intentional and already bounded (30-retry cap, ~45 min max).
+  See: https://docs.aws.amazon.com/lambda/latest/dg/invocation-recursion.html
+  EOF
+  type        = bool
+  default     = true
+}
+
 variable "disable_cloudwatch_agent" {
   description = <<EOF
   If true, the CloudWatch Agent (pre-installed in the AMI) will be stopped and disabled on instance startup.

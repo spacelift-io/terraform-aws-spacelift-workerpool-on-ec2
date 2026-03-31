@@ -56,7 +56,7 @@ resource "aws_lambda_event_source_mapping" "this" {
 
 resource "aws_lambda_function_recursion_config" "this" {
   function_name  = aws_lambda_function.this.function_name
-  recursive_loop = "Allow"
+  recursive_loop = var.allow_recursive_loop ? "Allow" : "Terminate"
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {

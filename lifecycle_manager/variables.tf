@@ -75,3 +75,16 @@ variable "ipv6_allowed_for_dual_stack" {
   type        = bool
   default     = null
 }
+
+variable "allow_recursive_loop" {
+  description = <<EOF
+  Whether to allow the lifecycle manager Lambda to invoke itself recursively via SQS.
+  The lifecycle manager intentionally re-queues messages to the same SQS queue when a worker
+  is busy and cannot yet be drained. AWS Lambda's recursive loop detection treats this pattern
+  as a runaway loop and will terminate invocations, cutting short the drain retry chain.
+  Defaults to true since the retry pattern is intentional and already bounded (30-retry cap, ~45 min max).
+  See: https://docs.aws.amazon.com/lambda/latest/dg/invocation-recursion.html
+  EOF
+  type        = bool
+  default     = true
+}
