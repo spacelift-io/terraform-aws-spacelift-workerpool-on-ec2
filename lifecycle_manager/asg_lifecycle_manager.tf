@@ -54,6 +54,11 @@ resource "aws_lambda_event_source_mapping" "this" {
   event_source_arn = aws_sqs_queue.this.arn
 }
 
+resource "aws_lambda_function_recursion_config" "this" {
+  function_name  = aws_lambda_function.this.function_name
+  recursive_loop = "Allow"
+}
+
 resource "aws_cloudwatch_log_group" "log_group" {
   name              = "/aws/lambda/${local.name}"
   retention_in_days = var.cloudwatch_log_group_retention
