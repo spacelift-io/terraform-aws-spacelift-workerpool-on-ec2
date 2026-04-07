@@ -75,3 +75,8 @@ variable "ipv6_allowed_for_dual_stack" {
   type        = bool
   default     = null
 }
+
+variable "lifecycle_hook_timeout" {
+  description = "Timeout of the ASG lifecycle hook in seconds. The Lambda will stop retrying drain attempts after this period since the hook will have already expired."
+  type        = number
+}

@@ -3,6 +3,7 @@ import urllib.request
 import boto3
 import botocore.exceptions
 import os
+import time
 
 sqs = boto3.client('sqs')
 autoscaling = boto3.client('autoscaling')
@@ -13,6 +14,7 @@ domain = os.environ.get("SPACELIFT_API_KEY_ENDPOINT", None)
 api_key_id = os.environ.get("SPACELIFT_API_KEY_ID", None)
 worker_pool_id = os.environ.get("SPACELIFT_WORKER_POOL_ID", None)
 queue_url = os.environ.get("QUEUE_URL", None)
+lifecycle_hook_timeout = int(os.environ.get("LIFECYCLE_HOOK_TIMEOUT", 0))
 
 DRAIN_FAILURE = "DRAIN_FAILURE"
 HOOK_FAILURE = "HOOK_FAILURE"
@@ -146,6 +148,9 @@ def put_message_back_on_queue(event):
     if delay_seconds >= 15 * 60:
         delay_seconds = 15 * 60
 
+    if "start_time" not in event:
+        event["start_time"] = time.time()
+
     event["retry"] = {
         "delay_seconds": delay_seconds,
         "retry": retry
@@ -156,6 +161,12 @@ def put_message_back_on_queue(event):
         # This is a safety net to prevent infinite retries
         print("Max retries reached. Not retrying. Dropping Message")
         return
+
+    if lifecycle_hook_timeout > 0:
+        elapsed = time.time() - event["start_time"]
+        if elapsed + delay_seconds > lifecycle_hook_timeout:
+            print(f"Next retry would exceed lifecycle hook timeout ({lifecycle_hook_timeout}s). Elapsed: {elapsed:.0f}s, next delay: {delay_seconds}s. Dropping message.")
+            return
 
     print(f"Retrying event in {delay_seconds} seconds.")
     sqs.send_message(
