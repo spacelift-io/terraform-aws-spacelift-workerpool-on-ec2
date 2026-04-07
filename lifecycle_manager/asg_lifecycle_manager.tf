@@ -45,6 +45,7 @@ resource "aws_lambda_function" "this" {
       SPACELIFT_API_KEY_ENDPOINT    = var.spacelift_api_credentials.api_key_endpoint
       SPACELIFT_WORKER_POOL_ID      = var.worker_pool_id
       QUEUE_URL                     = aws_sqs_queue.this.url
+      LIFECYCLE_HOOK_TIMEOUT        = var.lifecycle_hook_timeout
     }
   }
 }
