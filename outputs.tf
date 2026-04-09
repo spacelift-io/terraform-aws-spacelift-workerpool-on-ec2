@@ -27,3 +27,8 @@ output "secretsmanager_secret_arn" {
   value       = aws_secretsmanager_secret.this.*.arn
   description = "ARN of the secret in Secrets Manager that holds the encrypted environment variables."
 }
+
+output "autoscaler_log_group_name" {
+  value       = local.autoscaling_enabled ? module.autoscaler[0].log_group_name : null
+  description = "Name of the CloudWatch log group for the autoscaler Lambda. Null when autoscaling is disabled."
+}
