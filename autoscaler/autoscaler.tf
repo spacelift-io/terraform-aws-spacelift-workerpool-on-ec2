@@ -1,21 +1,36 @@
+# When no version is pinned, resolve "latest" to a concrete release tag
+# (e.g. "v2.4.0") via the GitHub API. This gives the null_resource trigger
+# a stable value that only changes when a new release is actually published.
+data "http" "latest_release" {
+  count = var.autoscaling_configuration.version == null && var.autoscaling_configuration.s3_package == null ? 1 : 0
+  url   = "https://api.github.com/repos/spacelift-io/ec2-workerpool-autoscaler/releases/latest"
+
+  request_headers = {
+    Accept = "application/vnd.github+json"
+  }
+
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Failed to fetch latest autoscaler release from GitHub (HTTP ${self.status_code}). Pin the version explicitly via autoscaling_configuration.version to avoid this dependency."
+    }
+  }
+}
+
 locals {
   download_folder    = var.worker_pool_id # Unique folder name to avoid race conditions when downloading the archive in parallel
   architecture       = coalesce(var.autoscaling_configuration.architecture, "amd64")
   autoscaler_zip     = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
   function_name      = "${var.base_name}-ec2-autoscaler"
   use_s3_package     = var.autoscaling_configuration.s3_package != null
-  autoscaler_version = coalesce(var.autoscaling_configuration.version, "latest")
+  autoscaler_version = coalesce(var.autoscaling_configuration.version, try(jsondecode(data.http.latest_release[0].response_body).tag_name, null))
 }
 
 resource "null_resource" "download" {
   count = !local.use_s3_package ? 1 : 0
   triggers = {
-    # Always re-download the archive file if the version is set to "latest" or if the file does not exist
-    keeper = (
-      local.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip)
-      ? timestamp()
-      : local.autoscaler_version
-    )
+    # Re-download when the version changes or the zip file has been deleted.
+    keeper = !fileexists(local.autoscaler_zip) ? timestamp() : local.autoscaler_version
   }
 
   provisioner "local-exec" {
