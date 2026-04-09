@@ -23,7 +23,7 @@ locals {
   autoscaler_zip     = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
   function_name      = "${var.base_name}-ec2-autoscaler"
   use_s3_package     = var.autoscaling_configuration.s3_package != null
-  autoscaler_version = coalesce(var.autoscaling_configuration.version, try(jsondecode(data.http.latest_release[0].response_body).tag_name, null))
+  autoscaler_version = coalesce(var.autoscaling_configuration.version, try(jsondecode(data.http.latest_release[0].response_body).tag_name, null), "latest")
 }
 
 resource "null_resource" "download" {
