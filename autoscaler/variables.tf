@@ -98,3 +98,9 @@ variable "ipv6_allowed_for_dual_stack" {
   type        = bool
   default     = null
 }
+
+variable "extra_env" {
+  description = "Additional environment variables to pass to the autoscaler Lambda function."
+  type        = map(string)
+  default     = {}
+}
