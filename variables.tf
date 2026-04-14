@@ -325,6 +325,12 @@ variable "autoscaling_configuration" {
   default = null
 }
 
+variable "autoscaler_extra_env" {
+  description = "Additional environment variables to pass to the autoscaler Lambda function. Values override defaults if keys conflict."
+  type        = map(string)
+  default     = {}
+}
+
 variable "autoscaling_vpc_subnets" {
   description = "List of VPC subnets to use for the autoscaler Lambda function."
   type        = list(string)
