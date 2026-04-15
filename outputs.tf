@@ -32,3 +32,8 @@ output "autoscaler_log_group_name" {
   value       = local.autoscaling_enabled ? module.autoscaler[0].log_group_name : null
   description = "Name of the CloudWatch log group for the autoscaler Lambda. Null when autoscaling is disabled."
 }
+
+output "log_group_arns" {
+  description = "Map of worker CloudWatch Log Group names to their ARNs."
+  value       = { for name, lg in aws_cloudwatch_log_group.this : name => lg.arn }
+}
