@@ -76,9 +76,7 @@ resource "aws_ssm_parameter" "byo" {
 module "this" {
   source = "../../"
 
-  security_groups = [data.aws_security_group.this.id]
-  vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_string.worker_pool_id.id
+  worker_pool_id = random_string.worker_pool_id.id
 
   byo_secretsmanager = {
     name = aws_secretsmanager_secret.byo.name
@@ -88,11 +86,13 @@ module "this" {
       "SPACELIFT_POOL_PRIVATE_KEY"
     ]
   }
-
   byo_ssm = {
     name = aws_ssm_parameter.byo.name
     arn  = aws_ssm_parameter.byo.arn
   }
+
+  security_groups = [data.aws_security_group.this.id]
+  vpc_subnets     = data.aws_subnets.this.ids
 
   autoscaling_configuration = {
     max_create          = 5
@@ -101,7 +101,6 @@ module "this" {
     schedule_expression = "rate(1 minute)"
     timeout             = 60
   }
-
   spacelift_api_credentials = {
     api_key_endpoint = var.spacelift_api_key_endpoint
     api_key_id       = var.spacelift_api_key_id

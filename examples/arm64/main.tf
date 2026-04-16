@@ -52,6 +52,8 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
+  worker_pool_id = random_string.worker_pool_id.id
+
   configuration = <<-EOT
     export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
   EOT
@@ -59,13 +61,15 @@ module "this" {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
-  manage_log_groups = false
-  ami_architecture  = "arm64"
+
+  security_groups = [data.aws_security_group.this.id]
+  vpc_subnets     = data.aws_subnets.this.ids
+
+  ami_architecture = "arm64"
   # t4g.micro is just for using the random provider and a few resources.
   # If you are using more than a few resources as well as memory intensive providers it's recommended to use a t4g.medium or at least a t4g.small
   # https://docs.spacelift.io/concepts/worker-pools#hardware-recommendations
   ec2_instance_type = "t4g.micro"
-  security_groups   = [data.aws_security_group.this.id]
-  vpc_subnets       = data.aws_subnets.this.ids
-  worker_pool_id    = random_string.worker_pool_id.id
+
+  manage_log_groups = false
 }

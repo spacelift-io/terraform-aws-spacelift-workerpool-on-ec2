@@ -52,13 +52,15 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
+  worker_pool_id = random_string.worker_pool_id.id
+
   secure_env_vars = {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
+
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_string.worker_pool_id.id
 
   selfhosted_configuration = {
     s3_uri                         = "s3://example-bucketname1234/spacelift-launcher"
@@ -82,5 +84,6 @@ EOT
     ]
     power_off_on_error = true
   }
+
   manage_log_groups = false
 }

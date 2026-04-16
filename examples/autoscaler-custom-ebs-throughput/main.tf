@@ -52,18 +52,20 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
+  worker_pool_id = random_string.worker_pool_id.id
+
   secure_env_vars = {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
+
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_string.worker_pool_id.id
 
-  # Autoscaler VPC configuration
+  volume_throughput = 250
+
   autoscaling_vpc_sg_ids  = [data.aws_security_group.this.id]
   autoscaling_vpc_subnets = data.aws_subnets.this.ids
-
   autoscaling_configuration = {
     max_create          = 5
     max_terminate       = 5
@@ -72,7 +74,6 @@ module "this" {
     timeout             = 60
     scale_down_delay    = 5
   }
-
   spacelift_api_credentials = {
     api_key_endpoint = var.spacelift_api_key_endpoint
     api_key_id       = var.spacelift_api_key_id
@@ -90,5 +91,4 @@ module "this" {
   }
 
   manage_log_groups = false
-  volume_throughput = 250
 }
