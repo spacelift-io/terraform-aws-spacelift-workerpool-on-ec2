@@ -52,13 +52,15 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
+  worker_pool_id = random_string.worker_pool_id.id
+
   secure_env_vars = {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
+
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_string.worker_pool_id.id
 
   autoscaling_configuration = {
     version = var.autoscaler_version
@@ -67,11 +69,11 @@ module "this" {
       key    = aws_s3_object.autoscaler_binary.key
     }
   }
-
-  manage_log_groups = false
   spacelift_api_credentials = {
     api_key_endpoint = var.spacelift_api_key_endpoint
     api_key_id       = var.spacelift_api_key_id
     api_key_secret   = var.spacelift_api_key_secret
   }
+
+  manage_log_groups = false
 }

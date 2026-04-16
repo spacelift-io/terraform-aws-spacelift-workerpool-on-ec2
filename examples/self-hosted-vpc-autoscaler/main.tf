@@ -52,36 +52,27 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
+  worker_pool_id = random_string.worker_pool_id.id
+
   secure_env_vars = {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
+
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_string.worker_pool_id.id
 
   autoscaling_vpc_sg_ids  = [data.aws_security_group.this.id]
   autoscaling_vpc_subnets = data.aws_subnets.this.ids
-
   autoscaling_configuration = {
     max_create       = 2
     max_terminate    = 2
     scale_down_delay = 5 # minutes
   }
-  instance_refresh = {
-    strategy = "Rolling"
-    preferences = {
-      instance_warmup        = 60
-      min_healthy_percentage = 50
-      max_healthy_percentage = 100
-    }
-    triggers = ["tag"]
-  }
-
   spacelift_api_credentials = {
     api_key_endpoint = var.spacelift_api_key_endpoint
-    api_key_secret   = var.spacelift_api_key_secret
     api_key_id       = var.spacelift_api_key_id
+    api_key_secret   = var.spacelift_api_key_secret
   }
 
   selfhosted_configuration = {
@@ -106,5 +97,16 @@ EOT
     ]
     power_off_on_error = true
   }
+
+  instance_refresh = {
+    strategy = "Rolling"
+    preferences = {
+      instance_warmup        = 60
+      min_healthy_percentage = 50
+      max_healthy_percentage = 100
+    }
+    triggers = ["tag"]
+  }
+
   manage_log_groups = false
 }

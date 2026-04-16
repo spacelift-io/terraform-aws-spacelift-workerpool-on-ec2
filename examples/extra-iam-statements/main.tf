@@ -52,6 +52,8 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
+  worker_pool_id = random_string.worker_pool_id.id
+
   configuration = <<-EOT
     export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
     export SPACELIFT_LAUNCHER_RUN_TIMEOUT=120m
@@ -60,12 +62,14 @@ module "this" {
     SPACELIFT_TOKEN            = "<token-here>"
     SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
   }
+
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
-  worker_pool_id  = random_string.worker_pool_id.id
+
   extra_iam_statements = [
     data.aws_iam_policy_document.extra.json,
   ]
+
   manage_log_groups = false
 }
 
