@@ -433,3 +433,9 @@ variable "disable_cloudwatch_agent" {
   type        = bool
   default     = false
 }
+
+variable "manage_log_groups" {
+  description = "Whether to manage the CloudWatch Log Group for the worker instances. If false, the log group must be managed by the caller."
+  type        = bool
+  default     = true
+}

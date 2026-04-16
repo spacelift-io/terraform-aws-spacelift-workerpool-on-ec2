@@ -2,7 +2,7 @@
 # Spacelift worker AMI (https://github.com/spacelift-io/spacelift-worker-image).
 
 locals {
-  log_groups = toset(["spacelift-info.log", "spacelift-errors.log"])
+  log_groups = var.manage_log_groups ? toset(["spacelift-info.log", "spacelift-errors.log"]) : []
 }
 
 resource "aws_cloudwatch_log_group" "this" {

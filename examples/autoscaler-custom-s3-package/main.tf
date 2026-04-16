@@ -68,6 +68,7 @@ module "this" {
     }
   }
 
+  manage_log_groups = false
   spacelift_api_credentials = {
     api_key_endpoint = var.spacelift_api_key_endpoint
     api_key_id       = var.spacelift_api_key_id

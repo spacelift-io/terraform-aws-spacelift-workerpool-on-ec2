@@ -66,6 +66,7 @@ module "this" {
   extra_iam_statements = [
     data.aws_iam_policy_document.extra.json,
   ]
+  manage_log_groups = false
 }
 
 data "aws_iam_policy_document" "extra" {

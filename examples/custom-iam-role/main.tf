@@ -90,4 +90,5 @@ module "this" {
   security_groups      = [data.aws_security_group.this.id]
   vpc_subnets          = data.aws_subnets.this.ids
   worker_pool_id       = random_string.worker_pool_id.id
+  manage_log_groups    = false
 }

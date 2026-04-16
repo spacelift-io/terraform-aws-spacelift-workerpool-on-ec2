@@ -79,6 +79,8 @@ module "this" {
     api_key_secret   = var.spacelift_api_key_secret
   }
 
+  manage_log_groups = false
+
   instance_refresh = {
     strategy = "Rolling"
     preferences = {

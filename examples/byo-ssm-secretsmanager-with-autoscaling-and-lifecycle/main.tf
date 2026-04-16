@@ -116,4 +116,6 @@ module "this" {
     }
     triggers = ["tag"]
   }
+
+  manage_log_groups = false
 }
