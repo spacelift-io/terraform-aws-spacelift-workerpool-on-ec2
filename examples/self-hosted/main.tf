@@ -82,4 +82,5 @@ EOT
     ]
     power_off_on_error = true
   }
+  manage_log_groups = false
 }

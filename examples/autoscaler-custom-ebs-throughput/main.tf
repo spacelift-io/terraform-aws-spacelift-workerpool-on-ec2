@@ -89,5 +89,6 @@ module "this" {
     triggers = ["tag"]
   }
 
+  manage_log_groups = false
   volume_throughput = 250
 }

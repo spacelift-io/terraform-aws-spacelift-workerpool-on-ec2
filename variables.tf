@@ -402,9 +402,21 @@ variable "spacelift_api_credentials" {
 }
 
 variable "cloudwatch_log_group_retention" {
-  description = "Retention period for the autoscaler and lifecycle manager cloudwatch log group."
+  description = "Retention period for the autoscaler, lifecycle manager, and worker CloudWatch Log Groups."
   type        = number
-  default     = 7
+  default     = 60
+}
+
+variable "cloudwatch_kms_key_id" {
+  description = "ARN of the KMS Key to use for encrypting CloudWatch Log Groups."
+  type        = string
+  default     = null
+}
+
+variable "cloudwatch_log_group_class" {
+  description = "The log class of the CloudWatch Log Groups."
+  type        = string
+  default     = null
 }
 
 variable "extra_iam_statements" {
@@ -426,4 +438,10 @@ variable "disable_cloudwatch_agent" {
   EOF
   type        = bool
   default     = false
+}
+
+variable "manage_log_groups" {
+  description = "Whether to manage the CloudWatch Log Group for the worker instances. If false, the log group must be managed by the caller."
+  type        = bool
+  default     = true
 }

@@ -64,6 +64,8 @@ module "this" {
   vpc_subnets     = data.aws_subnets.this.ids
   worker_pool_id  = random_string.worker_pool_id.id
 
+  manage_log_groups = false
+
   tag_specifications = [
     {
       resource_type = "instance"

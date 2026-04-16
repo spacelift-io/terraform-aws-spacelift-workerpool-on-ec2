@@ -64,4 +64,5 @@ module "this" {
   instance_market_options = {
     market_type = "spot"
   }
+  manage_log_groups = false
 }
