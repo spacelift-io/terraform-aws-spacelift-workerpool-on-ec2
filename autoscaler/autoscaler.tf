@@ -19,7 +19,7 @@ resource "null_resource" "download" {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${local.autoscaler_version} ${local.architecture} ${local.download_folder}"
+    command = "chmod +x ${path.module}/download.sh && ${path.module}/download.sh ${local.autoscaler_version} ${local.architecture} ${local.download_folder}"
   }
 }
 
