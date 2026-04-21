@@ -295,7 +295,7 @@ variable "additional_tags" {
 variable "autoscaling_configuration" {
   description = <<EOF
   Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
-  - version: Version of the autoscaler to deploy (e.g. "v2.4.0"). Set to "latest" to auto-resolve the newest release via the GitHub API. Set GITHUB_TOKEN in the environment to avoid rate limits.
+  - version: (optional) Version of the autoscaler to deploy (e.g. "v2.4.0"). Set to "latest" to auto-resolve the newest release via the GitHub API. Set GITHUB_TOKEN in the environment to avoid rate limits.
   - architecture: (optional) Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
   - schedule_expression: (optional) Autoscaler scheduling expression. Default: rate(1 minute).
   - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
