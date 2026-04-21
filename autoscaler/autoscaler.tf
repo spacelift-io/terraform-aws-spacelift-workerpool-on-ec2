@@ -4,35 +4,64 @@ locals {
   autoscaler_zip     = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
   function_name      = "${var.base_name}-ec2-autoscaler"
   use_s3_package     = var.autoscaling_configuration.s3_package != null
-  autoscaler_version = coalesce(var.autoscaling_configuration.version, "latest")
+  resolve_latest     = var.autoscaling_configuration.version == "latest"
+  autoscaler_version = local.resolve_latest ? jsondecode(data.http.latest_release[0].response_body).tag_name : var.autoscaling_configuration.version
+}
+
+# When version = "latest", resolve to a concrete release tag via the GitHub API.
+# Returns a deterministic tag for a given release state — no drift.
+# A new plan after a release is published picks up the new tag automatically.
+data "http" "latest_release" {
+  count = !local.use_s3_package && local.resolve_latest ? 1 : 0
+  url   = "https://api.github.com/repos/spacelift-io/ec2-workerpool-autoscaler/releases/latest"
+
+  request_headers = merge(
+    { Accept = "application/vnd.github+json" },
+    local.github_auth_header,
+  )
+
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Failed to fetch latest release (HTTP ${self.status_code}). If rate-limited, set GITHUB_TOKEN in the environment or pin a specific version."
+    }
+  }
+}
+
+locals {
+  github_auth_header = local.github_token != "" ? { Authorization = "Bearer ${local.github_token}" } : {}
+  github_token       = local.resolve_latest && !local.use_s3_package ? data.external.github_token[0].result.token : ""
+}
+
+data "external" "github_token" {
+  count   = !local.use_s3_package && local.resolve_latest ? 1 : 0
+  program = ["sh", "-c", "jq -n --arg token \"$GITHUB_TOKEN\" '{token: $token}'"]
 }
 
 resource "null_resource" "download" {
   count = !local.use_s3_package ? 1 : 0
   triggers = {
-    # Always re-download the archive file if the version is set to "latest" or if the file does not exist
-    keeper = (
-      local.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip)
-      ? timestamp()
-      : local.autoscaler_version
-    )
+    version = local.autoscaler_version
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${local.autoscaler_version} ${local.architecture} ${local.download_folder}"
+    command = <<-EOT
+      mkdir -p ${local.download_folder}
+      curl -sL -o ${local.autoscaler_zip} \
+        https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${local.autoscaler_version}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip
+    EOT
   }
 }
 
-data "local_file" "autoscaler_zip" {
-  count      = !local.use_s3_package ? 1 : 0
-  depends_on = [null_resource.download]
-  filename   = local.autoscaler_zip
-}
-
 resource "aws_lambda_function" "autoscaler" {
-  # If we don't use a custom S3 package, we use the downloaded binary
-  filename         = !local.use_s3_package ? data.local_file.autoscaler_zip[0].filename : null
-  source_code_hash = !local.use_s3_package ? data.local_file.autoscaler_zip[0].content_base64sha256 : null
+  depends_on = [null_resource.download]
+
+  # If we don't use a custom S3 package, we use the downloaded binary.
+  # source_code_hash uses the version string rather than the file hash to avoid
+  # reading the file at plan time — the file only exists after the download
+  # provisioner runs during apply.
+  filename         = !local.use_s3_package ? local.autoscaler_zip : null
+  source_code_hash = !local.use_s3_package ? base64sha256(local.autoscaler_version) : null
 
   # If we use a custom S3 package, we use the provided bucket / key / object version
   s3_bucket         = local.use_s3_package ? var.autoscaling_configuration.s3_package.bucket : null
