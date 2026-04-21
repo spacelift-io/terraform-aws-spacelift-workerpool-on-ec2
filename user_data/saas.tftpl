@@ -1,6 +1,6 @@
 #!/bin/bash
 
-spacelift () {(
+setup() {
   set -e
 
   %{ if disable_cloudwatch_agent ~}
@@ -31,7 +31,7 @@ spacelift () {(
       fi
     fi
   fi
-  
+
   baseURL="https://downloads.${domain_name}/spacelift-launcher$fedrampSuffix"
   binaryURL=$(printf "%s-%s" "$baseURL" "$currentArch")
   shaSumURL=$(printf "%s-%s_%s" "$baseURL" "$currentArch" "SHA256SUMS")
@@ -93,13 +93,40 @@ spacelift () {(
   export SPACELIFT_METADATA_asg_id=$(aws autoscaling --region=${region} describe-auto-scaling-instances --instance-ids $SPACELIFT_METADATA_instance_id | jq -r '.AutoScalingInstances[0].AutoScalingGroupName')
   validate_metadata "$SPACELIFT_METADATA_asg_id" "asg_id" || return 1
 
-  echo "Starting the Spacelift binary" >> /var/log/spacelift/info.log
-  /usr/bin/spacelift-launcher 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
-)}
+  # Write environment file for the systemd service.
+  # Dump the full environment so the launcher inherits everything the setup
+  # function exported, including non-SPACELIFT_ vars that users may set via
+  # var.configuration (e.g. HTTP_PROXY, ADDITIONAL_ROOT_CAS).
+  mkdir -p /etc/spacelift
+  env > /etc/spacelift/env
+  chmod 600 /etc/spacelift/env
 
-# Reset the errexit option so if for some reason the `spacelift` binary stops, the poweroff should be run.
-set +e
-spacelift
-echo "Powering off in ${poweroff_delay} seconds" >> /var/log/spacelift/error.log
-sleep ${poweroff_delay}
-poweroff
+  # Create systemd service unit
+  cat > /etc/systemd/system/spacelift-launcher.service <<UNIT
+[Unit]
+Description=Spacelift Launcher
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/spacelift/env
+ExecStart=/usr/bin/spacelift-launcher
+ExecStopPost=/bin/sh -c 'sleep ${poweroff_delay} && poweroff'
+KillMode=control-group
+TimeoutStopSec=30
+StandardOutput=append:/var/log/spacelift/info.log
+StandardError=append:/var/log/spacelift/error.log
+Restart=no
+UNIT
+
+  systemctl daemon-reload
+  systemctl start spacelift-launcher
+  echo "Spacelift launcher started as systemd service" >> /var/log/spacelift/info.log
+}
+
+if ! setup; then
+  echo "Setup failed, powering off in ${poweroff_delay} seconds" >> /var/log/spacelift/error.log
+  sleep ${poweroff_delay}
+  poweroff
+fi
