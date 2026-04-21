@@ -10,7 +10,6 @@ locals {
 resource "null_resource" "download" {
   count = !local.use_s3_package ? 1 : 0
   triggers = {
-    # Renaming from "keeper" forces a one-time re-download on module upgrade.
     version = local.autoscaler_version
   }
 
