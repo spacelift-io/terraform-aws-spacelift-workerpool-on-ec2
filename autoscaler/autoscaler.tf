@@ -59,7 +59,7 @@ resource "null_resource" "download" {
   provisioner "local-exec" {
     command = <<-EOT
       mkdir -p ${local.download_folder}
-      curl -sL -o ${local.autoscaler_zip} \
+      curl -sfL -o ${local.autoscaler_zip} \
         https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${local.autoscaler_version}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip
     EOT
   }
