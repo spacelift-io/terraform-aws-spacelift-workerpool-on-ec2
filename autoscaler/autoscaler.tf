@@ -15,7 +15,7 @@ resource "null_resource" "download" {
   }
 
   provisioner "local-exec" {
-    command = "${path.module}/download.sh ${local.autoscaler_version} ${local.architecture} ${local.download_folder}"
+    command = "mkdir -p ${local.download_folder} && curl -sL -o ${local.autoscaler_zip} https://github.com/spacelift-io/ec2-workerpool-autoscaler/releases/download/${local.autoscaler_version}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
   }
 }
 
