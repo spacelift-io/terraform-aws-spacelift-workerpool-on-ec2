@@ -28,6 +28,10 @@ data "http" "latest_release" {
   }
 }
 
+# Read GITHUB_TOKEN from the environment to authenticate GitHub API requests.
+# This env var was used by the previous download.sh script; keeping it avoids
+# breaking existing setups. Optional — unauthenticated requests work but have
+# lower rate limits.
 data "external" "github_auth_header" {
   count = !local.use_s3_package && local.resolve_latest ? 1 : 0
   program = [
