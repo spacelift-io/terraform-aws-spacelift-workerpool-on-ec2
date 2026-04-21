@@ -28,14 +28,22 @@ data "http" "latest_release" {
   }
 }
 
-locals {
-  github_auth_header = local.github_token != "" ? { Authorization = "Bearer ${local.github_token}" } : {}
-  github_token       = local.resolve_latest && !local.use_s3_package ? data.external.github_token[0].result.token : ""
+data "external" "github_auth_header" {
+  count = !local.use_s3_package && local.resolve_latest ? 1 : 0
+  program = [
+    "sh", "-c",
+    <<-EOT
+      if [ -n "$GITHUB_TOKEN" ]; then
+        printf '{"Authorization":"Bearer %s"}' "$GITHUB_TOKEN"
+      else
+        printf '{}'
+      fi
+    EOT
+  ]
 }
 
-data "external" "github_token" {
-  count   = !local.use_s3_package && local.resolve_latest ? 1 : 0
-  program = ["sh", "-c", "jq -n --arg token \"$GITHUB_TOKEN\" '{token: $token}'"]
+locals {
+  github_auth_header = !local.use_s3_package && local.resolve_latest ? data.external.github_auth_header[0].result : {}
 }
 
 resource "null_resource" "download" {
