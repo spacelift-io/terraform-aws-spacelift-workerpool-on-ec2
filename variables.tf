@@ -295,7 +295,7 @@ variable "additional_tags" {
 variable "autoscaling_configuration" {
   description = <<EOF
   Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
-  - version: (optional) Version of the autoscaler to deploy.
+  - version: Version of the autoscaler to deploy (e.g. "v2.4.0").
   - architecture: (optional) Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
   - schedule_expression: (optional) Autoscaler scheduling expression. Default: rate(1 minute).
   - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
@@ -309,7 +309,7 @@ variable "autoscaling_configuration" {
   EOF
 
   type = object({
-    version             = optional(string)
+    version             = string
     architecture        = optional(string)
     schedule_expression = optional(string)
     max_create          = optional(number)
@@ -323,6 +323,16 @@ variable "autoscaling_configuration" {
     scale_down_delay = optional(number)
   })
   default = null
+
+  validation {
+    condition     = var.autoscaling_configuration == null || var.autoscaling_configuration.version != "latest"
+    error_message = "version = \"latest\" is not supported. Pin to a specific release tag (e.g. \"v2.5.0\")."
+  }
+
+  validation {
+    condition     = var.autoscaling_configuration == null || var.autoscaling_configuration.version == "latest" || startswith(var.autoscaling_configuration.version, "v")
+    error_message = "version must be a release tag starting with \"v\" (e.g. \"v2.5.0\")."
+  }
 }
 
 variable "autoscaler_extra_env" {

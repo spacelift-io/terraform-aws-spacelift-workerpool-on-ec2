@@ -4,18 +4,14 @@ locals {
   autoscaler_zip     = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
   function_name      = "${var.base_name}-ec2-autoscaler"
   use_s3_package     = var.autoscaling_configuration.s3_package != null
-  autoscaler_version = coalesce(var.autoscaling_configuration.version, "latest")
+  autoscaler_version = var.autoscaling_configuration.version
 }
 
 resource "null_resource" "download" {
   count = !local.use_s3_package ? 1 : 0
   triggers = {
-    # Always re-download the archive file if the version is set to "latest" or if the file does not exist
-    keeper = (
-      local.autoscaler_version == "latest" || !fileexists(local.autoscaler_zip)
-      ? timestamp()
-      : local.autoscaler_version
-    )
+    # Renaming from "keeper" forces a one-time re-download on module upgrade.
+    version = local.autoscaler_version
   }
 
   provisioner "local-exec" {
@@ -23,16 +19,15 @@ resource "null_resource" "download" {
   }
 }
 
-data "local_file" "autoscaler_zip" {
-  count      = !local.use_s3_package ? 1 : 0
-  depends_on = [null_resource.download]
-  filename   = local.autoscaler_zip
-}
-
 resource "aws_lambda_function" "autoscaler" {
-  # If we don't use a custom S3 package, we use the downloaded binary
-  filename         = !local.use_s3_package ? data.local_file.autoscaler_zip[0].filename : null
-  source_code_hash = !local.use_s3_package ? data.local_file.autoscaler_zip[0].content_base64sha256 : null
+  depends_on = [null_resource.download]
+
+  # If we don't use a custom S3 package, we use the downloaded binary.
+  # source_code_hash uses the version string rather than the file hash to avoid
+  # reading the file at plan time — the file only exists after the download
+  # provisioner runs during apply.
+  filename         = !local.use_s3_package ? local.autoscaler_zip : null
+  source_code_hash = !local.use_s3_package ? base64sha256(local.autoscaler_version) : null
 
   # If we use a custom S3 package, we use the provided bucket / key / object version
   s3_bucket         = local.use_s3_package ? var.autoscaling_configuration.s3_package.bucket : null
