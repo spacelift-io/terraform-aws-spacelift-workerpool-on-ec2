@@ -157,7 +157,7 @@ User=spacelift
 %{ endif ~}
 ExecStart=/opt/spacelift/run-launcher.sh
 %{ if power_off_on_error ~}
-ExecStopPost=/bin/sh -c 'sleep 15 && poweroff'
+ExecStopPost=+/bin/sh -c 'sleep 15 && poweroff'
 %{ endif ~}
 KillMode=control-group
 TimeoutStopSec=30
