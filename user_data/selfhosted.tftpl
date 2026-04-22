@@ -142,14 +142,33 @@ EOF
 
 run_spacelift () {(
   set -e
-  echo "Starting run-launcher.sh script" >> /var/log/spacelift/info.log
-  if [[ "${run_launcher_as_spacelift_user}" == "false" ]]; then
-    echo "Running the launcher as root" >> /var/log/spacelift/info.log
-    /opt/spacelift/run-launcher.sh 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
-  else
-    echo "Running the launcher as spacelift (UID 1983)" >> /var/log/spacelift/info.log
-    runuser -l spacelift -c '/opt/spacelift/run-launcher.sh' 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
-  fi
+  echo "Setting up Spacelift launcher systemd service" >> /var/log/spacelift/info.log
+
+  cat > /etc/systemd/system/spacelift-launcher.service <<UNIT
+[Unit]
+Description=Spacelift Launcher
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+%{ if run_launcher_as_spacelift_user ~}
+User=spacelift
+%{ endif ~}
+ExecStart=/opt/spacelift/run-launcher.sh
+%{ if power_off_on_error ~}
+ExecStopPost=+/bin/sh -c 'sleep 15 && poweroff'
+%{ endif ~}
+KillMode=control-group
+TimeoutStopSec=30
+StandardOutput=append:/var/log/spacelift/info.log
+StandardError=append:/var/log/spacelift/error.log
+Restart=no
+UNIT
+
+  systemctl daemon-reload
+  systemctl start spacelift-launcher
+  echo "Spacelift launcher started as systemd service" >> /var/log/spacelift/info.log
 )}
 
 disable_cloudwatch_agent
@@ -158,10 +177,11 @@ download_launcher
 configure_docker
 load_custom_ca_certs
 create_spacelift_launcher_script
-run_spacelift
 
-if [[ "${power_off_on_error}" == "true" ]]; then
-  echo "Powering off in 15 seconds" >> /var/log/spacelift/error.log
+if ! run_spacelift; then
+  echo "Failed to start Spacelift launcher service, powering off in 15 seconds" >> /var/log/spacelift/error.log
+  %{ if power_off_on_error ~}
   sleep 15
   poweroff
+  %{ endif ~}
 fi
