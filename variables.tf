@@ -325,7 +325,7 @@ variable "autoscaling_configuration" {
   default = null
 
   validation {
-    condition     = var.autoscaling_configuration == null || var.autoscaling_configuration.version == "latest" || startswith(var.autoscaling_configuration.version, "v")
+    condition     = var.autoscaling_configuration == null || try(var.autoscaling_configuration.version == "latest" || startswith(var.autoscaling_configuration.version, "v"), false)
     error_message = "version must be a release tag starting with \"v\" (e.g. \"v2.5.0\"), or \"latest\"."
   }
 }
