@@ -450,3 +450,20 @@ variable "manage_log_groups" {
   type        = bool
   default     = true
 }
+variable "s3_bucket_name" {
+  type        = string
+  default     = ""
+  description = "Bucket name to pull the certificate bundle for the workers"
+}
+
+variable "s3_object_key" {
+  type        = string
+  default     = ""
+  description = "Object key for the certificate bundle you want to download"
+}
+
+variable "load_custom_certs" {
+  type        = bool
+  default     = false
+  description = "Boolean to load custom certs to the worker if desired"
+}
