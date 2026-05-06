@@ -11,9 +11,9 @@ locals {
     region                         = data.aws_region.this.region
     power_off_on_error             = var.selfhosted_configuration.power_off_on_error == null ? true : var.selfhosted_configuration.power_off_on_error
     disable_cloudwatch_agent       = var.disable_cloudwatch_agent
-    s3_bucket_name                 = var.s3_bucket_name == null ? "" : var.selfhosted_configuration.s3_bucket_name
-    s3_object_key                  = var.s3_object_key  == null ? "" : var.selfhosted_configuration.s3_object_key
-    load_custom_certs              = var.load_custom_certs == null ? "" : var.selfhosted_configuration.load_custom_certs
+    s3_bucket_name                 = var.selfhosted_configuration.s3_bucket_name == null ? "" : var.selfhosted_configuration.s3_bucket_name
+    s3_object_key                  = var.selfhosted_configuration.s3_object_key  == null ? "" : var.selfhosted_configuration.s3_object_key
+    load_custom_certs              = var.selfhosted_configuration.load_custom_certs == null ? "" : var.selfhosted_configuration.load_custom_certs
   })
 
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {
