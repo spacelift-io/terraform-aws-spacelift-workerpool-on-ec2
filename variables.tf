@@ -366,6 +366,7 @@ variable "selfhosted_configuration" {
   - http_proxy_config: (optional) The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
   - https_proxy_config: (optional) The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
   - no_proxy_config: (optional) The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
+  - ca_certificates: (optional) List of additional root CAs to install on the instance. Example: ["-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----"].
   - load_custom_certs: (optional) Boolean value true/false to enable loading custom certs from S3. Goes along with the next two configuration options.
   - s3_bucket_name: (optional) The bucket name to pull a custom certificate bundle from S3
   - s3_object_key: (optional) The object key/name of the certificate bundle.
@@ -378,6 +379,7 @@ variable "selfhosted_configuration" {
     http_proxy_config              = optional(string)
     https_proxy_config             = optional(string)
     no_proxy_config                = optional(string)
+    ca_certificates                = optional(list(string))
     load_custom_certs              = optional(bool)
     s3_bucket_name                 = optional(string)
     s3_object_key                  = optional(string)
@@ -389,6 +391,7 @@ variable "selfhosted_configuration" {
     http_proxy_config              = ""
     https_proxy_config             = ""
     no_proxy_config                = ""
+    ca_certificates                = []
     load_custom_certs              = false
     s3_bucket_name                 = ""
     s3_object_key                  = ""

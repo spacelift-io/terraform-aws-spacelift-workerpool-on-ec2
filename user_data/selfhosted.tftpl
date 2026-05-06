@@ -65,30 +65,49 @@ configure_docker () {(
 )}
 
 load_custom_ca_certs () {(
-  if [[ "${load_custom_certs}" != "true" ]]; then
-    echo "load_custom_certs is not set to true. Skipping CA certificate installation." >> /var/log/spacelift/info.log
-    return 0
+  set -e
+  local certs_installed=false
+
+  %{ if length(ca_certificates) > 0 ~}
+  echo "Installing custom root CA certificates from Terraform variables..." >> /var/log/spacelift/info.log
+  %{ for cert in ca_certificates ~}
+  echo "${cert}" > /etc/pki/ca-trust/source/anchors/$(uuidgen).crt
+  %{ endfor ~}
+  certs_installed=true
+  echo "Successfully installed CA certificates from variables." >> /var/log/spacelift/info.log
+  %{ else ~}
+  echo "No CA certificates provided via variables to install." >> /var/log/spacelift/info.log
+  %{ endif ~}
+
+  if [[ "${load_custom_certs}" == "true" ]]; then
+    echo "Fetching custom CA certificate from AWS S3..." >> /var/log/spacelift/info.log
+
+    if [[ -z "${s3_bucket_name}" ]] || [[ -z "${s3_object_key}" ]]; then
+      echo "Error: s3_bucket_name and s3_object_key variables must be set when load_custom_certs is true." >> /var/log/spacelift/info.log
+      return 1
+    fi
+
+    local ca_bundle_path="/etc/pki/ca-trust/source/anchors/s3-custom-ca.crt"
+    echo "Downloading custom CA from s3://${s3_bucket_name}/${s3_object_key} to $ca_bundle_path" >> /var/log/spacelift/info.log
+    
+    if ! aws s3 cp --no-verify-ssl "s3://${s3_bucket_name}/${s3_object_key}" "$ca_bundle_path"; then
+      echo "Error: Failed to download CA bundle from S3." >> /var/log/spacelift/info.log
+      return 1
+    fi
+    
+    certs_installed=true
+    echo "Successfully downloaded CA certificate from S3." >> /var/log/spacelift/info.log
+  else
+    echo "load_custom_certs is not 'true'. Skipping S3 certificate installation." >> /var/log/spacelift/info.log
   fi
 
-  echo "Fetching custom CA certificate from AWS S3..." >> /var/log/spacelift/info.log
-
-  if [[ -z "${s3_bucket_name}" ]] || [[ -z "${s3_object_key}" ]]; then
-    echo "Error: s3_bucket_name and s3_object_key environment variables must be set." >> /var/log/spacelift/info.log
-    return 1
+  if [[ "$certs_installed" == true ]]; then
+    echo "New certificates were installed. Running update-ca-trust..." >> /var/log/spacelift/info.log
+    update-ca-trust
+    echo "CA Trust Store updated successfully." >> /var/log/spacelift/info.log
+  else
+    echo "No new certificates were installed. Skipping update-ca-trust." >> /var/log/spacelift/info.log
   fi
-
-  export CA_BUNDLE_PATH="/etc/pki/ca-trust/source/anchors/custom-ca.crt"
-  echo "Downloading custom CA from s3://${s3_bucket_name}/${s3_object_key} to $CA_BUNDLE_PATH" >> /var/log/spacelift/info.log
-  aws s3 cp --no-verify-ssl "s3://${s3_bucket_name}/${s3_object_key}" "$CA_BUNDLE_PATH"
-
-  if [[ $? -ne 0 ]]; then
-    echo "Error: Failed to download CA bundle from S3." >> /var/log/spacelift/info.log
-    return 1
-  fi
-
-  echo "Running update-ca-trust..." >> /var/log/spacelift/info.log
-  update-ca-trust
-  echo "CA Trust Store updated successfully." >> /var/log/spacelift/info.log
 )}
 
 create_spacelift_launcher_script () {(
