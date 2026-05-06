@@ -366,7 +366,9 @@ variable "selfhosted_configuration" {
   - http_proxy_config: (optional) The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
   - https_proxy_config: (optional) The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
   - no_proxy_config: (optional) The value of the NO_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
-  - ca_certificates: (optional) List of additional root CAs to install on the instance. Example: ["-----BEGIN CERTIFICATE-----abc123-----END CERTIFICATE-----"].
+  - load_custom_certs: (optional) Boolean value true/false to enable loading custom certs from S3. Goes along with the next two configuration options.
+  - s3_bucket_name: (optional) The bucket name to pull a custom certificate bundle from S3
+  - s3_object_key: (optional) The object key/name of the certificate bundle.
   - power_off_on_error: (optional) Indicates whether the instance should poweroff when the launcher process exits. This allows the machine to be automatically be replaced by the ASG after error conditions. If an instance is crashing during startup, it can be useful to temporarily set this to false to allow you to connect to the instance and investigate.
   EOF
 
@@ -376,7 +378,9 @@ variable "selfhosted_configuration" {
     http_proxy_config              = optional(string)
     https_proxy_config             = optional(string)
     no_proxy_config                = optional(string)
-    ca_certificates                = optional(list(string))
+    load_custom_certs              = optional(bool)
+    s3_bucket_name                 = optional(string)
+    s3_object_key                  = optional(string)
     power_off_on_error             = optional(bool)
   })
   default = {
@@ -385,7 +389,9 @@ variable "selfhosted_configuration" {
     http_proxy_config              = ""
     https_proxy_config             = ""
     no_proxy_config                = ""
-    ca_certificates                = []
+    load_custom_certs              = false
+    s3_bucket_name                 = ""
+    s3_object_key                  = ""
     power_off_on_error             = true
   }
 }
@@ -449,21 +455,4 @@ variable "manage_log_groups" {
   description = "Whether to manage the CloudWatch Log Group for the worker instances. If false, the log group must be managed by the caller."
   type        = bool
   default     = true
-}
-variable "s3_bucket_name" {
-  type        = string
-  default     = ""
-  description = "Bucket name to pull the certificate bundle for the workers"
-}
-
-variable "s3_object_key" {
-  type        = string
-  default     = ""
-  description = "Object key for the certificate bundle you want to download"
-}
-
-variable "load_custom_certs" {
-  type        = bool
-  default     = false
-  description = "Boolean to load custom certs to the worker if desired"
 }
