@@ -65,21 +65,21 @@ configure_docker () {(
 )}
 
 load_custom_ca_certs () {(
-  if [[ "${LOAD_CUSTOM_CERTS}" != "true" ]]; then
-    echo "LOAD_CUSTOM_CERTS is not set to true. Skipping CA certificate installation." >> /var/log/spacelift/info.log
+  if [[ "${load_custom_certs}" != "true" ]]; then
+    echo "load_custom_certs is not set to true. Skipping CA certificate installation." >> /var/log/spacelift/info.log
     return 0
   fi
 
   echo "Fetching custom CA certificate from AWS S3..." >> /var/log/spacelift/info.log
 
-  if [[ -z "${S3_BUCKET_NAME}" ]] || [[ -z "${S3_OBJECT_KEY}" ]]; then
-    echo "Error: S3_BUCKET_NAME and S3_OBJECT_KEY environment variables must be set." >> /var/log/spacelift/info.log
+  if [[ -z "${s3_bucket_name}" ]] || [[ -z "${s3_object_key}" ]]; then
+    echo "Error: s3_bucket_name and s3_object_key environment variables must be set." >> /var/log/spacelift/info.log
     return 1
   fi
 
   export CA_BUNDLE_PATH="/etc/pki/ca-trust/source/anchors/custom-ca.crt"
-  echo "Downloading custom CA from s3://${S3_BUCKET_NAME}/${S3_OBJECT_KEY} to $CA_BUNDLE_PATH" >> /var/log/spacelift/info.log
-  aws s3 cp --no-verify-ssl "s3://${S3_BUCKET_NAME}/${S3_OBJECT_KEY}" "$CA_BUNDLE_PATH"
+  echo "Downloading custom CA from s3://${s3_bucket_name}/${s3_object_key} to $CA_BUNDLE_PATH" >> /var/log/spacelift/info.log
+  aws s3 cp --no-verify-ssl "s3://${s3_bucket_name}/${s3_object_key}" "$CA_BUNDLE_PATH"
 
   if [[ $? -ne 0 ]]; then
     echo "Error: Failed to download CA bundle from S3." >> /var/log/spacelift/info.log
