@@ -19,15 +19,6 @@ resource "aws_ssm_parameter" "spacelift_api_key_secret" {
   tags  = var.additional_tags
 }
 
-resource "random_string" "iam_suffix" {
-  length           = 4
-  numeric          = true
-  special          = true
-  override_special = "ABCDEFGHJKMNPQRSTVWXYZ"
-  lower            = false
-  upper            = false
-}
-
 module "autoscaler" {
   count  = local.autoscaling_enabled ? 1 : 0
   source = "./autoscaler"
