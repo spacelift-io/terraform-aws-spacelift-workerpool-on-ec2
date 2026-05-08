@@ -154,3 +154,32 @@ resource "aws_iam_role_policy" "extra" {
   role   = aws_iam_role.this[0].name
   policy = data.aws_iam_policy_document.extra[0].json
 }
+
+resource "aws_iam_policy" "ca_bundle_access" {
+  count       = var.selfhosted_configuration.load_custom_certs ? 1 : 0
+  name        = "${local.base_name}-CustomCABundleReadAccess"
+  description = "Policy to allow downloading the custom CA bundle from S3 for trust store updates."
+  policy      = data.aws_iam_policy_document.worker_ca[0].json
+}
+
+resource "aws_iam_role_policy_attachment" "ca_bundle_attach" {
+  count = var.selfhosted_configuration.load_custom_certs ? 1 : 0
+
+  role       = aws_iam_role.this[0].name
+  policy_arn = aws_iam_policy.ca_bundle_access[0].arn
+}
+
+data "aws_iam_policy_document" "worker_ca" {
+  count = var.selfhosted_configuration.load_custom_certs ? 1 : 0
+
+  statement {
+    sid    = "AllowReadCustomCABundle"
+    effect = "Allow"
+    actions = [
+      "s3:GetObject"
+    ]
+    resources = [
+      "arn:${data.aws_partition.current.partition}:s3:::${var.selfhosted_configuration.s3_bucket_name}/${var.selfhosted_configuration.s3_object_key}"
+    ]
+  }
+}
