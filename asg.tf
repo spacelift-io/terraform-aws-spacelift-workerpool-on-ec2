@@ -8,10 +8,13 @@ locals {
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
     https_proxy_config             = var.selfhosted_configuration.https_proxy_config == null ? "" : var.selfhosted_configuration.https_proxy_config
     no_proxy_config                = var.selfhosted_configuration.no_proxy_config == null ? "" : var.selfhosted_configuration.no_proxy_config
-    ca_certificates                = var.selfhosted_configuration.ca_certificates == null ? [] : var.selfhosted_configuration.ca_certificates
     region                         = data.aws_region.this.region
     power_off_on_error             = var.selfhosted_configuration.power_off_on_error == null ? true : var.selfhosted_configuration.power_off_on_error
     disable_cloudwatch_agent       = var.disable_cloudwatch_agent
+    ca_certificates                = var.selfhosted_configuration.ca_certificates == null ? [] : var.selfhosted_configuration.ca_certificates
+    s3_bucket_name                 = var.selfhosted_configuration.s3_bucket_name == null ? "" : var.selfhosted_configuration.s3_bucket_name
+    s3_object_key                  = var.selfhosted_configuration.s3_object_key == null ? "" : var.selfhosted_configuration.s3_object_key
+    load_custom_certs              = var.selfhosted_configuration.load_custom_certs == null ? "" : var.selfhosted_configuration.load_custom_certs
   })
 
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {

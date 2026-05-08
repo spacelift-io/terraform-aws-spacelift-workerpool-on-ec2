@@ -66,18 +66,48 @@ configure_docker () {(
 
 load_custom_ca_certs () {(
   set -e
+  local certs_installed=false
 
   %{ if length(ca_certificates) > 0 ~}
-  echo "Installing custom root CA certificates" >> /var/log/spacelift/info.log
+  echo "Installing custom root CA certificates from Terraform variables..." >> /var/log/spacelift/info.log
   %{ for cert in ca_certificates ~}
   echo "${cert}" > /etc/pki/ca-trust/source/anchors/$(uuidgen).crt
   %{ endfor ~}
-
-  sudo update-ca-trust
-  echo "Custom root CA certificates are GO" >> /var/log/spacelift/info.log
+  certs_installed=true
+  echo "Successfully installed CA certificates from variables." >> /var/log/spacelift/info.log
   %{ else ~}
-  echo "No CA certificates to install." >> /var/log/spacelift/info.log
+  echo "No CA certificates provided via variables to install." >> /var/log/spacelift/info.log
   %{ endif ~}
+
+  if [[ "${load_custom_certs}" == "true" ]]; then
+    echo "Fetching custom CA certificate from AWS S3..." >> /var/log/spacelift/info.log
+
+    if [[ -z "${s3_bucket_name}" ]] || [[ -z "${s3_object_key}" ]]; then
+      echo "Error: s3_bucket_name and s3_object_key variables must be set when load_custom_certs is true." >> /var/log/spacelift/info.log
+      return 1
+    fi
+
+    local ca_bundle_path="/etc/pki/ca-trust/source/anchors/s3-custom-ca.crt"
+    echo "Downloading custom CA from s3://${s3_bucket_name}/${s3_object_key} to $ca_bundle_path" >> /var/log/spacelift/info.log
+    
+    if ! aws s3 cp --no-verify-ssl "s3://${s3_bucket_name}/${s3_object_key}" "$ca_bundle_path"; then
+      echo "Error: Failed to download CA bundle from S3." >> /var/log/spacelift/info.log
+      return 1
+    fi
+    
+    certs_installed=true
+    echo "Successfully downloaded CA certificate from S3." >> /var/log/spacelift/info.log
+  else
+    echo "load_custom_certs is not 'true'. Skipping S3 certificate installation." >> /var/log/spacelift/info.log
+  fi
+
+  if [[ "$certs_installed" == true ]]; then
+    echo "New certificates were installed. Running update-ca-trust..." >> /var/log/spacelift/info.log
+    update-ca-trust
+    echo "CA Trust Store updated successfully." >> /var/log/spacelift/info.log
+  else
+    echo "No new certificates were installed. Skipping update-ca-trust." >> /var/log/spacelift/info.log
+  fi
 )}
 
 create_spacelift_launcher_script () {(
@@ -171,12 +201,37 @@ UNIT
   echo "Spacelift launcher started as systemd service" >> /var/log/spacelift/info.log
 )}
 
+manage_ssm_by_region () {
+  local aws_region="${region}"
+  local info_log="/var/log/spacelift/info.log"
+  local err_log="/var/log/spacelift/error.log"
+  {
+    echo "Checking AWS region for SSM restart requirement: $aws_region"
+    if [[ "$aws_region" == *-iso* ]]; then
+      echo "Instance is running in an AWS ADC region. Proceeding to restart the SSM agent."
+      if ! systemctl restart amazon-ssm-agent; then
+        echo "SSM Agent failed to restart, going to retry in 2 seconds..." >&2
+        sleep 2
+        if ! systemctl restart amazon-ssm-agent; then
+          echo "SSM Agent failed to restart again, requires manual intervention." >&2
+          return 1
+        fi
+      fi
+      
+      echo "SSM agent restarted successfully."
+    else
+      echo "Instance is running in AWS Commercial or GovCloud. No SSM restart required."
+    fi
+  } >> "$info_log" 2>> "$err_log"
+}
+
 disable_cloudwatch_agent
+load_custom_ca_certs
 configure_permissions
 download_launcher
 configure_docker
-load_custom_ca_certs
 create_spacelift_launcher_script
+manage_ssm_by_region
 
 if ! run_spacelift; then
   echo "Failed to start Spacelift launcher service, powering off in 15 seconds" >> /var/log/spacelift/error.log
