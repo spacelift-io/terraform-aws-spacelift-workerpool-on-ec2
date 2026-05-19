@@ -306,6 +306,7 @@ variable "autoscaling_configuration" {
     - key: (mandatory) S3 object key
     - object_version: (optional) S3 object version
   - scale_down_delay: (optional) The number of minutes a worker must be registered to spacelift before it is eligible for termination. Default: 0 minutes.
+  - ca_bundle: (optional) PEM-encoded certificate or certificate chain to trust when the autoscaler connects to the Spacelift API. Useful for self-hosted deployments with a private CA. Example: file("ca.pem") or the PEM string directly.
   EOF
 
   type = object({
@@ -321,6 +322,7 @@ variable "autoscaling_configuration" {
       object_version = optional(string)
     }))
     scale_down_delay = optional(number)
+    ca_bundle        = optional(string)
   })
   default = null
 

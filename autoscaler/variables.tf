@@ -12,6 +12,7 @@ variable "autoscaling_configuration" {
       object_version = optional(string)
     }))
     scale_down_delay = optional(number)
+    ca_bundle        = optional(string)
   })
 }
 
