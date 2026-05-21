@@ -16,5 +16,5 @@ variable "spacelift_api_key_endpoint" {
 
 variable "ca_bundle" {
   type        = string
-  description = "PEM-encoded certificate or certificate chain for the autoscaler to trust when connecting to the Spacelift API."
+  description = "Base64-encoded PEM certificate or certificate chain for the autoscaler to trust when connecting to the Spacelift API. Example: base64encode(file(\"ca.pem\"))."
 }
