@@ -14,7 +14,7 @@ locals {
     ca_certificates                = var.selfhosted_configuration.ca_certificates == null ? [] : var.selfhosted_configuration.ca_certificates
     s3_bucket_name                 = var.selfhosted_configuration.s3_bucket_name == null ? "" : var.selfhosted_configuration.s3_bucket_name
     s3_object_key                  = var.selfhosted_configuration.s3_object_key == null ? "" : var.selfhosted_configuration.s3_object_key
-    load_custom_certs              = var.selfhosted_configuration.load_custom_certs == null ? "" : var.selfhosted_configuration.load_custom_certs
+    load_custom_certs              = var.selfhosted_configuration.load_custom_certs == null ? false : var.selfhosted_configuration.load_custom_certs
   })
 
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {
