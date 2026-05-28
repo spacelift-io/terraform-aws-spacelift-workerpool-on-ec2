@@ -1,5 +1,5 @@
 version: 2
-module_version: 6.2.0
+module_version: 6.3.0
 
 tests:
   - name: AMD64-based workerpool
@@ -55,3 +55,11 @@ tests:
       TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
       TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+
+  - name: With autoscaling and custom CA bundle
+    project_root: examples/autoscaler-ca-bundle
+    environment:
+      TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
+      TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+      TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+      TF_VAR_ca_bundle: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNwRENDQVl3Q0NRRFUrcFE0cEhnU3BEQU5CZ2txaGtpRzl3MEJBUXNGQURBVU1SSXdFQVlEVlFRRERBbHMKYjJOaGJDMWpZVEFlRncweU5EQXhNREV3TURBd01EQmFGdzB5TlRBeE1ERXdNREF3TURCYU1CUXhFakFRQmdOVgpCQU1NQ1d4dlkyRnNMV05oTUlJQklqQU5CZ2txaGtpRzl3MEJBUUVGQUFPQ0FROEFNSUlCQ2dLQ0FRRUF4YW1wbGUKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ=="

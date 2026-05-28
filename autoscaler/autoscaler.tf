@@ -107,7 +107,7 @@ resource "aws_lambda_function" "autoscaler" {
       AUTOSCALING_MAX_CREATE        = var.autoscaling_configuration.max_create != null ? var.autoscaling_configuration.max_create : 1
       AUTOSCALING_MAX_KILL          = var.autoscaling_configuration.max_terminate != null ? var.autoscaling_configuration.max_terminate : 1
       AUTOSCALING_SCALE_DOWN_DELAY  = var.autoscaling_configuration.scale_down_delay != null ? var.autoscaling_configuration.scale_down_delay : 0
-    }, var.extra_env)
+    }, var.autoscaling_configuration.ca_bundle != null ? { SPACELIFT_CA_BUNDLE = var.autoscaling_configuration.ca_bundle } : {}, var.extra_env)
   }
 
   tracing_config {
