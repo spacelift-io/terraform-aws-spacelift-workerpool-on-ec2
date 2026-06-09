@@ -16,5 +16,5 @@ variable "spacelift_api_key_endpoint" {
 
 variable "ca_bundle" {
   type        = string
-  description = "Base64-encoded PEM certificate or certificate chain for the autoscaler to trust when connecting to the Spacelift API. Example: base64encode(file(\"ca.pem\"))."
+  description = "PEM certificate or certificate chain for the autoscaler to trust when connecting to the Spacelift API. Example: file(\"ca.pem\"). The value is stored in AWS Secrets Manager to avoid exceeding the Lambda 4KB environment variable limit."
 }

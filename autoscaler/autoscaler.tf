@@ -6,6 +6,10 @@ locals {
   use_s3_package     = var.autoscaling_configuration.s3_package != null
   resolve_latest     = var.autoscaling_configuration.version == "latest"
   autoscaler_version = !local.use_s3_package && local.resolve_latest ? jsondecode(data.http.latest_release[0].response_body).tag_name : var.autoscaling_configuration.version
+
+  # CA bundle is stored in Secrets Manager to avoid exceeding the Lambda 4KB env var limit.
+  ca_bundle_secret_name = "${local.function_name}-ca-bundle"
+  ca_bundle_env         = var.autoscaling_configuration.ca_bundle != null ? { SPACELIFT_CA_BUNDLE_SECRET_NAME = local.ca_bundle_secret_name } : {}
 }
 
 # When version = "latest", resolve to a concrete release tag via the GitHub API.
@@ -107,7 +111,7 @@ resource "aws_lambda_function" "autoscaler" {
       AUTOSCALING_MAX_CREATE        = var.autoscaling_configuration.max_create != null ? var.autoscaling_configuration.max_create : 1
       AUTOSCALING_MAX_KILL          = var.autoscaling_configuration.max_terminate != null ? var.autoscaling_configuration.max_terminate : 1
       AUTOSCALING_SCALE_DOWN_DELAY  = var.autoscaling_configuration.scale_down_delay != null ? var.autoscaling_configuration.scale_down_delay : 0
-    }, var.autoscaling_configuration.ca_bundle != null ? { SPACELIFT_CA_BUNDLE = var.autoscaling_configuration.ca_bundle } : {}, var.extra_env)
+    }, local.ca_bundle_env, var.extra_env)
   }
 
   tracing_config {
@@ -137,4 +141,20 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
 resource "aws_cloudwatch_log_group" "log_group" {
   name              = "/aws/lambda/${local.function_name}"
   retention_in_days = var.cloudwatch_log_group_retention
+}
+
+resource "aws_secretsmanager_secret" "ca_bundle" {
+  count = var.autoscaling_configuration.ca_bundle != null ? 1 : 0
+
+  name                    = local.ca_bundle_secret_name
+  recovery_window_in_days = 0
+  description             = "CA bundle for the Spacelift autoscaler Lambda of worker pool ${var.worker_pool_id}"
+  tags                    = var.additional_tags
+}
+
+resource "aws_secretsmanager_secret_version" "ca_bundle" {
+  count = var.autoscaling_configuration.ca_bundle != null ? 1 : 0
+
+  secret_id     = aws_secretsmanager_secret.ca_bundle[0].id
+  secret_string = var.autoscaling_configuration.ca_bundle
 }
