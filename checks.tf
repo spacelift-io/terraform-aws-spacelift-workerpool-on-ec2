@@ -37,11 +37,3 @@ The instance refresh functionality requires api credentials to be passed in the 
 EOT
 }
 
-resource "validation_error" "cannot_provide_byo_secretsmanager_and_env_vars_with_value" {
-  condition = local.byo_secretsmanager && length(local.env_vars_with_value) > 0
-  summary   = "Cannot provide both 'byo_secretsmanager' and env_vars entries with values"
-  details   = <<EOT
-'byo_secretsmanager' and 'env_vars' entries with plain/sensitive values are mutually exclusive.
-Use 'byo_secretsmanager' to bring your own secret bundle, or use 'env_vars' to let the module manage it.
-EOT
-}
