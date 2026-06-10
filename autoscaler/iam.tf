@@ -64,6 +64,15 @@ data "aws_iam_policy_document" "autoscaler" {
     actions   = ["ssm:GetParameter"]
     resources = [var.api_key_ssm_parameter_arn]
   }
+
+  dynamic "statement" {
+    for_each = length(local.env_vars_secret_arns) > 0 ? ["USE_SECRETS"] : []
+    content {
+      effect    = "Allow"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = local.env_vars_secret_arns
+    }
+  }
 }
 
 resource "aws_iam_role" "autoscaler" {

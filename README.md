@@ -40,20 +40,25 @@ provider "aws" {
 module "spacelift_workerpool" {
   source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v5.3.1"
 
-  secure_env_vars = {
-    SPACELIFT_TOKEN            = var.worker_pool_config
-    SPACELIFT_POOL_PRIVATE_KEY = var.worker_pool_private_key
+  env_vars = {
+    SPACELIFT_TOKEN = {
+      value     = var.worker_pool_config
+      sensitive = true
+    }
+    SPACELIFT_POOL_PRIVATE_KEY = {
+      value     = var.worker_pool_private_key
+      sensitive = true
+    }
+    SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED = {
+      value = "true"
+    }
   }
 
-  configuration = <<EOF
-    export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
-  EOF
-
-  min_size          = 1
-  max_size          = 5
-  worker_pool_id    = var.worker_pool_id
-  security_groups   = var.security_groups
-  vpc_subnets       = var.subnets
+  min_size        = 1
+  max_size        = 5
+  worker_pool_id  = var.worker_pool_id
+  security_groups = var.security_groups
+  vpc_subnets     = var.subnets
 }
 ```
 
@@ -71,25 +76,47 @@ For more examples covering specific use cases, please see the [examples director
 - [Custom IAM role](./examples/custom-iam-role/)
 - [Self-hosted deployment](./examples/self-hosted/)
 
-## 🔑 Credentials Management
+## 🔑 Credentials & Environment Variables
 
-### Using `secure_env_vars` (Recommended)
+### Using `env_vars` (Recommended)
 
-The recommended approach for managing sensitive worker pool credentials is to use the `secure_env_vars` variable:
+All environment variables — for EC2 workers, the autoscaler Lambda, and the lifecycle manager Lambda — are passed through a single `env_vars` variable. Each entry supports three kinds of values:
 
 ```hcl
-secure_env_vars = {
-  SPACELIFT_TOKEN            = var.worker_pool_config
-  SPACELIFT_POOL_PRIVATE_KEY = var.worker_pool_private_key
+env_vars = {
+  # 1. Plain value — visible in Terraform state, passed as-is.
+  LOG_LEVEL = {
+    value = "info"
+  }
+
+  # 2. Sensitive value — redacted in plan/apply output, stored in
+  #    AWS Secrets Manager and fetched by EC2 workers at startup.
+  SPACELIFT_TOKEN = {
+    value     = var.worker_pool_config
+    sensitive = true
+  }
+  SPACELIFT_POOL_PRIVATE_KEY = {
+    value     = var.worker_pool_private_key
+    sensitive = true
+  }
+
+  # 3. Secret ARN — Terraform never sees the value. EC2 workers fetch
+  #    it individually at startup; Lambda functions receive a
+  #    NAME_SECRET_ARN env var they can use to retrieve it at runtime.
+  DB_PASSWORD = {
+    secret_arn = "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod/db/password-AbCdEf"
+  }
 }
 ```
 
-When you provide credentials via `secure_env_vars`:
-- The module creates AWS Secrets Manager resources to securely store these values
-- Values are encrypted at rest and only accessed by the worker instances at runtime
-- The credentials are exported as environment variables in the worker's environment
+**How each kind is handled per component:**
 
-> ❗️ Previous versions of this module (`<v3`) placed the token and private key directly into the `configuration` variable. This is still supported for [non-sensitive configuration options](https://docs.spacelift.io/concepts/worker-pools.html#configuration-options), but for the worker pool token and private key, it is highly recommended to use the `secure_env_vars` variable.
+| Kind | EC2 workers | Autoscaler Lambda | Lifecycle manager Lambda |
+|---|---|---|---|
+| `value` | Stored in Secrets Manager bundle, exported at boot | Direct env var | Direct env var |
+| `secret_arn` | Fetched individually at boot via `aws secretsmanager get-secret-value` | `NAME_SECRET_ARN` env var + IAM access | `NAME_SECRET_ARN` env var + IAM access |
+
+> ❗️ Previous versions of this module used separate `secure_env_vars` and `autoscaler_extra_env` variables. These have been replaced by `env_vars`. The `configuration` variable remains available for non-env-var user data.
 
 ### Using "Bring Your Own" (BYO) Variables
 
@@ -113,11 +140,11 @@ byo_ssm = {
 
 #### Important: Mutual Exclusivity
 
-> ⚠️ **Important:** When using `byo_secretsmanager`, you should not use `secure_env_vars` for the same environment variables. These approaches are mutually exclusive for any given variable.
+> ⚠️ **Important:** `byo_secretsmanager` and `env_vars` entries with plain/sensitive `value`s are mutually exclusive — use one or the other to manage the EC2 worker secret bundle.
 >
-> - Use `secure_env_vars` when you want the module to manage your Secrets Manager resources
+> - Use `env_vars` when you want the module to manage your Secrets Manager resources
 > - Use `byo_secretsmanager` when you have pre-existing Secrets Manager resources or need more control
-> - If you use both, `byo_secretsmanager` takes precedence for the keys specified in its `keys` list
+> - `env_vars` entries with `secret_arn` (referencing external secrets) are always compatible with `byo_secretsmanager`
 
 Similarly, when using `byo_ssm` for the autoscaler API credentials, you should not provide `api_key_secret` in the `spacelift_api_credentials` object, as these are mutually exclusive ways to provide the same information:
 

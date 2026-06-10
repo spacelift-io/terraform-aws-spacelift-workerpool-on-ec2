@@ -1,4 +1,24 @@
 locals {
+  env_vars_direct = {
+    for name, cfg in var.env_vars :
+    name => cfg.value
+    if cfg.secret_arn == null && cfg.value != null
+  }
+
+  env_vars_secret_refs = {
+    for name, cfg in var.env_vars :
+    "${name}_SECRET_ARN" => cfg.secret_arn
+    if cfg.secret_arn != null
+  }
+
+  env_vars_secret_arns = [
+    for name, cfg in var.env_vars :
+    cfg.secret_arn
+    if cfg.secret_arn != null
+  ]
+}
+
+locals {
   lifecycle_code = "${path.module}/ec2-workerpool-lifecycle-manager.zip"
   name           = length("${var.base_name}-lifecycle-manager") <= 64 ? "${var.base_name}-lifecycle-manager" : "${var.base_name}-lcm"
 }
@@ -37,7 +57,7 @@ resource "aws_lambda_function" "this" {
   }
 
   environment {
-    variables = {
+    variables = merge({
       AUTOSCALING_GROUP_ARN         = var.auto_scaling_group_arn
       AUTOSCALING_REGION            = var.aws_region
       SPACELIFT_API_KEY_ID          = var.spacelift_api_credentials.api_key_id
@@ -46,7 +66,7 @@ resource "aws_lambda_function" "this" {
       SPACELIFT_WORKER_POOL_ID      = var.worker_pool_id
       QUEUE_URL                     = aws_sqs_queue.this.url
       LIFECYCLE_HOOK_TIMEOUT        = var.lifecycle_hook_timeout
-    }
+    }, local.env_vars_direct, local.env_vars_secret_refs)
   }
 }
 

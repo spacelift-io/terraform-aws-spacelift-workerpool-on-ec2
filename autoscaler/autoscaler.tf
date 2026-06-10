@@ -1,4 +1,24 @@
 locals {
+  env_vars_direct = {
+    for name, cfg in var.env_vars :
+    name => cfg.value
+    if cfg.secret_arn == null && cfg.value != null
+  }
+
+  env_vars_secret_refs = {
+    for name, cfg in var.env_vars :
+    "${name}_SECRET_ARN" => cfg.secret_arn
+    if cfg.secret_arn != null
+  }
+
+  env_vars_secret_arns = [
+    for name, cfg in var.env_vars :
+    cfg.secret_arn
+    if cfg.secret_arn != null
+  ]
+}
+
+locals {
   download_folder    = var.worker_pool_id # Unique folder name to avoid race conditions when downloading the archive in parallel
   architecture       = coalesce(var.autoscaling_configuration.architecture, "amd64")
   autoscaler_zip     = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
@@ -107,7 +127,7 @@ resource "aws_lambda_function" "autoscaler" {
       AUTOSCALING_MAX_CREATE        = var.autoscaling_configuration.max_create != null ? var.autoscaling_configuration.max_create : 1
       AUTOSCALING_MAX_KILL          = var.autoscaling_configuration.max_terminate != null ? var.autoscaling_configuration.max_terminate : 1
       AUTOSCALING_SCALE_DOWN_DELAY  = var.autoscaling_configuration.scale_down_delay != null ? var.autoscaling_configuration.scale_down_delay : 0
-    }, var.autoscaling_configuration.ca_bundle != null ? { SPACELIFT_CA_BUNDLE = var.autoscaling_configuration.ca_bundle } : {}, var.extra_env)
+    }, var.autoscaling_configuration.ca_bundle != null ? { SPACELIFT_CA_BUNDLE = var.autoscaling_configuration.ca_bundle } : {}, local.env_vars_direct, local.env_vars_secret_refs)
   }
 
   tracing_config {

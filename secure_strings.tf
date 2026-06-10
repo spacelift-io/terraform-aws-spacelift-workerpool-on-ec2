@@ -1,9 +1,31 @@
 locals {
+  # env_vars entries with a plain/sensitive value — stored in the Secrets Manager bundle for EC2 workers
+  env_vars_with_value = {
+    for name, cfg in var.env_vars :
+    name => cfg.value
+    if cfg.secret_arn == null && cfg.value != null
+  }
+
+  # env_vars entries that reference an existing Secrets Manager secret by ARN
+  env_vars_with_secret_arn = {
+    for name, cfg in var.env_vars :
+    name => cfg.secret_arn
+    if cfg.secret_arn != null
+  }
+
+  env_vars_secret_arns = values(local.env_vars_with_secret_arn)
+
+  # User data lines that fetch each secret_arn entry individually at EC2 startup
+  env_vars_secret_arn_exports = join("\n", [
+    for name, arn in local.env_vars_with_secret_arn :
+    "export ${name}=$(aws secretsmanager get-secret-value --secret-id ${arn} --query SecretString --output text)"
+  ])
+
   byo_secretsmanager  = var.byo_secretsmanager != null
-  has_secure_env_vars = (var.secure_env_vars != null && length(var.secure_env_vars) > 0) || local.byo_secretsmanager
+  has_secure_env_vars = length(local.env_vars_with_value) > 0 || local.byo_secretsmanager
 
   secret_name     = local.byo_secretsmanager ? var.byo_secretsmanager.name : "${local.base_name}-secret"
-  secret_iterator = local.byo_secretsmanager ? { for i in var.byo_secretsmanager.keys : i => "BYO" } : var.secure_env_vars
+  secret_iterator = local.byo_secretsmanager ? { for i in var.byo_secretsmanager.keys : i => "BYO" } : local.env_vars_with_value
 
   secure_env_vars_exports = join(
     "\n",
@@ -21,7 +43,7 @@ resource "validation_warning" "token_or_private_key_in_plaintext" {
   details   = <<EOT
 The 'configuration' parameter seems to contain the 'SPACELIFT_TOKEN' or 'SPACELIFT_POOL_PRIVATE_KEY' environment variables.
 These configuration values are injected in plaintext format into the user data script.
-It is highly recommended to use the 'secure_env_vars' parameter to store sensitive information.
+It is highly recommended to use the 'env_vars' parameter to store sensitive information.
 EOT
 }
 
@@ -39,5 +61,5 @@ resource "aws_secretsmanager_secret_version" "this" {
   count = local.has_secure_env_vars && !local.byo_secretsmanager ? 1 : 0
 
   secret_id     = aws_secretsmanager_secret.this[0].id
-  secret_string = jsonencode(var.secure_env_vars)
+  secret_string = jsonencode(local.env_vars_with_value)
 }

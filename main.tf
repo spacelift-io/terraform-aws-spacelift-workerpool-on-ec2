@@ -38,7 +38,7 @@ module "autoscaler" {
   spacelift_vpc_subnet_ids         = var.autoscaling_vpc_subnets
   spacelift_vpc_security_group_ids = var.autoscaling_vpc_sg_ids
   tracing_mode                     = var.autoscaling_tracing_mode
-  extra_env                        = var.autoscaler_extra_env
+  env_vars                         = var.env_vars
 }
 
 module "lifecycle_manager" {
@@ -59,6 +59,7 @@ module "lifecycle_manager" {
   spacelift_vpc_security_group_ids = var.autoscaling_vpc_sg_ids
   spacelift_api_credentials        = var.spacelift_api_credentials
   lifecycle_hook_timeout           = var.lifecycle_hook_timeout
+  env_vars                         = var.env_vars
 }
 
 moved {

@@ -57,9 +57,15 @@ module "this" {
   configuration = <<-EOT
     export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
   EOT
-  secure_env_vars = {
-    SPACELIFT_TOKEN            = "<token-here>"
-    SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
+  env_vars = {
+    SPACELIFT_TOKEN = {
+      value     = "<token-here>"
+      sensitive = true
+    }
+    SPACELIFT_POOL_PRIVATE_KEY = {
+      value     = "<private-key-here>"
+      sensitive = true
+    }
   }
 
   security_groups = [data.aws_security_group.this.id]

@@ -13,11 +13,11 @@ locals {
   ])
 }
 
-resource "validation_error" "secure_env_vars_or_configuration" {
-  condition = !local.has_secure_env_vars && var.configuration == ""
-  summary   = "Either var.secure_env_vars, var.byo_secretsmanager, or var.configuration must be set"
+resource "validation_error" "env_vars_or_configuration" {
+  condition = !local.has_secure_env_vars && length(local.env_vars_with_secret_arn) == 0 && var.configuration == ""
+  summary   = "Either var.env_vars, var.byo_secretsmanager, or var.configuration must be set"
   details   = <<EOT
-You must supply either 'secure_env_vars', 'var.byo_secretsmanager' or 'configuration' to the module.
+You must supply either 'env_vars', 'var.byo_secretsmanager' or 'configuration' to the module.
 EOT
 }
 
@@ -37,11 +37,11 @@ The instance refresh functionality requires api credentials to be passed in the 
 EOT
 }
 
-resource "validation_error" "cannot_provide_byo_secretsmanager_and_secure_env_vars" {
-  condition = local.byo_secretsmanager && (var.secure_env_vars != null && length(var.secure_env_vars) > 0)
-  summary   = "Cannot provide both 'byo_secretsmanager' and 'secure_env_vars'"
+resource "validation_error" "cannot_provide_byo_secretsmanager_and_env_vars_with_value" {
+  condition = local.byo_secretsmanager && length(local.env_vars_with_value) > 0
+  summary   = "Cannot provide both 'byo_secretsmanager' and env_vars entries with values"
   details   = <<EOT
-The 'byo_secretsmanager' and 'secure_env_vars' variables are mutually exclusive.
-Please provide only one of them.
+'byo_secretsmanager' and 'env_vars' entries with plain/sensitive values are mutually exclusive.
+Use 'byo_secretsmanager' to bring your own secret bundle, or use 'env_vars' to let the module manage it.
 EOT
 }

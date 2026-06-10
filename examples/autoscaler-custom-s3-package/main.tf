@@ -54,9 +54,15 @@ module "this" {
 
   worker_pool_id = random_string.worker_pool_id.id
 
-  secure_env_vars = {
-    SPACELIFT_TOKEN            = "<token-here>"
-    SPACELIFT_POOL_PRIVATE_KEY = "<private-key-here>"
+  env_vars = {
+    SPACELIFT_TOKEN = {
+      value     = "<token-here>"
+      sensitive = true
+    }
+    SPACELIFT_POOL_PRIVATE_KEY = {
+      value     = "<private-key-here>"
+      sensitive = true
+    }
   }
 
   security_groups = [data.aws_security_group.this.id]

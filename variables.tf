@@ -44,15 +44,23 @@ variable "ami_architecture" {
   }
 }
 
-variable "secure_env_vars" {
-  type        = map(string)
-  sensitive   = true
+variable "env_vars" {
   description = <<EOF
-    Secure env vars to be stored in Secrets Manager. Their values will be exported
-    at run time as `export {key}={value}`. This allows you pass the token, private
-    key, or any values securely.
+  Environment variables to pass to all worker pool components (EC2 workers, autoscaler Lambda, and lifecycle manager Lambda).
+  Each entry can be one of three kinds:
+  - plain:       { value = "..." }                   — passed as-is
+  - sensitive:   { value = "...", sensitive = true }  — redacted in plan/apply output, stored in Secrets Manager for EC2 workers
+  - secret_arn:  { secret_arn = "arn:aws:..." }       — the real value lives in AWS Secrets Manager; Terraform never sees it.
+                                                        EC2 workers fetch it at startup; Lambda functions receive a
+                                                        NAME_SECRET_ARN env var pointing to the secret.
 EOF
-  default     = {}
+  sensitive = true
+  type = map(object({
+    value      = optional(string)
+    sensitive  = optional(bool, false)
+    secret_arn = optional(string)
+  }))
+  default = {}
 }
 
 
@@ -332,11 +340,6 @@ variable "autoscaling_configuration" {
   }
 }
 
-variable "autoscaler_extra_env" {
-  description = "Additional environment variables to pass to the autoscaler Lambda function. Values override defaults if keys conflict."
-  type        = map(string)
-  default     = {}
-}
 
 variable "autoscaling_vpc_subnets" {
   description = "List of VPC subnets to use for the autoscaler Lambda function."
