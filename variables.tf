@@ -54,7 +54,7 @@ variable "env_vars" {
                                                         EC2 workers fetch it at startup; Lambda functions receive a
                                                         NAME_SECRET_ARN env var pointing to the secret.
 EOF
-  sensitive = true
+  sensitive   = true
   type = map(object({
     value      = optional(string)
     sensitive  = optional(bool, false)
