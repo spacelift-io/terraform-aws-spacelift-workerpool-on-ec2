@@ -47,20 +47,30 @@ variable "ami_architecture" {
 variable "env_vars" {
   description = <<EOF
   Environment variables to pass to all worker pool components (EC2 workers, autoscaler Lambda, and lifecycle manager Lambda).
-  Each entry can be one of three kinds:
-  - plain:       { value = "..." }                   — passed as-is
-  - sensitive:   { value = "...", sensitive = true }  — redacted in plan/apply output, stored in Secrets Manager for EC2 workers
-  - secret_arn:  { secret_arn = "arn:aws:..." }       — the real value lives in AWS Secrets Manager; Terraform never sees it.
-                                                        EC2 workers fetch it at startup; Lambda functions receive a
-                                                        NAME_SECRET_ARN env var pointing to the secret.
+  Each entry can be one of two kinds:
+  - plain:     { value = "..." }                   — passed as-is
+  - sensitive: { value = "...", sensitive = true }  — redacted in plan/apply output, stored in Secrets Manager for EC2
+                                                      workers and as individual Secrets Manager secrets for Lambda functions.
+  To pass a value that already lives in Secrets Manager use var.secret_env_var_arns instead.
 EOF
   sensitive   = true
   type = map(object({
-    value      = optional(string)
-    sensitive  = optional(bool, false)
-    secret_arn = optional(string)
+    value     = optional(string)
+    sensitive = optional(bool, false)
   }))
   default = {}
+}
+
+variable "secret_env_var_arns" {
+  description = <<EOF
+  Map of environment variable name to an existing Secrets Manager secret ARN.
+  Terraform never reads the secret value. EC2 workers fetch the secret at startup; Lambda functions receive a
+  NAME_SECRET_ARN environment variable pointing to the secret, which is fetched via the AWS Parameters and
+  Secrets Lambda Extension at runtime.
+  The values may be resource-computed ARNs (e.g. aws_secretsmanager_secret.foo.arn).
+EOF
+  type        = map(string)
+  default     = {}
 }
 
 

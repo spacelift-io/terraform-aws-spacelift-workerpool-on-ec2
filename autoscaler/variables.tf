@@ -104,9 +104,14 @@ variable "env_vars" {
   description = "Environment variables to pass to the autoscaler Lambda function."
   sensitive   = true
   type = map(object({
-    value      = optional(string)
-    sensitive  = optional(bool, false)
-    secret_arn = optional(string)
+    value     = optional(string)
+    sensitive = optional(bool, false)
   }))
   default = {}
+}
+
+variable "secret_env_var_arns" {
+  description = "Map of environment variable name to an existing Secrets Manager secret ARN."
+  type        = map(string)
+  default     = {}
 }

@@ -14,7 +14,7 @@ locals {
 }
 
 resource "validation_error" "env_vars_or_configuration" {
-  condition = !local.has_secure_env_vars && length(local.env_vars_with_secret_arn) == 0 && var.configuration == ""
+  condition = !local.has_secure_env_vars && length(var.secret_env_var_arns) == 0 && var.configuration == ""
   summary   = "Either var.env_vars, var.byo_secretsmanager, or var.configuration must be set"
   details   = <<EOT
 You must supply either 'env_vars', 'var.byo_secretsmanager' or 'configuration' to the module.

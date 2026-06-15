@@ -3,7 +3,7 @@ locals {
   env_vars_direct = {
     for name, cfg in var.env_vars :
     name => cfg.value
-    if cfg.secret_arn == null && cfg.value != null && cfg.sensitive != true
+    if cfg.value != null && cfg.sensitive != true
   }
 
   # Sensitive value entries — stored as individual Secrets Manager secrets so
@@ -11,25 +11,22 @@ locals {
   env_vars_sensitive_values = {
     for name, cfg in var.env_vars :
     name => cfg.value
-    if cfg.secret_arn == null && cfg.value != null && cfg.sensitive == true
+    if cfg.value != null && cfg.sensitive == true
   }
 
-  # NAME_SECRET_ARN env vars: explicit secret_arn entries + sensitive value secrets.
+  # NAME_SECRET_ARN env vars: explicit secret_env_var_arns entries + sensitive value secrets.
   env_vars_secret_refs = merge(
-    { for name, cfg in var.env_vars :
-      "${name}_SECRET_ARN" => cfg.secret_arn
-    if cfg.secret_arn != null },
-    { for name, secret in aws_secretsmanager_secret.sensitive_env_var :
-    "${name}_SECRET_ARN" => secret.arn }
+    { for name, arn in var.secret_env_var_arns : "${name}_SECRET_ARN" => arn },
+    { for name, secret in aws_secretsmanager_secret.sensitive_env_var : "${name}_SECRET_ARN" => secret.arn }
   )
 
   # All secret ARNs the Lambda IAM role needs to read.
   env_vars_secret_arns = concat(
-    [for name, cfg in var.env_vars : cfg.secret_arn if cfg.secret_arn != null],
+    values(var.secret_env_var_arns),
     [for _, secret in aws_secretsmanager_secret.sensitive_env_var : secret.arn],
   )
 
-  uses_secrets_extension = length(local.env_vars_secret_arns) > 0
+  uses_secrets_extension = length(var.secret_env_var_arns) > 0 || length(local.env_vars_sensitive_values) > 0
 }
 
 # Individual Secrets Manager secrets for each sensitive value entry.

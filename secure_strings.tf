@@ -3,21 +3,15 @@ locals {
   env_vars_with_value = {
     for name, cfg in var.env_vars :
     name => cfg.value
-    if cfg.secret_arn == null && cfg.value != null
+    if cfg.value != null
   }
 
-  # env_vars entries that reference an existing Secrets Manager secret by ARN
-  env_vars_with_secret_arn = {
-    for name, cfg in var.env_vars :
-    name => cfg.secret_arn
-    if cfg.secret_arn != null
-  }
+  # ARNs for IAM policy and user data come directly from var.secret_env_var_arns
+  env_vars_secret_arns = values(var.secret_env_var_arns)
 
-  env_vars_secret_arns = values(local.env_vars_with_secret_arn)
-
-  # User data lines that fetch each secret_arn entry individually at EC2 startup
+  # User data lines that fetch each secret_env_var_arns entry at EC2 startup
   env_vars_secret_arn_exports = join("\n", [
-    for name, arn in local.env_vars_with_secret_arn :
+    for name, arn in var.secret_env_var_arns :
     "export ${name}=$(aws secretsmanager get-secret-value --secret-id ${arn} --query SecretString --output text)"
   ])
 

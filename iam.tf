@@ -86,7 +86,7 @@ resource "aws_iam_role_policy" "s3" {
 }
 
 locals {
-  use_secure_env_vars = var.create_iam_role && (local.has_secure_env_vars || length(local.env_vars_secret_arns) > 0)
+  use_secure_env_vars = var.create_iam_role && (local.has_secure_env_vars || length(var.secret_env_var_arns) > 0)
 }
 
 resource "aws_iam_role_policy_attachment" "secure_env_vars" {
@@ -117,7 +117,7 @@ data "aws_iam_policy_document" "secure_env_vars" {
     actions = ["secretsmanager:GetSecretValue"]
     resources = compact(concat(
       local.has_secure_env_vars ? [local.secretsmanager_arn] : [],
-      local.env_vars_secret_arns,
+      values(var.secret_env_var_arns),
     ))
   }
 
