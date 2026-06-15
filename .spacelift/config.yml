@@ -56,6 +56,16 @@ tests:
       TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
       TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
 
+  - name: env-vars (plain and sensitive)
+    project_root: examples/env-vars
+
+  - name: secret-env-var-arns (with autoscaler)
+    project_root: examples/secret-env-var-arns
+    environment:
+      TF_VAR_spacelift_api_key_id: "EXAMPLE0VOYU49U485BMZZVAWXU59JOEY1"
+      TF_VAR_spacelift_api_key_secret: "EXAMPLE22anuofh4b6a4e43aplqt49099606de2mzbq4391tj1d3dc9872q23z8fvctu4kh"
+      TF_VAR_spacelift_api_key_endpoint: "https://example.app.spacelift.io"
+
   - name: With autoscaling and custom CA bundle
     project_root: examples/autoscaler-ca-bundle
     environment:
