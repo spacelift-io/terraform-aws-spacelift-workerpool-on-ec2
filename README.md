@@ -38,7 +38,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v5.3.1"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v7.0.0"
 
   env_vars = {
     SPACELIFT_TOKEN = {
@@ -231,7 +231,7 @@ Configure spot instances using the `instance_market_options` variable:
 
 ```hcl
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v7.0.0"
 
   # ... other configuration ...
 
@@ -289,7 +289,7 @@ If you don't need detailed instance-level metrics, you can disable the CloudWatc
 
 ```hcl
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v7.0.0"
 
   # ... other configuration ...
 
