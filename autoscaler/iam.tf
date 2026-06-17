@@ -73,6 +73,15 @@ data "aws_iam_policy_document" "autoscaler" {
       resources = local.env_vars_secret_arns
     }
   }
+
+  dynamic "statement" {
+    for_each = var.ca_bundle_secret_arn != null ? ["CA_BUNDLE"] : []
+    content {
+      effect    = "Allow"
+      actions   = ["secretsmanager:GetSecretValue"]
+      resources = [var.ca_bundle_secret_arn]
+    }
+  }
 }
 
 resource "aws_iam_role" "autoscaler" {

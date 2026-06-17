@@ -1,4 +1,6 @@
+import base64
 import json
+import ssl
 import urllib.request
 import boto3
 import botocore.exceptions
@@ -15,6 +17,19 @@ api_key_id = os.environ.get("SPACELIFT_API_KEY_ID", None)
 worker_pool_id = os.environ.get("SPACELIFT_WORKER_POOL_ID", None)
 queue_url = os.environ.get("QUEUE_URL", None)
 lifecycle_hook_timeout = int(os.environ.get("LIFECYCLE_HOOK_TIMEOUT", 0))
+
+
+def _build_ssl_context():
+    secret_arn = os.environ.get("SPACELIFT_CA_BUNDLE_SECRET_ARN")
+    if not secret_arn:
+        return None
+    bundle = boto3.client('secretsmanager').get_secret_value(SecretId=secret_arn)["SecretString"]
+    context = ssl.create_default_context()
+    context.load_verify_locations(cadata=base64.b64decode(bundle).decode("utf-8"))
+    return context
+
+
+ssl_context = _build_ssl_context()
 
 DRAIN_FAILURE = "DRAIN_FAILURE"
 HOOK_FAILURE = "HOOK_FAILURE"
@@ -35,7 +50,7 @@ def query_api(query: str, variables: dict = None, token: str = None) -> dict:
         data["variables"] = variables
 
     req = urllib.request.Request(f"{domain}/graphql", json.dumps(data).encode('utf-8'), headers)
-    with urllib.request.urlopen(req) as response:
+    with urllib.request.urlopen(req, context=ssl_context) as response:
         resp = json.loads(response.read().decode('utf-8'))
 
     if "errors" in resp:

@@ -40,6 +40,7 @@ module "autoscaler" {
   tracing_mode                     = var.autoscaling_tracing_mode
   env_vars                         = var.env_vars
   secret_env_var_arns              = var.secret_env_var_arns
+  ca_bundle_secret_arn             = local.ca_bundle_secret_arn
 }
 
 module "lifecycle_manager" {
@@ -62,6 +63,7 @@ module "lifecycle_manager" {
   lifecycle_hook_timeout           = var.lifecycle_hook_timeout
   env_vars                         = var.env_vars
   secret_env_var_arns              = var.secret_env_var_arns
+  ca_bundle_secret_arn             = local.ca_bundle_secret_arn
 }
 
 moved {

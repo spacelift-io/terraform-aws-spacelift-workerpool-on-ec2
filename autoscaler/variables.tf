@@ -115,3 +115,9 @@ variable "secret_env_var_arns" {
   type        = map(string)
   default     = {}
 }
+
+variable "ca_bundle_secret_arn" {
+  description = "ARN of the Secrets Manager secret holding the base64-encoded CA bundle, fetched by the Lambda at runtime."
+  type        = string
+  default     = null
+}

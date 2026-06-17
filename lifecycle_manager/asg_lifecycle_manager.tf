@@ -25,8 +25,6 @@ locals {
     values(var.secret_env_var_arns),
     [for _, secret in aws_secretsmanager_secret.sensitive_env_var : secret.arn],
   )
-
-  uses_secrets_extension = length(var.secret_env_var_arns) > 0 || length(local.env_vars_sensitive_values) > 0
 }
 
 # Individual Secrets Manager secrets for each sensitive value entry.
@@ -43,12 +41,6 @@ resource "aws_secretsmanager_secret_version" "sensitive_env_var" {
 
   secret_id     = aws_secretsmanager_secret.sensitive_env_var[each.key].id
   secret_string = local.env_vars_sensitive_values[each.key]
-}
-
-# Lifecycle manager always runs on x86_64.
-data "aws_ssm_parameter" "secrets_extension_layer" {
-  count = local.uses_secrets_extension ? 1 : 0
-  name  = "/aws/service/aws-parameters-and-secrets-lambda-extension/x86/latest"
 }
 
 locals {
@@ -74,7 +66,6 @@ resource "aws_lambda_function" "this" {
   role          = aws_iam_role.this.arn
   handler       = "main.main"
   runtime       = "python3.13"
-  layers        = local.uses_secrets_extension ? [data.aws_ssm_parameter.secrets_extension_layer[0].value] : []
 
   # Realistically, this function is just doing a few API calls and then immediately putting the
   # message back onto the queue if it cant doing anything. Like if its waiting for a worker to drain.
@@ -100,7 +91,7 @@ resource "aws_lambda_function" "this" {
       SPACELIFT_WORKER_POOL_ID      = var.worker_pool_id
       QUEUE_URL                     = aws_sqs_queue.this.url
       LIFECYCLE_HOOK_TIMEOUT        = var.lifecycle_hook_timeout
-    }, local.env_vars_direct, local.env_vars_secret_refs)
+    }, var.ca_bundle_secret_arn != null ? { SPACELIFT_CA_BUNDLE_SECRET_ARN = var.ca_bundle_secret_arn } : {}, local.env_vars_direct, local.env_vars_secret_refs)
   }
 }
 

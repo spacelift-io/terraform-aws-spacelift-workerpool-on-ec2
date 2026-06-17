@@ -310,6 +310,16 @@ variable "additional_tags" {
   default     = {}
 }
 
+variable "ca_bundle" {
+  type        = string
+  default     = null
+  description = <<EOF
+  Base64-encoded PEM CA certificate or chain to trust the Spacelift API when self-hosting with a private CA.
+  Applies to the whole worker pool and takes precedence over selfhosted_configuration.ca_certificates.
+  Example: base64encode(file("ca.pem")).
+  EOF
+}
+
 variable "autoscaling_configuration" {
   description = <<EOF
   Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
@@ -324,7 +334,7 @@ variable "autoscaling_configuration" {
     - key: (mandatory) S3 object key
     - object_version: (optional) S3 object version
   - scale_down_delay: (optional) The number of minutes a worker must be registered to spacelift before it is eligible for termination. Default: 0 minutes.
-  - ca_bundle: (optional) Base64-encoded PEM certificate or certificate chain to trust when the autoscaler connects to the Spacelift API. Useful for self-hosted deployments with a private CA. Example: base64encode(file("ca.pem")).
+  - ca_bundle: (optional, DEPRECATED) Use the top-level var.ca_bundle instead, which applies to both the autoscaler and lifecycle manager Lambdas. Still honored as a fallback for backward compatibility.
   EOF
 
   type = object({
