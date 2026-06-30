@@ -135,7 +135,7 @@ resource "aws_lambda_function" "autoscaler" {
   s3_object_version = local.use_s3_package ? var.autoscaling_configuration.s3_package.object_version : null
 
   function_name = local.function_name
-  role          = aws_iam_role.autoscaler.arn
+  role          = var.lambda_role_arn
   handler       = "bootstrap"
   runtime       = "provided.al2023"
   architectures = [var.autoscaling_configuration.architecture == "amd64" ? "x86_64" : coalesce(var.autoscaling_configuration.architecture, "x86_64")]

@@ -1,7 +1,7 @@
 locals {
   base_name                               = var.base_name == null ? "sp5ft-${var.worker_pool_id}" : var.base_name
   autoscaling_enabled                     = var.autoscaling_configuration == null ? false : true
-  lifecycle_manager_enabled               = var.instance_refresh != null ? true : false
+  lifecycle_manager_enabled               = local.autoscaling_enabled || var.instance_refresh != null
   autoscaler_or_lifecycle_manager_enabled = local.autoscaling_enabled || local.lifecycle_manager_enabled
 
   byo_ssm            = var.byo_ssm != null
@@ -41,6 +41,7 @@ module "autoscaler" {
   env_vars                         = var.env_vars
   secret_env_var_arns              = var.secret_env_var_arns
   ca_bundle_secret_arn             = local.ca_bundle_secret_arn
+  lambda_role_arn                  = aws_iam_role.lambda[0].arn
 }
 
 module "lifecycle_manager" {
@@ -64,16 +65,7 @@ module "lifecycle_manager" {
   env_vars                         = var.env_vars
   secret_env_var_arns              = var.secret_env_var_arns
   ca_bundle_secret_arn             = local.ca_bundle_secret_arn
-}
-
-moved {
-  from = aws_iam_role.autoscaler
-  to   = module.autoscaler[0].aws_iam_role.autoscaler
-}
-
-moved {
-  from = aws_iam_role_policy.autoscaler
-  to   = module.autoscaler[0].aws_iam_role_policy.autoscaler
+  lambda_role_arn                  = aws_iam_role.lambda[0].arn
 }
 
 moved {

@@ -102,3 +102,8 @@ variable "ca_bundle_secret_arn" {
   type        = string
   default     = null
 }
+
+variable "lambda_role_arn" {
+  description = "ARN of the IAM role the lifecycle manager Lambda assumes."
+  type        = string
+}

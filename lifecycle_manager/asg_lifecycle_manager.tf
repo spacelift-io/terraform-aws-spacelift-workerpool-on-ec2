@@ -72,7 +72,7 @@ resource "aws_lambda_function" "this" {
   source_code_hash = filebase64sha256(local.lifecycle_code)
 
   function_name = local.name
-  role          = aws_iam_role.this.arn
+  role          = var.lambda_role_arn
   handler       = "main.main"
   runtime       = "python3.13"
 
