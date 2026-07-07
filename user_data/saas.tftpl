@@ -32,7 +32,7 @@ setup() {
     fi
   fi
 
-  baseURL="https://downloads.${domain_name}/spacelift-launcher$fedrampSuffix"
+  baseURL="${binaries_download_base_url}/spacelift-launcher$fedrampSuffix"
   binaryURL=$(printf "%s-%s" "$baseURL" "$currentArch")
   shaSumURL=$(printf "%s-%s_%s" "$baseURL" "$currentArch" "SHA256SUMS")
   shaSumSigURL=$(printf "%s-%s_%s" "$baseURL" "$currentArch" "SHA256SUMS.sig")

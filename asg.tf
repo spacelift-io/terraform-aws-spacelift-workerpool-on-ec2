@@ -17,12 +17,14 @@ locals {
     load_custom_certs              = var.selfhosted_configuration.load_custom_certs == null ? "" : var.selfhosted_configuration.load_custom_certs
   })
 
+  binaries_download_base_url = var.binaries_download_base_url != "" ? var.binaries_download_base_url : "https://downloads.${var.domain_name}"
+
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {
-    custom_user_data         = join("\n", [local.secure_env_vars, local.env_vars_secret_arn_exports, var.configuration])
-    domain_name              = var.domain_name
-    poweroff_delay           = var.poweroff_delay
-    region                   = data.aws_region.this.region
-    disable_cloudwatch_agent = var.disable_cloudwatch_agent
+    custom_user_data           = join("\n", [local.secure_env_vars, local.env_vars_secret_arn_exports, var.configuration])
+    binaries_download_base_url = local.binaries_download_base_url
+    poweroff_delay             = var.poweroff_delay
+    region                     = data.aws_region.this.region
+    disable_cloudwatch_agent   = var.disable_cloudwatch_agent
   })
 }
 

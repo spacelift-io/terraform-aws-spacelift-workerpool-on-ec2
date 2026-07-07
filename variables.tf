@@ -102,6 +102,18 @@ variable "domain_name" {
   default     = "spacelift.io"
 }
 
+variable "binaries_download_base_url" {
+  type        = string
+  description = <<EOF
+  Base URL (scheme + host, no trailing slash, no path) used to download the launcher binary
+  via user_data.
+
+  Defaults to `https://downloads.<var.domain_name>` when unset, preserving backward
+  compatibility for existing callers.
+EOF
+  default     = ""
+}
+
 variable "ec2_instance_type" {
   type        = string
   description = "EC2 instance type for the workers. If an arm64-based AMI is used, this must be an arm64-based instance type."
