@@ -15,8 +15,14 @@ locals {
     "export ${name}=$(aws secretsmanager get-secret-value --secret-id ${arn} --query SecretString --output text)"
   ])
 
-  byo_secretsmanager  = var.byo_secretsmanager != null
-  has_secure_env_vars = length(local.env_vars_with_value) > 0 || local.byo_secretsmanager
+  byo_secretsmanager = var.byo_secretsmanager != null
+
+  # Derived from the env_vars keys, never from the values. Values may come from a resource created in
+  # the same run (e.g. spacelift_worker_pool.this.config), which makes them unknown at plan time — and
+  # `cfg.value != null` on an unknown value is itself unknown, so anything filtered that way cannot
+  # drive count/for_each ("The count value depends on resource attributes that cannot be determined
+  # until apply"). Map keys are always known, so counting entries keeps the plan resolvable.
+  has_secure_env_vars = length(var.env_vars) > 0 || local.byo_secretsmanager
 
   secret_name     = local.byo_secretsmanager ? var.byo_secretsmanager.name : "${local.base_name}-secret"
   secret_iterator = local.byo_secretsmanager ? { for i in var.byo_secretsmanager.keys : i => "BYO" } : local.env_vars_with_value

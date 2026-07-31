@@ -59,6 +59,16 @@ EOF
     sensitive = optional(bool, false)
   }))
   default = {}
+
+  # A sensitive entry gets its own Secrets Manager secret per Lambda, keyed on the entry name alone, so
+  # a missing value surfaces as a provider error at apply time instead of being quietly dropped.
+  # Skipped for values that are still unknown at plan time; those are re-checked during apply.
+  validation {
+    condition = alltrue([
+      for _, cfg in var.env_vars : cfg.value != null if cfg.sensitive == true
+    ])
+    error_message = "Every env_vars entry with 'sensitive = true' must also set 'value'."
+  }
 }
 
 variable "secret_env_var_arns" {

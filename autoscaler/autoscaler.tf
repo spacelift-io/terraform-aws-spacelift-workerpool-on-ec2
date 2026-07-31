@@ -8,10 +8,19 @@ locals {
 
   # Sensitive value entries — stored as individual Secrets Manager secrets so
   # the value is never embedded in the Lambda configuration.
+  # The name set is filtered on the `sensitive` flag alone: a value taken from a resource created in
+  # the same run is unknown at plan time, so a `cfg.value != null` filter would make the key set
+  # unknown and break the for_each below.
+  env_vars_sensitive_names = toset([
+    for name, cfg in var.env_vars :
+    name
+    if cfg.sensitive == true
+  ])
+
   env_vars_sensitive_values = {
     for name, cfg in var.env_vars :
     name => cfg.value
-    if cfg.value != null && cfg.sensitive == true
+    if cfg.sensitive == true
   }
 
   # NAME_SECRET_ARN env vars: explicit secret_env_var_arns entries + sensitive value secrets.
@@ -29,7 +38,7 @@ locals {
 
 # Individual Secrets Manager secrets for each sensitive value entry.
 resource "aws_secretsmanager_secret" "sensitive_env_var" {
-  for_each = nonsensitive(toset(keys(local.env_vars_sensitive_values)))
+  for_each = nonsensitive(local.env_vars_sensitive_names)
 
   name                    = "${local.function_name}-env-${each.key}"
   recovery_window_in_days = 0
@@ -37,7 +46,7 @@ resource "aws_secretsmanager_secret" "sensitive_env_var" {
 }
 
 resource "aws_secretsmanager_secret_version" "sensitive_env_var" {
-  for_each = nonsensitive(toset(keys(local.env_vars_sensitive_values)))
+  for_each = nonsensitive(local.env_vars_sensitive_names)
 
   secret_id     = aws_secretsmanager_secret.sensitive_env_var[each.key].id
   secret_string = local.env_vars_sensitive_values[each.key]

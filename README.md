@@ -69,18 +69,23 @@ For more examples covering specific use cases, please see the [examples director
 - [AMD64 deployment](./examples/amd64/)
 - [ARM64 deployment](./examples/arm64/)
 - [Spot instances for cost optimization](./examples/spot-instances/)
+- [Plain and sensitive environment variables](./examples/env-vars/)
+- [Environment variables from existing secrets](./examples/secret-env-var-arns/)
 - [Autoscaler configuration](./examples/autoscaler/)
 - [Custom S3 package for autoscaler](./examples/autoscaler-custom-s3-package/)
+- [Custom CA bundle for the autoscaler](./examples/autoscaler-ca-bundle/)
+- [Custom EBS throughput for the autoscaler](./examples/autoscaler-custom-ebs-throughput/)
 - [BYO SSM and Secrets Manager](./examples/byo-ssm-secretsmanager-with-autoscaling-and-lifecycle/)
 - [Extra IAM statements](./examples/extra-iam-statements/)
 - [Custom IAM role](./examples/custom-iam-role/)
 - [Self-hosted deployment](./examples/self-hosted/)
+- [Self-hosted deployment with VPC-attached autoscaler](./examples/self-hosted-vpc-autoscaler/)
 
 ## 🔑 Credentials & Environment Variables
 
 ### Using `env_vars` (Recommended)
 
-All environment variables — for EC2 workers, the autoscaler Lambda, and the lifecycle manager Lambda — are passed through a single `env_vars` variable. Each entry supports three kinds of values:
+Environment variables whose values Terraform handles — for EC2 workers, the autoscaler Lambda, and the lifecycle manager Lambda — are passed through a single `env_vars` variable. Each entry supports two kinds of values:
 
 ```hcl
 env_vars = {
@@ -99,22 +104,30 @@ env_vars = {
     value     = var.worker_pool_private_key
     sensitive = true
   }
-
-  # 3. Secret ARN — Terraform never sees the value. EC2 workers fetch
-  #    it individually at startup; Lambda functions receive a
-  #    NAME_SECRET_ARN env var they can use to retrieve it at runtime.
-  DB_PASSWORD = {
-    secret_arn = "arn:aws:secretsmanager:us-east-1:111122223333:secret:prod/db/password-AbCdEf"
-  }
 }
 ```
+
+To pass a value that already lives in Secrets Manager, use the separate `secret_env_var_arns` variable — a map of env var name to secret ARN. Terraform never reads the value, and the ARNs may be resource-computed:
+
+```hcl
+secret_env_var_arns = {
+  DB_PASSWORD = aws_secretsmanager_secret.db_password.arn
+}
+```
+
+See the [secret env var ARNs example](./examples/secret-env-var-arns/) for a full configuration.
 
 **How each kind is handled per component:**
 
 | Kind | EC2 workers | Autoscaler Lambda | Lifecycle manager Lambda |
 |---|---|---|---|
-| `value` | Stored in Secrets Manager bundle, exported at boot | Direct env var | Direct env var |
-| `secret_arn` | Fetched individually at boot via `aws secretsmanager get-secret-value` | `NAME_SECRET_ARN` env var + IAM access | `NAME_SECRET_ARN` env var + IAM access |
+| `env_vars` entry with `value` | Stored in Secrets Manager bundle, exported at boot | Direct env var | Direct env var |
+| `env_vars` entry with `value` + `sensitive = true` | Stored in Secrets Manager bundle, exported at boot | Own Secrets Manager secret + `NAME_SECRET_ARN` env var | Own Secrets Manager secret + `NAME_SECRET_ARN` env var |
+| `secret_env_var_arns` entry | Fetched individually at boot via `aws secretsmanager get-secret-value` | `NAME_SECRET_ARN` env var + IAM access | `NAME_SECRET_ARN` env var + IAM access |
+
+> Note: `sensitive` `env_vars` entries and `secret_env_var_arns` currently take effect on **EC2 workers only**. The Lambdas receive the `NAME_SECRET_ARN` env vars and IAM access, but don't resolve arbitrary secret env vars yet, so for them these are placeholders. This does not affect their operation — they authenticate with the Spacelift API key, delivered separately via SSM. Plain `env_vars` work on all components.
+
+Values in `env_vars` may reference resources created in the same run (for example `spacelift_worker_pool.this.config`) — the module derives its resource counts from the entry names, never from the values, so the plan stays resolvable.
 
 > ❗️ Previous versions of this module used separate `secure_env_vars` and `autoscaler_extra_env` variables. These have been replaced by `env_vars`. The `configuration` variable remains available for non-env-var user data.
 
@@ -144,7 +157,7 @@ byo_ssm = {
 >
 > - Use `env_vars` when you want the module to manage your Secrets Manager resources
 > - Use `byo_secretsmanager` when you have pre-existing Secrets Manager resources or need more control
-> - `env_vars` entries with `secret_arn` (referencing external secrets) are always compatible with `byo_secretsmanager`
+> - `secret_env_var_arns` entries (referencing external secrets) are always compatible with `byo_secretsmanager`
 
 Similarly, when using `byo_ssm` for the autoscaler API credentials, you should not provide `api_key_secret` in the `spacelift_api_credentials` object, as these are mutually exclusive ways to provide the same information:
 
