@@ -52,22 +52,23 @@ resource "aws_iam_role" "this" {
 }
 
 locals {
-  iam_managed_policies = var.create_iam_role ? concat([
-    "arn:${data.aws_partition.current.partition}:iam::aws:policy/AutoScalingReadOnlyAccess",
-    "arn:${data.aws_partition.current.partition}:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    ],
-    !var.disable_cloudwatch_agent ? [
-      "arn:${data.aws_partition.current.partition}:iam::aws:policy/CloudWatchAgentServerPolicy"
-    ] : [],
-    local.lifecycle_manager_enabled ? [
-      "arn:${data.aws_partition.current.partition}:iam::aws:policy/service-role/AutoScalingNotificationAccessRole"
-  ] : []) : []
+  # Keyed on static strings so for_each stays resolvable at plan time. The partition is only known
+  # after apply when the provider assumes a role whose ARN varies between plan and apply, which made
+  # a for_each over the full ARNs fail with "Invalid for_each argument".
+  iam_managed_policy_names = var.create_iam_role ? merge(
+    {
+      autoscaling_ro   = "AutoScalingReadOnlyAccess"
+      ssm_managed_core = "AmazonSSMManagedInstanceCore"
+    },
+    !var.disable_cloudwatch_agent ? { cloudwatch_agent = "CloudWatchAgentServerPolicy" } : {},
+    local.lifecycle_manager_enabled ? { asg_notification = "service-role/AutoScalingNotificationAccessRole" } : {}
+  ) : {}
 }
 resource "aws_iam_role_policy_attachment" "this" {
-  for_each = toset(local.iam_managed_policies)
+  for_each = local.iam_managed_policy_names
 
   role       = aws_iam_role.this[0].name
-  policy_arn = each.value
+  policy_arn = "arn:${data.aws_partition.current.partition}:iam::aws:policy/${each.value}"
 }
 
 resource "aws_iam_role_policy" "s3" {
