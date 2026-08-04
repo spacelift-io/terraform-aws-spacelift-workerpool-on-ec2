@@ -1,5 +1,5 @@
 version: 2
-module_version: 7.2.1
+module_version: 7.2.2
 
 tests:
   - name: AMD64-based workerpool
