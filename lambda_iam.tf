@@ -62,6 +62,7 @@ data "aws_iam_policy_document" "lambda" {
       "autoscaling:SetDesiredCapacity",
       "autoscaling:TerminateInstanceInAutoScalingGroup",
       "autoscaling:CompleteLifecycleAction",
+      "autoscaling:RecordLifecycleActionHeartbeat",
     ]
     resources = [module.asg.autoscaling_group_arn]
   }
