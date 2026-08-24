@@ -153,6 +153,27 @@ def complete_hook(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_
     return False
 
 
+def record_heartbeat(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id):
+    # Resets the hook's heartbeat timeout countdown so the instance stays in
+    # Terminating:Wait while a run is still in progress. Returns False when the
+    # lifecycle action is no longer active (instance already released).
+    try:
+        autoscaling.record_lifecycle_action_heartbeat(
+            LifecycleHookName=lifecycle_hook_name,
+            AutoScalingGroupName=autoscaling_group_name,
+            LifecycleActionToken=lifecycle_action_token,
+            InstanceId=instance_id
+        )
+    except botocore.exceptions.ClientError as e:
+        if e.response["Error"]["Code"] == "ValidationError":
+            print(f"Lifecycle action no longer active for instance {instance_id}. Not heartbeating.")
+            return False
+        raise
+
+    print(f"Recorded lifecycle heartbeat for instance {instance_id}.")
+    return True
+
+
 def put_message_back_on_queue(event):
     delay_seconds = 2
     retry = 1
@@ -163,6 +184,14 @@ def put_message_back_on_queue(event):
     if delay_seconds >= 15 * 60:
         delay_seconds = 15 * 60
 
+    # The heartbeat recorded before each requeue resets the hook's countdown,
+    # so the next retry must land inside the heartbeat window or the ASG
+    # terminates the instance mid-wait.
+    if lifecycle_hook_timeout > 0:
+        max_delay = max(2, lifecycle_hook_timeout - 60)
+        if delay_seconds > max_delay:
+            delay_seconds = max_delay
+
     if "start_time" not in event:
         event["start_time"] = time.time()
 
@@ -172,18 +201,14 @@ def put_message_back_on_queue(event):
     }
 
     if event["retry"]["retry"] >= 30:
-        # We should hit this after about 45 minutes of retrying
-        # This is a safety net to prevent infinite retries
+        # Safety net to prevent infinite retries. With the default 300s hook
+        # timeout this allows roughly 90 minutes of draining; AWS additionally
+        # caps the total wait at 100x the heartbeat timeout or 48h.
         print("Max retries reached. Not retrying. Dropping Message")
         return
 
-    if lifecycle_hook_timeout > 0:
-        elapsed = time.time() - event["start_time"]
-        if elapsed + delay_seconds > lifecycle_hook_timeout:
-            print(f"Next retry would exceed lifecycle hook timeout ({lifecycle_hook_timeout}s). Elapsed: {elapsed:.0f}s, next delay: {delay_seconds}s. Dropping message.")
-            return
-
-    print(f"Retrying event in {delay_seconds} seconds.")
+    elapsed = time.time() - event["start_time"]
+    print(f"Retrying event in {delay_seconds} seconds. Elapsed: {elapsed:.0f}s.")
     sqs.send_message(
         QueueUrl=queue_url,
         MessageBody=json.dumps(event),
@@ -217,6 +242,10 @@ def main(event, context):
         if worker:
             success = drain_worker(worker, token)
             if not success:
+                # Heartbeat, or the hook expires mid-run.
+                if not record_heartbeat(lifecycle_hook_name, autoscaling_group_name, lifecycle_action_token, instance_id):
+                    print("Instance already released; dropping message.")
+                    continue
                 body["WORKER_TERM_FAILURE"] = DRAIN_FAILURE
                 put_message_back_on_queue(body)
             else:

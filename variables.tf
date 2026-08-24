@@ -176,7 +176,7 @@ variable "launch_template_update_default_version" {
 }
 
 variable "lifecycle_hook_timeout" {
-  description = "Timeout for the lifecycle hook in seconds"
+  description = "Heartbeat timeout (seconds) for the EC2_INSTANCE_TERMINATING lifecycle hook. While a terminating worker still has a run in progress, the lifecycle manager heartbeats the hook on every re-check, so this only needs to exceed the interval between checks — not your longest run. Total drain wait is bounded by the lifecycle manager's retry budget (roughly 90 minutes at the default) and AWS's cap of 100x this value or 48h, whichever is smaller."
   type        = number
   default     = 300
 }
