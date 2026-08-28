@@ -332,8 +332,6 @@ You can use an ARM-based AMI by setting the `ami_architecture` to `arm64`, or th
 
 We recommend using [Spacelift AMIs](https://github.com/spacelift-io/spacelift-worker-image/releases) because they come with every required tool preinstalled.
 
-Self hosted does not currently support ARM.
-
 >❗️ If you use [custom runner images](https://docs.spacelift.io/concepts/stack/stack-settings.html#runner-image), make sure they support ARM. The default Spacelift images do support it.
 
 ## Module Registries
