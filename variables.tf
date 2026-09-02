@@ -248,6 +248,12 @@ variable "vpc_subnets" {
   description = "List of VPC subnets to use"
 }
 
+variable "network_interfaces" {
+  description = "List of network interface configurations for the launch template. Use to set associate_public_ip_address or other NIC-level options. When set, any security_groups specified at the top level are automatically merged into each network interface entry by the underlying autoscaling module."
+  type        = list(any)
+  default     = null
+}
+
 variable "worker_pool_id" {
   type        = string
   description = "ID (ULID) of the the worker pool."
