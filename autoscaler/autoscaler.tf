@@ -53,13 +53,14 @@ resource "aws_secretsmanager_secret_version" "sensitive_env_var" {
 }
 
 locals {
-  download_folder    = var.worker_pool_id # Unique folder name to avoid race conditions when downloading the archive in parallel
-  architecture       = coalesce(var.autoscaling_configuration.architecture, "amd64")
-  autoscaler_zip     = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
-  function_name      = "${var.base_name}-ec2-autoscaler"
-  use_s3_package     = var.autoscaling_configuration.s3_package != null
-  resolve_latest     = var.autoscaling_configuration.version == "latest"
-  autoscaler_version = !local.use_s3_package && local.resolve_latest ? jsondecode(data.http.latest_release[0].response_body).tag_name : var.autoscaling_configuration.version
+  download_folder           = var.worker_pool_id # Unique folder name to avoid race conditions when downloading the archive in parallel
+  architecture              = coalesce(var.autoscaling_configuration.architecture, "amd64")
+  autoscaler_zip            = "${local.download_folder}/ec2-workerpool-autoscaler_linux_${local.architecture}.zip"
+  function_name             = "${var.base_name}-ec2-autoscaler"
+  use_s3_package            = var.autoscaling_configuration.s3_package != null
+  resolve_latest            = var.autoscaling_configuration.version == "latest"
+  stable_autoscaler_version = "v3.0.0"
+  autoscaler_version        = var.autoscaling_configuration.version == "stable" ? local.stable_autoscaler_version : (!local.use_s3_package && local.resolve_latest ? jsondecode(data.http.latest_release[0].response_body).tag_name : var.autoscaling_configuration.version)
 }
 
 # When version = "latest", resolve to a concrete release tag via the GitHub API.

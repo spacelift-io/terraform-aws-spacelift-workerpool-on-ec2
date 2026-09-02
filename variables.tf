@@ -345,7 +345,7 @@ variable "ca_bundle" {
 variable "autoscaling_configuration" {
   description = <<EOF
   Configuration for the autoscaler Lambda function. If null, the autoscaler will not be deployed. Configuration options are:
-  - version: (optional) Version of the autoscaler to deploy (e.g. "v2.4.0"). Set to "latest" to auto-resolve the newest release via the GitHub API. Set GITHUB_TOKEN in the environment to avoid rate limits.
+  - version: (optional) Version of the autoscaler to deploy (e.g. "v3.0.0"). Defaults to "stable", which is pinned by this module. Set to "latest" to auto-resolve the newest release via the GitHub API. Set GITHUB_TOKEN in the environment to avoid rate limits.
   - architecture: (optional) Instruction set architecture of the autoscaler to use. Can be amd64 or arm64.
   - schedule_expression: (optional) Autoscaler scheduling expression. Default: rate(1 minute).
   - max_create: (optional) The maximum number of instances the utility is allowed to create in a single run.
@@ -360,7 +360,7 @@ variable "autoscaling_configuration" {
   EOF
 
   type = object({
-    version             = optional(string, "latest")
+    version             = optional(string, "stable")
     architecture        = optional(string)
     schedule_expression = optional(string)
     max_create          = optional(number)
@@ -377,8 +377,8 @@ variable "autoscaling_configuration" {
   default = null
 
   validation {
-    condition     = var.autoscaling_configuration == null || try(var.autoscaling_configuration.version == "latest" || startswith(var.autoscaling_configuration.version, "v"), false)
-    error_message = "version must be a release tag starting with \"v\" (e.g. \"v2.5.0\"), or \"latest\"."
+    condition     = var.autoscaling_configuration == null || try(contains(["stable", "latest"], var.autoscaling_configuration.version) || startswith(var.autoscaling_configuration.version, "v"), false)
+    error_message = "version must be a release tag starting with \"v\" (e.g. \"v3.0.0\"), \"stable\", or \"latest\"."
   }
 }
 
