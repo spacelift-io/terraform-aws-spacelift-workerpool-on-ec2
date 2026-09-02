@@ -1,6 +1,6 @@
 variable "autoscaling_configuration" {
   type = object({
-    version             = optional(string, "latest")
+    version             = optional(string, "stable")
     architecture        = optional(string)
     schedule_expression = optional(string)
     max_create          = optional(number)
