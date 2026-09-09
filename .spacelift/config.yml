@@ -1,5 +1,5 @@
 version: 2
-module_version: 8.1.0
+module_version: 9.0.0
 
 tests:
   - name: AMD64-based workerpool
@@ -58,6 +58,9 @@ tests:
 
   - name: env-vars (plain and sensitive)
     project_root: examples/env-vars
+
+  - name: HTTP long-poll worker communication
+    project_root: examples/http-long-poll
 
   - name: secret-env-var-arns (with autoscaler)
     project_root: examples/secret-env-var-arns

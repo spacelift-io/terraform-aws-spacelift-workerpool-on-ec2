@@ -3,6 +3,11 @@ locals {
   autoscaling_enabled                     = var.autoscaling_configuration == null ? false : true
   lifecycle_manager_enabled               = local.autoscaling_enabled || var.instance_refresh != null
   autoscaler_or_lifecycle_manager_enabled = local.autoscaling_enabled || local.lifecycle_manager_enabled
+  worker_comms_url                        = var.worker_comms_url == null ? "https://app.${var.domain_name}" : var.worker_comms_url
+  worker_comms_configuration = join("\n", compact([
+    "export SPACELIFT_WORKER_COMMS_PROTOCOL=\"${var.worker_comms_protocol}\"",
+    var.worker_comms_protocol == "poll" ? "export SPACELIFT_WORKER_COMMS_URL=\"${local.worker_comms_url}\"" : null,
+  ]))
 
   byo_ssm            = var.byo_ssm != null
   generated_ssm_name = "/${local.base_name}/api-secret-${var.worker_pool_id}"
