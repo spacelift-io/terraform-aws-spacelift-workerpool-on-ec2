@@ -8,6 +8,7 @@ This module supports both SaaS and self-hosted Spacelift deployments, and can op
 
 - Deploy Spacelift worker pools on EC2 instances with autoscaling
 - Support for both SaaS and self-hosted Spacelift deployments
+- HTTP long-poll worker communication over outbound HTTPS by default
 - Automatically uses the FedRAMP worker image for FedRAMP worker pools
 - Optional autoscaling based on worker pool queue length
 - Secure storage of credentials using AWS Secrets Manager
@@ -38,7 +39,7 @@ provider "aws" {
 }
 
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v7.0.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v9.0.0"
 
   env_vars = {
     SPACELIFT_TOKEN = {
@@ -69,6 +70,7 @@ For more examples covering specific use cases, please see the [examples director
 - [AMD64 deployment](./examples/amd64/)
 - [ARM64 deployment](./examples/arm64/)
 - [Spot instances for cost optimization](./examples/spot-instances/)
+- [HTTP long-poll worker communication](./examples/http-long-poll/)
 - [Plain and sensitive environment variables](./examples/env-vars/)
 - [Environment variables from existing secrets](./examples/secret-env-var-arns/)
 - [Autoscaler configuration](./examples/autoscaler/)
@@ -130,6 +132,14 @@ See the [secret env var ARNs example](./examples/secret-env-var-arns/) for a ful
 Values in `env_vars` may reference resources created in the same run (for example `spacelift_worker_pool.this.config`) — the module derives its resource counts from the entry names, never from the values, so the plan stays resolvable.
 
 > ❗️ Previous versions of this module used separate `secure_env_vars` and `autoscaler_extra_env` variables. These have been replaced by `env_vars`. The `configuration` variable remains available for non-env-var user data.
+
+## 🌐 Worker Communication
+
+Starting with v9.0.0, workers use HTTP long-polling by default. The module exports `SPACELIFT_WORKER_COMMS_PROTOCOL=poll` and uses `https://app.spacelift.io` as the default server URL. This replaces the deprecated MQTT transport and means workers only need outbound HTTPS access to the Spacelift server for worker communication.
+
+For US-region SaaS, set `domain_name = "us.spacelift.io"`; the default communication URL then becomes `https://app.us.spacelift.io`. Self-hosted and FedRAMP deployments must set `worker_comms_url` to the base URL provided for their Spacelift environment.
+
+This default change is **breaking** because existing worker pools switch transports on their next instance replacement. Ensure outbound HTTPS access to the communication URL before upgrading. To temporarily remain on MQTT during migration, set `worker_comms_protocol = "mqtt"`. See the [v8.x to v9.0 upgrade guide](./docs/upgrade/v8.x-to-v9.0.md) for details.
 
 ### Using "Bring Your Own" (BYO) Variables
 
@@ -244,7 +254,7 @@ Configure spot instances using the `instance_market_options` variable:
 
 ```hcl
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v7.0.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v9.0.0"
 
   # ... other configuration ...
 
@@ -302,7 +312,7 @@ If you don't need detailed instance-level metrics, you can disable the CloudWatc
 
 ```hcl
 module "spacelift_workerpool" {
-  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v7.0.0"
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v9.0.0"
 
   # ... other configuration ...
 

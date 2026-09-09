@@ -81,6 +81,8 @@ module "this" {
     api_key_secret   = var.spacelift_api_key_secret
   }
 
+  worker_comms_url = var.spacelift_api_key_endpoint
+
   selfhosted_configuration = {
     s3_uri                         = "s3://example-bucketname1234/spacelift-launcher"
     run_launcher_as_spacelift_user = true

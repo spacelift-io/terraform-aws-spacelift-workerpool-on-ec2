@@ -68,6 +68,8 @@ module "this" {
   security_groups = [data.aws_security_group.this.id]
   vpc_subnets     = data.aws_subnets.this.ids
 
+  worker_comms_url = "https://spacelift.example.com"
+
   selfhosted_configuration = {
     s3_uri                         = "s3://example-bucketname1234/spacelift-launcher"
     run_launcher_as_spacelift_user = true

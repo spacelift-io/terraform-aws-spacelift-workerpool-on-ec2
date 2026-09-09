@@ -112,6 +112,28 @@ variable "domain_name" {
   default     = "spacelift.io"
 }
 
+variable "worker_comms_protocol" {
+  type        = string
+  description = "Transport used by workers to receive work. HTTP long-polling is the default; set to \"mqtt\" only as a temporary migration fallback."
+  default     = "poll"
+
+  validation {
+    condition     = contains(["poll", "mqtt"], var.worker_comms_protocol)
+    error_message = "worker_comms_protocol must be either \"poll\" or \"mqtt\"."
+  }
+}
+
+variable "worker_comms_url" {
+  type        = string
+  description = "Base URL of the Spacelift server used for HTTP long-polling. Defaults to https://app.<domain_name>. Self-hosted deployments must set this to their Spacelift server URL."
+  default     = null
+
+  validation {
+    condition     = var.worker_comms_url == null || can(regex("^https://[A-Za-z0-9.-]+(:[0-9]+)?/?$", var.worker_comms_url))
+    error_message = "worker_comms_url must be an HTTPS base URL containing only a scheme and host."
+  }
+}
+
 variable "binaries_download_base_url" {
   type        = string
   description = <<EOF
