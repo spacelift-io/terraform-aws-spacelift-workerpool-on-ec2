@@ -94,6 +94,17 @@ EOF
   default     = ""
 }
 
+variable "pre_launch_user_data" {
+  type        = string
+  description = <<EOF
+  Shell script run as root during instance boot, before the Spacelift launcher
+  starts. Use it for host setup such as installing packages that are not in the
+  worker AMI. Environment variables exported here are not passed to the
+  launcher - use `configuration` or `env_vars` for those.
+EOF
+  default     = ""
+}
+
 variable "disable_container_credentials" {
   type        = bool
   description = <<EOF
