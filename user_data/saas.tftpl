@@ -10,6 +10,8 @@ setup() {
   echo "CloudWatch Agent has been disabled" >> /var/log/spacelift/info.log
   %{ endif ~}
 
+  ${pre_launch_user_data}
+
   ${custom_user_data}
 
   currentArch=$(uname -m)
