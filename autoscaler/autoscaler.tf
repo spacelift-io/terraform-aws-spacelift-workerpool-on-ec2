@@ -59,7 +59,7 @@ locals {
   function_name             = "${var.base_name}-ec2-autoscaler"
   use_s3_package            = var.autoscaling_configuration.s3_package != null
   resolve_latest            = var.autoscaling_configuration.version == "latest"
-  stable_autoscaler_version = "v3.0.0"
+  stable_autoscaler_version = "v3.0.2"
   autoscaler_version        = var.autoscaling_configuration.version == "stable" ? local.stable_autoscaler_version : (!local.use_s3_package && local.resolve_latest ? jsondecode(data.http.latest_release[0].response_body).tag_name : var.autoscaling_configuration.version)
 }
 
