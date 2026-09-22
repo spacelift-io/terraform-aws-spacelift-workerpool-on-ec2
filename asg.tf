@@ -3,6 +3,7 @@ data "aws_region" "this" {}
 locals {
   selfhosted_user_data = templatefile("${path.module}/user_data/selfhosted.tftpl", {
     custom_user_data               = join("\n", [local.worker_comms_configuration, replace(local.secure_env_vars, "$", "\\$"), replace(local.env_vars_secret_arn_exports, "$", "\\$"), var.configuration])
+    pre_launch_user_data           = var.pre_launch_user_data
     run_launcher_as_spacelift_user = var.selfhosted_configuration.run_launcher_as_spacelift_user == null ? true : var.selfhosted_configuration.run_launcher_as_spacelift_user
     launcher_s3_uri                = var.selfhosted_configuration.s3_uri
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
@@ -21,6 +22,7 @@ locals {
 
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {
     custom_user_data           = join("\n", [local.worker_comms_configuration, local.secure_env_vars, local.env_vars_secret_arn_exports, var.configuration])
+    pre_launch_user_data       = var.pre_launch_user_data
     binaries_download_base_url = local.binaries_download_base_url
     poweroff_delay             = var.poweroff_delay
     region                     = data.aws_region.this.region
@@ -37,6 +39,7 @@ module "asg" {
   iam_instance_profile_arn = aws_iam_instance_profile.this.arn
   image_id                 = var.ami_id == "" ? data.aws_ami.this[0].id : var.ami_id
   instance_type            = var.ec2_instance_type
+  network_interfaces       = var.network_interfaces
   security_groups          = var.security_groups
   enable_monitoring        = var.enable_monitoring
   instance_refresh         = var.instance_refresh

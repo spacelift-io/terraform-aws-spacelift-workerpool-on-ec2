@@ -141,6 +141,31 @@ For US-region SaaS, set `domain_name = "us.spacelift.io"`; the default communica
 
 This default change is **breaking** because existing worker pools switch transports on their next instance replacement. Ensure outbound HTTPS access to the communication URL before upgrading. To temporarily remain on MQTT during migration, set `worker_comms_protocol = "mqtt"`. See the [v8.x to v9.0 upgrade guide](./docs/upgrade/v8.x-to-v9.0.md) for details.
 
+### Host setup with `pre_launch_user_data`
+
+`pre_launch_user_data` is a shell script that runs as root during instance boot,
+before the launcher starts. Use it to install packages that aren't in the worker
+AMI:
+
+```hcl
+pre_launch_user_data = <<-EOT
+  dnf install -y git
+EOT
+```
+
+It runs after the custom CA certificates are installed, so package downloads work
+behind a TLS-inspecting proxy, and before the `spacelift` user takes ownership of
+`/opt/spacelift`. If it fails, the instance powers off and the ASG replaces it
+(unless `selfhosted_configuration.power_off_on_error` is `false`).
+
+Environment variables exported here don't reach the launcher - use `env_vars` for
+secrets and `configuration` for plain ones.
+
+> [!NOTE]
+> Runs execute inside a container, so a package installed here is available to the
+> host, not to your Terraform runs. If you need a tool during a run, put it in a
+> custom runner image instead.
+
 ### Using "Bring Your Own" (BYO) Variables
 
 Alternatively, you can use the BYO variables to provide your own pre-created AWS Secrets Manager and SSM resources:

@@ -5,6 +5,9 @@ tests:
   - name: AMD64-based workerpool
     project_root: examples/amd64
 
+  - name: Network interfaces (public IP via NIC config)
+    project_root: examples/network-interfaces
+
   - name: ARM64-based workerpool
     project_root: examples/arm64
 

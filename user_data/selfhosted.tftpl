@@ -110,6 +110,11 @@ load_custom_ca_certs () {(
   fi
 )}
 
+run_pre_launch_user_data () {(
+  set -e
+  ${pre_launch_user_data}
+)}
+
 create_spacelift_launcher_script () {(
   set -e
   echo "Creating run-launcher.sh script" >> /var/log/spacelift/info.log
@@ -227,6 +232,16 @@ manage_ssm_by_region () {
 
 disable_cloudwatch_agent
 load_custom_ca_certs
+
+if ! run_pre_launch_user_data; then
+  echo "Pre-launch user data failed" >> /var/log/spacelift/error.log
+  %{ if power_off_on_error ~}
+  sleep 15
+  poweroff
+  exit 1
+  %{ endif ~}
+fi
+
 configure_permissions
 download_launcher
 configure_docker

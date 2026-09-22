@@ -94,6 +94,17 @@ EOF
   default     = ""
 }
 
+variable "pre_launch_user_data" {
+  type        = string
+  description = <<EOF
+  Shell script run as root during instance boot, before the Spacelift launcher
+  starts. Use it for host setup such as installing packages that are not in the
+  worker AMI. Environment variables exported here are not passed to the
+  launcher - use `configuration` or `env_vars` for those.
+EOF
+  default     = ""
+}
+
 variable "disable_container_credentials" {
   type        = bool
   description = <<EOF
@@ -268,6 +279,12 @@ variable "volume_throughput" {
 variable "vpc_subnets" {
   type        = list(string)
   description = "List of VPC subnets to use"
+}
+
+variable "network_interfaces" {
+  description = "List of network interface configurations for the launch template. Use to set associate_public_ip_address or other NIC-level options. When set, any security_groups specified at the top level are automatically merged into each network interface entry by the underlying autoscaling module."
+  type        = list(any)
+  default     = null
 }
 
 variable "worker_pool_id" {
