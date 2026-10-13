@@ -50,7 +50,8 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
-  worker_pool_id = random_string.worker_pool_id.id
+  worker_pool_id   = random_string.worker_pool_id.id
+  worker_comms_url = "https://app.spacelift.io"
 
   # Mix of plain and sensitive env_vars entries.
   env_vars = {

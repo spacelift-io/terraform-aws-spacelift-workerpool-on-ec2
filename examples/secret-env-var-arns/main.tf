@@ -67,7 +67,8 @@ resource "aws_secretsmanager_secret_version" "db_password" {
 module "this" {
   source = "../../"
 
-  worker_pool_id = random_string.worker_pool_id.id
+  worker_pool_id   = random_string.worker_pool_id.id
+  worker_comms_url = "https://app.spacelift.io"
 
   # Sensitive values stored in Secrets Manager by the module.
   env_vars = {

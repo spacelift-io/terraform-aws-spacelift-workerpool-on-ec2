@@ -136,7 +136,7 @@ variable "worker_comms_protocol" {
 
 variable "worker_comms_url" {
   type        = string
-  description = "Base URL of the Spacelift server used for HTTP long-polling. Defaults to https://app.<domain_name>. Self-hosted deployments must set this to their Spacelift server URL."
+  description = "Base URL of the Spacelift server used for HTTP long-polling. Required when worker_comms_protocol is \"poll\". Use https://app.spacelift.io for EU SaaS, https://app.us.spacelift.io for US SaaS, or the base URL of your self-hosted or FedRAMP Spacelift server."
   default     = null
 
   validation {

@@ -76,7 +76,8 @@ resource "aws_ssm_parameter" "byo" {
 module "this" {
   source = "../../"
 
-  worker_pool_id = random_string.worker_pool_id.id
+  worker_pool_id   = random_string.worker_pool_id.id
+  worker_comms_url = "https://app.spacelift.io"
 
   byo_secretsmanager = {
     name = aws_secretsmanager_secret.byo.name
