@@ -14,7 +14,6 @@ locals {
     launcher_s3_uri                = local.launcher_s3_uri
     launcher_version               = local.launcher_version
     launcher_name                  = coalesce(var.selfhosted_configuration.launcher_fips, false) ? "spacelift-launcher-fips" : "spacelift-launcher"
-    launcher_gpg_public_key        = coalesce(var.selfhosted_configuration.launcher_gpg_public_key, file("${path.module}/user_data/spacelift-selfhosted.asc"))
     binaries_download_base_url     = local.binaries_download_base_url
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
     https_proxy_config             = var.selfhosted_configuration.https_proxy_config == null ? "" : var.selfhosted_configuration.https_proxy_config

@@ -448,9 +448,8 @@ variable "selfhosted_configuration" {
   description = <<EOF
   Configuration for selfhosted launcher. Set either s3_uri or launcher_version to enable the selfhosted mode. Configuration options are:
   - s3_uri: (optional) If provided, the launcher binary will be downloaded from that URI. Format: s3://<bucket>/<key>. For example: s3://spacelift-binaries-123ab/spacelift-launcher
-  - launcher_version: (optional) Your Spacelift self-hosted version, for example v6.4.3. If provided, the launcher binary for this version is downloaded from `<binaries_download_base_url>/self-hosted/<version>/` and its GPG signature and checksum are verified before it runs. The architecture is detected on the instance. Must match the version of your self-hosted installation. Cannot be used together with s3_uri.
+  - launcher_version: (optional) Your Spacelift self-hosted version, for example v6.4.3. If provided, the launcher binary for this version is downloaded from `<binaries_download_base_url>/self-hosted/<version>/` and its GPG signature and checksum are verified before it runs. The Spacelift self-hosted public key (fingerprint 380BD7699053035B71D027B173EBA0CF3B3F4A46) is downloaded from keys.openpgp.org. The architecture is detected on the instance. Must match the version of your self-hosted installation. Cannot be used together with s3_uri.
   - launcher_fips: (optional) Download the FIPS 140 build of the launcher. Only used with launcher_version. Defaults to false.
-  - launcher_gpg_public_key: (optional) ASCII-armored public key used to verify the launcher signature. Only used with launcher_version. Defaults to the Spacelift self-hosted signing key shipped with this module (fingerprint 380BD7699053035B71D027B173EBA0CF3B3F4A46). Set it when that key is rotated or extended before you can upgrade the module.
   - run_launcher_as_spacelift_user: (optional) Whether to run the launcher process as the spacelift user with UID 1983, or to run as root.
   - http_proxy_config: (optional) The value of the HTTP_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
   - https_proxy_config: (optional) The value of the HTTPS_PROXY environment variable to pass to the launcher, worker containers, and Docker daemon.
@@ -466,7 +465,6 @@ variable "selfhosted_configuration" {
     s3_uri                         = optional(string)
     launcher_version               = optional(string)
     launcher_fips                  = optional(bool)
-    launcher_gpg_public_key        = optional(string)
     run_launcher_as_spacelift_user = optional(bool)
     http_proxy_config              = optional(string)
     https_proxy_config             = optional(string)

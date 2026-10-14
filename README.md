@@ -143,10 +143,11 @@ ways to get it onto the workers, set through `selfhosted_configuration`:
   `https://downloads.spacelift.io/self-hosted/<version>/`, picks the binary for its architecture,
   and verifies its GPG signature and checksum before running it. Bump the version when you upgrade
   Spacelift. Set `launcher_fips = true` for the FIPS 140 build. Instances need outbound HTTPS access
-  to `downloads.spacelift.io`.
+  to `downloads.spacelift.io` and to `keys.openpgp.org`, where the Spacelift self-hosted public key
+  is published.
 - `s3_uri`: you upload the launcher from the self-hosted release archive to your own S3 bucket on
   every upgrade, and the instance copies it from there. Use this when the instances can't reach
-  `downloads.spacelift.io`.
+  `downloads.spacelift.io` or `keys.openpgp.org`.
 
 ```hcl
 selfhosted_configuration = {
