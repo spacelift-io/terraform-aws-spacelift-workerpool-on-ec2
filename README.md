@@ -81,6 +81,7 @@ For more examples covering specific use cases, please see the [examples director
 - [Extra IAM statements](./examples/extra-iam-statements/)
 - [Custom IAM role](./examples/custom-iam-role/)
 - [Self-hosted deployment](./examples/self-hosted/)
+- [Self-hosted deployment with the launcher from the downloads CDN](./examples/self-hosted-launcher-version/)
 - [Self-hosted deployment with VPC-attached autoscaler](./examples/self-hosted-vpc-autoscaler/)
 
 ## 🔑 Credentials & Environment Variables
@@ -132,6 +133,26 @@ See the [secret env var ARNs example](./examples/secret-env-var-arns/) for a ful
 Values in `env_vars` may reference resources created in the same run (for example `spacelift_worker_pool.this.config`) — the module derives its resource counts from the entry names, never from the values, so the plan stays resolvable.
 
 > ❗️ Previous versions of this module used separate `secure_env_vars` and `autoscaler_extra_env` variables. These have been replaced by `env_vars`. The `configuration` variable remains available for non-env-var user data.
+
+## 🏠 Self-hosted launcher
+
+For self-hosted Spacelift, the launcher binary must match your self-hosted version. There are two
+ways to get it onto the workers, set through `selfhosted_configuration`:
+
+- `launcher_version` (recommended): the instance downloads the launcher for that version from
+  `https://downloads.spacelift.io/self-hosted/<version>/`, picks the binary for its architecture,
+  and verifies its GPG signature and checksum before running it. Bump the version when you upgrade
+  Spacelift. Set `launcher_fips = true` for the FIPS 140 build. Instances need outbound HTTPS access
+  to `downloads.spacelift.io`.
+- `s3_uri`: you upload the launcher from the self-hosted release archive to your own S3 bucket on
+  every upgrade, and the instance copies it from there. Use this when the instances can't reach
+  `downloads.spacelift.io`.
+
+```hcl
+selfhosted_configuration = {
+  launcher_version = "v6.4.3"
+}
+```
 
 ## 🌐 Worker Communication
 

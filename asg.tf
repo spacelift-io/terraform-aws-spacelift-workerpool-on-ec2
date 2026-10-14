@@ -1,11 +1,21 @@
 data "aws_region" "this" {}
 
 locals {
+  launcher_s3_uri  = var.selfhosted_configuration.s3_uri == null ? "" : var.selfhosted_configuration.s3_uri
+  launcher_version = var.selfhosted_configuration.launcher_version == null ? "" : var.selfhosted_configuration.launcher_version
+  # The self-hosted mode is on when the launcher comes from the customer's bucket or from
+  # the versioned self-hosted path on the downloads CDN.
+  selfhosted = local.launcher_s3_uri != "" || local.launcher_version != ""
+
   selfhosted_user_data = templatefile("${path.module}/user_data/selfhosted.tftpl", {
     custom_user_data               = join("\n", [local.worker_comms_configuration, replace(local.secure_env_vars, "$", "\\$"), replace(local.env_vars_secret_arn_exports, "$", "\\$"), var.configuration])
     pre_launch_user_data           = var.pre_launch_user_data
     run_launcher_as_spacelift_user = var.selfhosted_configuration.run_launcher_as_spacelift_user == null ? true : var.selfhosted_configuration.run_launcher_as_spacelift_user
-    launcher_s3_uri                = var.selfhosted_configuration.s3_uri
+    launcher_s3_uri                = local.launcher_s3_uri
+    launcher_version               = local.launcher_version
+    launcher_name                  = coalesce(var.selfhosted_configuration.launcher_fips, false) ? "spacelift-launcher-fips" : "spacelift-launcher"
+    launcher_gpg_public_key        = coalesce(var.selfhosted_configuration.launcher_gpg_public_key, file("${path.module}/user_data/spacelift-selfhosted.asc"))
+    binaries_download_base_url     = local.binaries_download_base_url
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
     https_proxy_config             = var.selfhosted_configuration.https_proxy_config == null ? "" : var.selfhosted_configuration.https_proxy_config
     no_proxy_config                = var.selfhosted_configuration.no_proxy_config == null ? "" : var.selfhosted_configuration.no_proxy_config
@@ -19,6 +29,8 @@ locals {
   })
 
   binaries_download_base_url = var.binaries_download_base_url != "" ? var.binaries_download_base_url : "https://downloads.${var.domain_name}"
+
+  user_data = local.selfhosted ? local.selfhosted_user_data : local.saas_user_data
 
   saas_user_data = templatefile("${path.module}/user_data/saas.tftpl", {
     custom_user_data           = join("\n", [local.worker_comms_configuration, local.secure_env_vars, local.env_vars_secret_arn_exports, var.configuration])
@@ -110,7 +122,7 @@ module "asg" {
     "AZRebalance"
   ] : []
 
-  user_data = base64encode(var.selfhosted_configuration.s3_uri == "" ? local.saas_user_data : local.selfhosted_user_data)
+  user_data = base64encode(local.user_data)
 
   tag_specifications = var.tag_specifications
   tags = merge(var.additional_tags,

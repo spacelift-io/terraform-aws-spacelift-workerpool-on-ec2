@@ -72,7 +72,7 @@ resource "aws_iam_role_policy_attachment" "this" {
 }
 
 resource "aws_iam_role_policy" "s3" {
-  count = var.create_iam_role && var.selfhosted_configuration.s3_uri != "" ? 1 : 0
+  count = var.create_iam_role && local.launcher_s3_uri != "" ? 1 : 0
 
   name = "s3-access"
   role = aws_iam_role.this[0].name
@@ -81,7 +81,7 @@ resource "aws_iam_role_policy" "s3" {
     Statement = [{
       Effect   = "Allow"
       Action   = ["s3:GetObject"]
-      Resource = [format("arn:${data.aws_partition.current.partition}:s3:::%s/*", split("/", var.selfhosted_configuration.s3_uri)[2])]
+      Resource = [format("arn:${data.aws_partition.current.partition}:s3:::%s/*", split("/", local.launcher_s3_uri)[2])]
     }]
   })
 }

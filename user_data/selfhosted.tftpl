@@ -27,6 +27,60 @@ configure_permissions () {(
   fi
 )}
 
+%{ if launcher_version != "" ~}
+download_launcher() {(
+  arch=$(uname -m)
+  if [[ "$arch" != "x86_64" && "$arch" != "aarch64" ]]; then
+    echo "Unsupported architecture: $arch" >> /var/log/spacelift/error.log
+    return 1
+  fi
+
+  name="${launcher_name}-$arch"
+  base_url="${binaries_download_base_url}/self-hosted/${launcher_version}"
+  work_dir=$(mktemp -d)
+  # A throwaway keyring, so only the key passed to this module is trusted. gpg runs with
+  # --no-autostart: the minimal GnuPG on Amazon Linux 2023 has no gpg-agent, and trying to
+  # start it makes the import exit with an error.
+  export GNUPGHOME="$work_dir/gnupg"
+  mkdir -m 700 "$GNUPGHOME"
+
+  # The proxy is otherwise only set for Docker and the launcher, which start later.
+  if [[ "${http_proxy_config}" != "" ]]; then export http_proxy="${http_proxy_config}"; fi
+  if [[ "${https_proxy_config}" != "" ]]; then export https_proxy="${https_proxy_config}"; fi
+  if [[ "${no_proxy_config}" != "" ]]; then export no_proxy="${no_proxy_config}"; fi
+
+  echo "Downloading Spacelift launcher $name from $base_url" >> /var/log/spacelift/info.log
+  for file in "$name" "$${name}_SHA256SUMS" "$${name}_SHA256SUMS.sig"; do
+    curl --fail --silent --show-error --retry 5 --retry-delay 5 --output "$work_dir/$file" "$base_url/$file" 2>>/var/log/spacelift/error.log || {
+      echo "Failed to download $base_url/$file" >> /var/log/spacelift/error.log
+      return 1
+    }
+  done
+
+  echo "Verifying the checksum signature" >> /var/log/spacelift/info.log
+  cat > "$work_dir/key.asc" <<'SPACELIFT_GPG_KEY'
+${launcher_gpg_public_key}
+SPACELIFT_GPG_KEY
+  gpg --batch --quiet --no-autostart --import "$work_dir/key.asc" 2>>/var/log/spacelift/error.log || {
+    echo "Failed to import the launcher GPG public key" >> /var/log/spacelift/error.log
+    return 1
+  }
+  gpg --batch --no-autostart --verify "$work_dir/$${name}_SHA256SUMS.sig" "$work_dir/$${name}_SHA256SUMS" 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log || {
+    echo "Launcher checksum signature is not valid" >> /var/log/spacelift/error.log
+    return 1
+  }
+
+  echo "Verifying the launcher checksum" >> /var/log/spacelift/info.log
+  (cd "$work_dir" && sha256sum --check --strict "$${name}_SHA256SUMS") 1>>/var/log/spacelift/info.log 2>>/var/log/spacelift/error.log || {
+    echo "Launcher checksum does not match" >> /var/log/spacelift/error.log
+    return 1
+  }
+
+  install -m 755 "$work_dir/$name" /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log || return 1
+  rm -rf "$work_dir"
+  echo "Launcher binary is GO" >> /var/log/spacelift/info.log
+)}
+%{ else ~}
 download_launcher() {(
   echo "Downloading Spacelift launcher from S3" >> /var/log/spacelift/info.log
   aws s3 cp ${launcher_s3_uri} /usr/bin/spacelift-launcher >> /var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
@@ -34,6 +88,7 @@ download_launcher() {(
   chmod 755 /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
   echo "Launcher binary is GO" >> /var/log/spacelift/info.log
 )}
+%{ endif ~}
 
 configure_docker () {(
   set -e
@@ -243,7 +298,16 @@ if ! run_pre_launch_user_data; then
 fi
 
 configure_permissions
-download_launcher
+
+if ! download_launcher; then
+  echo "Failed to download the Spacelift launcher" >> /var/log/spacelift/error.log
+  %{ if power_off_on_error ~}
+  sleep 15
+  poweroff
+  %{ endif ~}
+  exit 1
+fi
+
 configure_docker
 create_spacelift_launcher_script
 manage_ssm_by_region
