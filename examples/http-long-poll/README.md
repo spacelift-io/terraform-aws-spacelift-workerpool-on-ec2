@@ -6,10 +6,10 @@ The module exports these values before starting the launcher:
 
 ```sh
 SPACELIFT_WORKER_COMMS_PROTOCOL=poll
-SPACELIFT_WORKER_COMMS_URL=https://app.spacelift.io
+SPACELIFT_WORKER_COMMS_URL=<worker_comms_url>
 ```
 
-No communication-specific input is needed for the default EU SaaS environment. For US-region SaaS, set `domain_name = "us.spacelift.io"`. For self-hosted and FedRAMP Spacelift, set `worker_comms_url` to the base URL provided for the environment.
+`worker_comms_url` is required whenever the protocol is `poll`, and the plan fails without it. This example uses `https://app.spacelift.io` for EU SaaS. For US-region SaaS, use `https://app.us.spacelift.io`. For self-hosted and FedRAMP Spacelift, use the base URL provided for the environment. The companion [HTTP long-poll missing URL](../http-long-poll-missing-url/README.md) example is a negative test that confirms the plan is rejected when the URL is omitted.
 
 To temporarily retain the deprecated MQTT transport during migration, set:
 

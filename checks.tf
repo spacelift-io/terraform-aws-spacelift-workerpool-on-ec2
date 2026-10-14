@@ -37,11 +37,11 @@ The instance refresh functionality requires api credentials to be passed in the 
 EOT
 }
 
-resource "validation_error" "selfhosted_poll_requires_url" {
-  condition = var.selfhosted_configuration.s3_uri != "" && var.worker_comms_protocol == "poll" && var.worker_comms_url == null
-  summary   = "Self-hosted HTTP long-poll requires a worker communication URL"
+resource "validation_error" "poll_requires_url" {
+  condition = var.worker_comms_protocol == "poll" && var.worker_comms_url == null
+  summary   = "HTTP long-poll requires a worker communication URL"
   details   = <<EOT
-Set 'worker_comms_url' to the base URL of your self-hosted Spacelift server, or temporarily set 'worker_comms_protocol' to "mqtt".
+'worker_comms_url' must be set when 'worker_comms_protocol' is "poll". Use https://app.spacelift.io for EU SaaS, https://app.us.spacelift.io for US SaaS, or the base URL of your self-hosted or FedRAMP Spacelift server. To temporarily remain on MQTT, set 'worker_comms_protocol' to "mqtt".
 EOT
 }
 

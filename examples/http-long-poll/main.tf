@@ -50,6 +50,17 @@ module "this" {
 
   worker_pool_id = random_string.worker_pool_id.id
 
+  # HTTP long-polling is the default transport. worker_comms_url is required
+  # when the protocol is "poll" and the plan fails without it. Use
+  # https://app.us.spacelift.io for US-region SaaS, or the base URL of your
+  # self-hosted or FedRAMP Spacelift server.
+  worker_comms_url = "https://app.spacelift.io"
+
+  # To temporarily remain on the deprecated MQTT transport during migration,
+  # set the protocol to "mqtt"; worker_comms_url is then ignored.
+  #
+  # worker_comms_protocol = "mqtt"
+
   env_vars = {
     SPACELIFT_TOKEN = {
       value     = "<token-here>"

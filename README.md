@@ -135,9 +135,9 @@ Values in `env_vars` may reference resources created in the same run (for exampl
 
 ## 🌐 Worker Communication
 
-Starting with v9.0.0, workers use HTTP long-polling by default. The module exports `SPACELIFT_WORKER_COMMS_PROTOCOL=poll` and uses `https://app.spacelift.io` as the default server URL. This replaces the deprecated MQTT transport and means workers only need outbound HTTPS access to the Spacelift server for worker communication.
+Starting with v9.0.0, workers use HTTP long-polling by default. The module exports `SPACELIFT_WORKER_COMMS_PROTOCOL=poll` and `SPACELIFT_WORKER_COMMS_URL` to the launcher. This replaces the deprecated MQTT transport and means workers only need outbound HTTPS access to the Spacelift server for worker communication.
 
-For US-region SaaS, set `domain_name = "us.spacelift.io"`; the default communication URL then becomes `https://app.us.spacelift.io`. Self-hosted and FedRAMP deployments must set `worker_comms_url` to the base URL provided for their Spacelift environment.
+`worker_comms_url` is **required** whenever the protocol is `poll`, and the plan fails if it is not set. Use `https://app.spacelift.io` for EU SaaS, `https://app.us.spacelift.io` for US SaaS, or the base URL provided for your self-hosted or FedRAMP Spacelift environment.
 
 This default change is **breaking** because existing worker pools switch transports on their next instance replacement. Ensure outbound HTTPS access to the communication URL before upgrading. To temporarily remain on MQTT during migration, set `worker_comms_protocol = "mqtt"`. See the [v8.x to v9.0 upgrade guide](./docs/upgrade/v8.x-to-v9.0.md) for details.
 

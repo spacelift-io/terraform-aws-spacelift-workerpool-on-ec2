@@ -1,5 +1,5 @@
 version: 2
-module_version: 9.0.0
+module_version: 9.1.0
 
 tests:
   - name: AMD64-based workerpool
@@ -64,6 +64,10 @@ tests:
 
   - name: HTTP long-poll worker communication
     project_root: examples/http-long-poll
+
+  - name: HTTP long-poll missing URL (negative)
+    project_root: examples/http-long-poll-missing-url
+    negative: true
 
   - name: secret-env-var-arns (with autoscaler)
     project_root: examples/secret-env-var-arns

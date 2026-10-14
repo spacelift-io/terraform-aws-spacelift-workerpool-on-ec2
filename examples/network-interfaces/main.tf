@@ -55,7 +55,8 @@ resource "random_string" "worker_pool_id" {
 module "this" {
   source = "../../"
 
-  worker_pool_id = random_string.worker_pool_id.id
+  worker_pool_id   = random_string.worker_pool_id.id
+  worker_comms_url = "https://app.spacelift.io"
 
   configuration = <<-EOT
     export SPACELIFT_SENSITIVE_OUTPUT_UPLOAD_ENABLED=true
