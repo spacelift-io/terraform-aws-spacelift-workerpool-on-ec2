@@ -28,6 +28,9 @@ configure_permissions () {(
 )}
 
 %{ if launcher_version != "" ~}
+# The download mode is picked by the template, not by a shell `if`, so the user data
+# of pools that use s3_uri stays the same as before and upgrading the module doesn't
+# change their launch template or start an instance refresh.
 download_launcher() {(
   arch=$(uname -m)
   if [[ "$arch" != "x86_64" && "$arch" != "aarch64" ]]; then
