@@ -27,11 +27,7 @@ configure_permissions () {(
   fi
 )}
 
-%{ if launcher_version != "" ~}
-# The download mode is picked by the template, not by a shell `if`, so the user data
-# of pools that use s3_uri stays the same as before and upgrading the module doesn't
-# change their launch template or start an instance refresh.
-download_launcher() {(
+download_launcher_from_cdn() {(
   arch=$(uname -m)
   if [[ "$arch" != "x86_64" && "$arch" != "aarch64" ]]; then
     echo "Unsupported architecture: $arch" >> /var/log/spacelift/error.log
@@ -88,15 +84,14 @@ download_launcher() {(
   rm -rf "$work_dir"
   echo "Launcher binary is GO" >> /var/log/spacelift/info.log
 )}
-%{ else ~}
-download_launcher() {(
+
+download_launcher_from_s3() {(
   echo "Downloading Spacelift launcher from S3" >> /var/log/spacelift/info.log
   aws s3 cp ${launcher_s3_uri} /usr/bin/spacelift-launcher >> /var/log/spacelift/info.log 2>>/var/log/spacelift/error.log
   echo "Making the Spacelift launcher executable" >> /var/log/spacelift/info.log
   chmod 755 /usr/bin/spacelift-launcher 2>>/var/log/spacelift/error.log
   echo "Launcher binary is GO" >> /var/log/spacelift/info.log
 )}
-%{ endif ~}
 
 configure_docker () {(
   set -e
@@ -306,20 +301,20 @@ if ! run_pre_launch_user_data; then
 fi
 
 configure_permissions
-%{ if launcher_version != "" ~}
 
-if ! download_launcher; then
-  echo "Failed to download the Spacelift launcher" >> /var/log/spacelift/error.log
-  %{ if power_off_on_error ~}
-  sleep 15
-  poweroff
-  %{ endif ~}
-  exit 1
+if [[ "${launcher_version}" != "" ]]; then
+  if ! download_launcher_from_cdn; then
+    echo "Failed to download the Spacelift launcher" >> /var/log/spacelift/error.log
+    %{ if power_off_on_error ~}
+    sleep 15
+    poweroff
+    %{ endif ~}
+    exit 1
+  fi
+else
+  download_launcher_from_s3
 fi
 
-%{ else ~}
-download_launcher
-%{ endif ~}
 configure_docker
 create_spacelift_launcher_script
 manage_ssm_by_region
