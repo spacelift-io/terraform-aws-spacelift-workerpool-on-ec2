@@ -36,7 +36,7 @@ download_launcher() {(
   fi
 
   name="${launcher_name}-$arch"
-  base_url="${binaries_download_base_url}/self-hosted/${launcher_version}"
+  base_url="${binaries_download_base_url}/deploy/${launcher_version}"
   work_dir=$(mktemp -d)
   # A throwaway keyring, so only the Spacelift self-hosted key is trusted. gpg runs with
   # --no-autostart: the minimal GnuPG on Amazon Linux 2023 has no gpg-agent, and trying to

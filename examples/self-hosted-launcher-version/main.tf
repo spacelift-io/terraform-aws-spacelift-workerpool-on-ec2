@@ -71,7 +71,7 @@ module "this" {
   worker_comms_url = "https://spacelift.example.com"
 
   # The launcher for this self-hosted version is downloaded from
-  # https://downloads.spacelift.io/self-hosted/v6.4.3/ and verified on boot with the
+  # https://downloads.spacelift.io/deploy/v6.4.3/ and verified on boot with the
   # self-hosted GPG key from keys.openpgp.org, so there is no binaries bucket to upload it to.
   selfhosted_configuration = {
     launcher_version = "v6.4.3"

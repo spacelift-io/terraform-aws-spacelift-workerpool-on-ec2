@@ -140,7 +140,7 @@ For self-hosted Spacelift, the launcher binary must match your self-hosted versi
 ways to get it onto the workers, set through `selfhosted_configuration`:
 
 - `launcher_version` (recommended): the instance downloads the launcher for that version from
-  `https://downloads.spacelift.io/self-hosted/<version>/`, picks the binary for its architecture,
+  `https://downloads.spacelift.io/deploy/<version>/`, picks the binary for its architecture,
   and verifies its GPG signature and checksum before running it. Bump the version when you upgrade
   Spacelift. Set `launcher_fips = true` for the FIPS 140 build. Instances need outbound HTTPS access
   to `downloads.spacelift.io` and to `keys.openpgp.org`, where the Spacelift self-hosted public key

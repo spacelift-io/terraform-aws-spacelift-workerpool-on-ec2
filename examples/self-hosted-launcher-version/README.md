@@ -1,7 +1,7 @@
 # Worker pool in self-hosted Spacelift, launcher from the downloads CDN
 
 This is an example of deploying a worker pool for self-hosted Spacelift that downloads the
-launcher for your self-hosted version from `https://downloads.spacelift.io/self-hosted/<version>/`
+launcher for your self-hosted version from `https://downloads.spacelift.io/deploy/<version>/`
 instead of from your own S3 bucket.
 
 On boot the instance picks the binary for its architecture (`x86_64` or `aarch64`), verifies the
