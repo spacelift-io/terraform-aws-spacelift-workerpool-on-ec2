@@ -45,3 +45,10 @@ resource "validation_error" "poll_requires_url" {
 EOT
 }
 
+resource "validation_error" "user_data_too_large" {
+  condition = length(local.user_data) > 16384
+  summary   = "The worker user data is larger than 16 KB"
+  details   = <<EOT
+EC2 limits user data to 16 KB and this configuration generates ${length(local.user_data)} bytes. The biggest contributors are usually 'ca_bundle' or 'selfhosted_configuration.ca_certificates', 'pre_launch_user_data' and 'configuration'. Move large CA bundles or scripts to S3 ('selfhosted_configuration.load_custom_certs') or into a custom AMI.
+EOT
+}

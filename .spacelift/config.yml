@@ -1,5 +1,5 @@
 version: 2
-module_version: 9.1.0
+module_version: 9.2.0
 
 tests:
   - name: AMD64-based workerpool
@@ -37,6 +37,13 @@ tests:
 
   - name: Self-hosted setup
     project_root: examples/self-hosted
+
+  - name: Self-hosted setup with the launcher from the downloads CDN
+    project_root: examples/self-hosted-launcher-version
+
+  - name: Self-hosted launcher version and S3 URI together (negative)
+    project_root: examples/self-hosted-launcher-version-and-s3-uri
+    negative: true
 
   - name: Self-hosted setup with VPC Lambdas
     project_root: examples/self-hosted-vpc-autoscaler
