@@ -6,9 +6,6 @@ locals {
     if cfg.value != null
   }
 
-  # ARNs for IAM policy and user data come directly from var.secret_env_var_arns
-  env_vars_secret_arns = values(var.secret_env_var_arns)
-
   # User data lines that fetch each secret_env_var_arns entry at EC2 startup
   env_vars_secret_arn_exports = join("\n", [
     for name, arn in var.secret_env_var_arns :
