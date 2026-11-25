@@ -16,6 +16,7 @@ This module supports both SaaS and self-hosted Spacelift deployments, and can op
 - Spot instance support for significant cost savings (up to 90%)
 - Instance lifecycle management with worker draining
 - Configurable instance types, volume sizes, and more
+- Deploy into a region other than the provider's with the `region` variable
 - "Bring Your Own" (BYO) options for SSM parameters and Secrets Manager
 
 ## 🛠️ Usage
@@ -63,6 +64,67 @@ module "spacelift_workerpool" {
 }
 ```
 
+### Deploying to a different region
+
+By default, the worker pool is created in the region of the `aws` provider. Set `region` to deploy it somewhere else. The VPC subnets and security groups you pass in must be in that region, so look them up with a provider configured for it:
+
+```hcl
+provider "aws" {
+  region = "eu-west-1"
+}
+
+provider "aws" {
+  alias  = "worker_pool"
+  region = "us-east-1"
+}
+
+data "aws_vpc" "worker_pool" {
+  provider = aws.worker_pool
+  default  = true
+}
+
+data "aws_security_group" "worker_pool" {
+  provider = aws.worker_pool
+  name     = "default"
+  vpc_id   = data.aws_vpc.worker_pool.id
+}
+
+data "aws_subnets" "worker_pool" {
+  provider = aws.worker_pool
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.worker_pool.id]
+  }
+}
+
+module "spacelift_workerpool" {
+  source = "github.com/spacelift-io/terraform-aws-spacelift-workerpool-on-ec2?ref=v9.3.0"
+
+  region           = "us-east-1"
+  worker_pool_id   = var.worker_pool_id
+  worker_comms_url = "https://app.spacelift.io"
+  env_vars = {
+    SPACELIFT_TOKEN = {
+      value     = var.worker_pool_config
+      sensitive = true
+    }
+    SPACELIFT_POOL_PRIVATE_KEY = {
+      value     = var.worker_pool_private_key
+      sensitive = true
+    }
+  }
+
+  vpc_subnets     = data.aws_subnets.worker_pool.ids
+  security_groups = [data.aws_security_group.worker_pool.id]
+}
+```
+
+Things to keep in mind when deploying to another region:
+
+- Each region needs its own worker pool, with its own `worker_pool_id`. IAM role names are account-wide, so `base_name` must also be unique per pool if you set it.
+- The Spacelift AMI is looked up in `region`. If you set `ami_id`, it must be an AMI in that region.
+- A `secure_env_vars_kms_key_id`, if set, must be a key in `region`.
+
 ### Other Examples
 
 For more examples covering specific use cases, please see the [examples directory](./examples/):
@@ -83,6 +145,7 @@ For more examples covering specific use cases, please see the [examples director
 - [Self-hosted deployment](./examples/self-hosted/)
 - [Self-hosted deployment with the launcher from the downloads CDN](./examples/self-hosted-launcher-version/)
 - [Self-hosted deployment with VPC-attached autoscaler](./examples/self-hosted-vpc-autoscaler/)
+- [Worker pool in a region other than the provider's](./examples/region/)
 
 ## 🔑 Credentials & Environment Variables
 

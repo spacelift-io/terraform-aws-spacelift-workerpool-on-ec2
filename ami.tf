@@ -8,6 +8,7 @@ locals {
 data "aws_ami" "this" {
   count = var.ami_id == "" ? 1 : 0
 
+  region      = local.region
   most_recent = true
   name_regex  = "^spacelift-\\d{10}-${var.ami_architecture}$"
   owners      = [local.ami_owner_ids[data.aws_partition.current.partition]]

@@ -9,10 +9,14 @@ locals {
   # ARNs for IAM policy and user data come directly from var.secret_env_var_arns
   env_vars_secret_arns = values(var.secret_env_var_arns)
 
+  # The worker's AWS CLI doesn't inherit the pool region, so pass it explicitly when var.region is set.
+  # Left out otherwise so the user data of existing pools stays byte-identical.
+  secrets_cli_region = var.region != null ? " --region ${var.region}" : ""
+
   # User data lines that fetch each secret_env_var_arns entry at EC2 startup
   env_vars_secret_arn_exports = join("\n", [
     for name, arn in var.secret_env_var_arns :
-    "export ${name}=$(aws secretsmanager get-secret-value --secret-id ${arn} --query SecretString --output text)"
+    "export ${name}=$(aws secretsmanager get-secret-value --secret-id ${arn}${local.secrets_cli_region} --query SecretString --output text)"
   ])
 
   byo_secretsmanager = var.byo_secretsmanager != null
@@ -34,7 +38,7 @@ locals {
     ]
   )
 
-  secure_env_vars = local.has_secure_env_vars ? "export SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${local.secret_name} --query SecretString --output text)\n${local.secure_env_vars_exports}" : ""
+  secure_env_vars = local.has_secure_env_vars ? "export SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id ${local.secret_name}${local.secrets_cli_region} --query SecretString --output text)\n${local.secure_env_vars_exports}" : ""
 }
 
 resource "validation_warning" "token_or_private_key_in_plaintext" {
@@ -50,6 +54,7 @@ EOT
 resource "aws_secretsmanager_secret" "this" {
   count = local.has_secure_env_vars && !local.byo_secretsmanager ? 1 : 0
 
+  region                  = local.region
   name                    = "${local.base_name}-secret"
   kms_key_id              = var.secure_env_vars_kms_key_id
   recovery_window_in_days = 0 # Force deletion without recovery window
@@ -60,6 +65,7 @@ resource "aws_secretsmanager_secret" "this" {
 resource "aws_secretsmanager_secret_version" "this" {
   count = local.has_secure_env_vars && !local.byo_secretsmanager ? 1 : 0
 
+  region        = local.region
   secret_id     = aws_secretsmanager_secret.this[0].id
   secret_string = jsonencode(local.env_vars_with_value)
 }
