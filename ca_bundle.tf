@@ -14,6 +14,7 @@ locals {
 resource "aws_secretsmanager_secret" "unified" {
   count = local.unified_secret_enabled ? 1 : 0
 
+  region                  = local.region
   name                    = "${local.base_name}-unified-secret"
   recovery_window_in_days = 0
   tags                    = var.additional_tags
@@ -22,6 +23,7 @@ resource "aws_secretsmanager_secret" "unified" {
 resource "aws_secretsmanager_secret_version" "unified" {
   count = local.unified_secret_enabled ? 1 : 0
 
+  region        = local.region
   secret_id     = aws_secretsmanager_secret.unified[0].id
   secret_string = local.ca_bundle
 }

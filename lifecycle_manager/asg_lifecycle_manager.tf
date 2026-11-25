@@ -40,6 +40,7 @@ locals {
 resource "aws_secretsmanager_secret" "sensitive_env_var" {
   for_each = nonsensitive(local.env_vars_sensitive_names)
 
+  region                  = var.aws_region
   name                    = "${local.name}-env-${each.key}"
   recovery_window_in_days = 0
   tags                    = var.additional_tags
@@ -48,6 +49,7 @@ resource "aws_secretsmanager_secret" "sensitive_env_var" {
 resource "aws_secretsmanager_secret_version" "sensitive_env_var" {
   for_each = nonsensitive(local.env_vars_sensitive_names)
 
+  region        = var.aws_region
   secret_id     = aws_secretsmanager_secret.sensitive_env_var[each.key].id
   secret_string = local.env_vars_sensitive_values[each.key]
 }
@@ -58,7 +60,8 @@ locals {
 }
 
 resource "aws_sqs_queue" "this" {
-  name = local.name
+  region = var.aws_region
+  name   = local.name
   tags = merge(
     var.additional_tags,
     {
@@ -68,6 +71,8 @@ resource "aws_sqs_queue" "this" {
 }
 
 resource "aws_lambda_function" "this" {
+  region = var.aws_region
+
   filename         = local.lifecycle_code
   source_code_hash = filebase64sha256(local.lifecycle_code)
 
@@ -105,11 +110,13 @@ resource "aws_lambda_function" "this" {
 }
 
 resource "aws_lambda_event_source_mapping" "this" {
+  region           = var.aws_region
   function_name    = aws_lambda_function.this.function_name
   event_source_arn = aws_sqs_queue.this.arn
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
+  region            = var.aws_region
   name              = "/aws/lambda/${local.name}"
   retention_in_days = var.cloudwatch_log_group_retention
 }
