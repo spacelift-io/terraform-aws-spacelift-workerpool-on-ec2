@@ -1,3 +1,14 @@
+variable "region" {
+  type        = string
+  description = <<EOF
+  AWS region to deploy the worker pool into. Defaults to the region of the provider configuration.
+  Every regional resource (Auto Scaling group, launch template AMI lookup, Secrets Manager, SSM, CloudWatch Logs,
+  Lambda functions, SQS, EventBridge, and the secure environment variables KMS key lookup) is created in this region.
+  The VPC subnets and security groups passed in must belong to this region, and a pinned ami_id must exist in it.
+EOF
+  default     = null
+}
+
 variable "ami_id" {
   type        = string
   description = "ID of the Spacelift AMI. If left empty, the latest Spacelift AMI will be used."

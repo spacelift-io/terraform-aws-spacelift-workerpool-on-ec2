@@ -8,6 +8,7 @@ locals {
 resource "aws_cloudwatch_log_group" "this" {
   for_each = local.log_groups
 
+  region            = local.region
   name              = each.key
   retention_in_days = var.cloudwatch_log_group_retention
   kms_key_id        = var.cloudwatch_kms_key_id

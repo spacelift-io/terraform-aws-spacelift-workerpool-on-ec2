@@ -37,7 +37,7 @@ data "aws_iam_policy_document" "lambda" {
     sid       = "Logs"
     effect    = "Allow"
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-    resources = ["arn:${data.aws_partition.current.partition}:logs:${data.aws_region.this.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.base_name}*:*"]
+    resources = ["arn:${data.aws_partition.current.partition}:logs:${local.region}:${data.aws_caller_identity.current.account_id}:log-group:/aws/lambda/${local.base_name}*:*"]
   }
 
   statement {
