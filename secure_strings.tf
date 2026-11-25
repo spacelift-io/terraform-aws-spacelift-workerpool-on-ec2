@@ -10,7 +10,7 @@ locals {
   # The worker's AWS CLI doesn't inherit the pool region, so pass it explicitly when var.region is set.
   # Left out otherwise so the user data of existing pools stays byte-identical.
   secrets_cli_region = var.region != null ? " --region ${var.region}" : ""
-      
+
   # User data lines that fetch each secret_env_var_arns entry at EC2 startup
   env_vars_secret_arn_exports = join("\n", [
     for name, arn in var.secret_env_var_arns :
