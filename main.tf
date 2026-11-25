@@ -1,4 +1,6 @@
 locals {
+  # Region for every regional resource. Falls back to the provider region when var.region is not set.
+  region                                  = var.region != null ? var.region : data.aws_region.this.region
   base_name                               = var.base_name == null ? "sp5ft-${var.worker_pool_id}" : var.base_name
   autoscaling_enabled                     = var.autoscaling_configuration == null ? false : true
   lifecycle_manager_enabled               = local.autoscaling_enabled || var.instance_refresh != null
@@ -19,11 +21,12 @@ locals {
 }
 
 resource "aws_ssm_parameter" "spacelift_api_key_secret" {
-  count = local.autoscaler_or_lifecycle_manager_enabled && !local.byo_ssm ? 1 : 0
-  name  = local.generated_ssm_name
-  type  = "SecureString"
-  value = var.spacelift_api_credentials.api_key_secret
-  tags  = var.additional_tags
+  count  = local.autoscaler_or_lifecycle_manager_enabled && !local.byo_ssm ? 1 : 0
+  region = local.region
+  name   = local.generated_ssm_name
+  type   = "SecureString"
+  value  = var.spacelift_api_credentials.api_key_secret
+  tags   = var.additional_tags
 }
 
 module "autoscaler" {
@@ -36,7 +39,7 @@ module "autoscaler" {
   auto_scaling_group_arn           = module.asg.autoscaling_group_arn
   autoscaling_configuration        = var.autoscaling_configuration
   aws_partition_dns_suffix         = data.aws_partition.current.dns_suffix
-  aws_region                       = data.aws_region.this.region
+  aws_region                       = local.region
   base_name                        = local.base_name
   cloudwatch_log_group_retention   = var.cloudwatch_log_group_retention
   spacelift_api_credentials        = var.spacelift_api_credentials
@@ -61,7 +64,7 @@ module "lifecycle_manager" {
   auto_scaling_group_arn           = module.asg.autoscaling_group_arn
   cloudwatch_log_group_retention   = var.cloudwatch_log_group_retention
   aws_partition_dns_suffix         = data.aws_partition.current.dns_suffix
-  aws_region                       = data.aws_region.this.region
+  aws_region                       = local.region
   base_name                        = local.base_name
   iam_permissions_boundary         = var.iam_permissions_boundary
   worker_pool_id                   = var.worker_pool_id

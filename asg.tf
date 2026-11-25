@@ -18,7 +18,7 @@ locals {
     http_proxy_config              = var.selfhosted_configuration.http_proxy_config == null ? "" : var.selfhosted_configuration.http_proxy_config
     https_proxy_config             = var.selfhosted_configuration.https_proxy_config == null ? "" : var.selfhosted_configuration.https_proxy_config
     no_proxy_config                = var.selfhosted_configuration.no_proxy_config == null ? "" : var.selfhosted_configuration.no_proxy_config
-    region                         = data.aws_region.this.region
+    region                         = local.region
     power_off_on_error             = var.selfhosted_configuration.power_off_on_error == null ? true : var.selfhosted_configuration.power_off_on_error
     disable_cloudwatch_agent       = var.disable_cloudwatch_agent
     ca_certificates                = local.effective_ca_certificates
@@ -36,7 +36,7 @@ locals {
     pre_launch_user_data       = var.pre_launch_user_data
     binaries_download_base_url = local.binaries_download_base_url
     poweroff_delay             = var.poweroff_delay
-    region                     = data.aws_region.this.region
+    region                     = local.region
     disable_cloudwatch_agent   = var.disable_cloudwatch_agent
   })
 }
@@ -45,7 +45,8 @@ module "asg" {
   source  = "terraform-aws-modules/autoscaling/aws"
   version = "~> 9.0"
 
-  name = local.base_name
+  region = local.region
+  name   = local.base_name
 
   iam_instance_profile_arn = aws_iam_instance_profile.this.arn
   image_id                 = var.ami_id == "" ? data.aws_ami.this[0].id : var.ami_id

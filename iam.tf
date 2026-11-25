@@ -107,6 +107,7 @@ resource "aws_iam_instance_profile" "this" {
 data "aws_kms_key" "secure_env_vars" {
   count = local.use_secure_env_vars && var.secure_env_vars_kms_key_id != null ? 1 : 0
 
+  region = local.region
   key_id = var.secure_env_vars_kms_key_id
 }
 

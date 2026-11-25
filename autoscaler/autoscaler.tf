@@ -40,6 +40,7 @@ locals {
 resource "aws_secretsmanager_secret" "sensitive_env_var" {
   for_each = nonsensitive(local.env_vars_sensitive_names)
 
+  region                  = var.aws_region
   name                    = "${local.function_name}-env-${each.key}"
   recovery_window_in_days = 0
   tags                    = var.additional_tags
@@ -48,6 +49,7 @@ resource "aws_secretsmanager_secret" "sensitive_env_var" {
 resource "aws_secretsmanager_secret_version" "sensitive_env_var" {
   for_each = nonsensitive(local.env_vars_sensitive_names)
 
+  region        = var.aws_region
   secret_id     = aws_secretsmanager_secret.sensitive_env_var[each.key].id
   secret_string = local.env_vars_sensitive_values[each.key]
 }
@@ -123,6 +125,7 @@ resource "null_resource" "download" {
 resource "aws_lambda_function" "autoscaler" {
   depends_on = [null_resource.download]
 
+  region = var.aws_region
   # If we don't use a custom S3 package, we use the downloaded binary.
   # source_code_hash uses the version string rather than the file hash to avoid
   # reading the file at plan time — the file only exists after the download
@@ -171,17 +174,20 @@ resource "aws_lambda_function" "autoscaler" {
 }
 
 resource "aws_cloudwatch_event_rule" "scheduling" {
+  region              = var.aws_region
   name                = local.function_name
   description         = "Spacelift autoscaler scheduling for worker pool ${var.worker_pool_id}"
   schedule_expression = coalesce(var.autoscaling_configuration.schedule_expression, "rate(1 minute)")
 }
 
 resource "aws_cloudwatch_event_target" "scheduling" {
-  rule = aws_cloudwatch_event_rule.scheduling.name
-  arn  = aws_lambda_function.autoscaler.arn
+  region = var.aws_region
+  rule   = aws_cloudwatch_event_rule.scheduling.name
+  arn    = aws_lambda_function.autoscaler.arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
+  region        = var.aws_region
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.autoscaler.function_name
@@ -190,6 +196,7 @@ resource "aws_lambda_permission" "allow_cloudwatch_to_call_lambda" {
 }
 
 resource "aws_cloudwatch_log_group" "log_group" {
+  region            = var.aws_region
   name              = "/aws/lambda/${local.function_name}"
   retention_in_days = var.cloudwatch_log_group_retention
 }
