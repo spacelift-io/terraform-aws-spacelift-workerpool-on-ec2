@@ -6,8 +6,6 @@ locals {
     if cfg.value != null
   }
 
-  # ARNs for IAM policy and user data come directly from var.secret_env_var_arns
-  env_vars_secret_arns = values(var.secret_env_var_arns)
 
   # The worker's AWS CLI doesn't inherit the pool region, so pass it explicitly when var.region is set.
   # Left out otherwise so the user data of existing pools stays byte-identical.
